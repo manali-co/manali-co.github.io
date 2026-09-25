@@ -65,7 +65,7 @@ Almost done: Discussions are enabled and the ids are in `src/lib/site.ts`. The a
 
 ## 6. Coffee
 
-Create a Ko-fi page (ko-fi.com) or enrol the org in GitHub Sponsors, then set `NEXT_PUBLIC_COFFEE_URL`.
+Done: the footer links to https://ko-fi.com/manaliapps by default. `NEXT_PUBLIC_COFFEE_URL` overrides it.
 
 ## 7. Branch protection (optional, blocked for the agent)
 
