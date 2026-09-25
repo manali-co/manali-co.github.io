@@ -61,7 +61,7 @@ Until this is done the API logs emails instead of sending them; subscribing stil
 
 ## 5. giscus: comments and reactions
 
-Install the giscus GitHub App on the site repo: https://github.com/apps/giscus/installations/new → select `manali-co/manali-co.github.io`. Discussions are already enabled and the ids are in `src/lib/site.ts`.
+Done: the giscus GitHub App is installed on `manali-co/manali-co.github.io`, Discussions are enabled, and the ids are in `src/lib/site.ts`. Nothing to do.
 
 ## 6. Coffee
 
