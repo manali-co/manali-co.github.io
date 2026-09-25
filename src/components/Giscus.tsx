@@ -29,7 +29,7 @@ export function Giscus() {
       "data-category-id": site.giscus.categoryId,
       "data-mapping": "pathname",
       "data-strict": "1",
-      "data-reactions-enabled": "1",
+      "data-reactions-enabled": "0",
       "data-emit-metadata": "0",
       "data-input-position": "top",
       "data-theme": theme,

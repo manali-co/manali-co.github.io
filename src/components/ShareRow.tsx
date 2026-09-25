@@ -1,28 +1,31 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "./Icon";
 
-/* Share a post: the system share sheet where it exists (phones), otherwise copy the link and
-   the usual networks. The link carries the post's own social card (opengraph-image). */
+/* Compact share row, from the design's ShareRow: copy link (with a "Link copied" moss state),
+   the system share sheet where it exists, then X, Bluesky and LinkedIn intents. The link
+   carries the post's own social card. */
+function Pill({ href, onClick, icon, label, done, children }: { href?: string; onClick?: () => void; icon: string; label: string; done?: boolean; children?: React.ReactNode }) {
+  const cls = `share__pill ${done ? "share__pill--done" : ""} ${children ? "" : "share__pill--icon"}`;
+  if (href) return <a className={cls} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} title={label}><Icon name={icon} size={16} />{children}</a>;
+  return <button className={cls} type="button" onClick={onClick} aria-label={label} title={label} aria-live="polite"><Icon name={done ? "check" : icon} size={16} />{children}</button>;
+}
+
 export function ShareRow({ url, title, summary }: { url: string; title: string; summary?: string }) {
   const [copied, setCopied] = useState(false);
-  const text = summary ? `${title} — ${summary}` : title;
-  const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
-  const share = async () => {
-    try { await navigator.share({ title, text: summary, url }); } catch {}
-  };
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch {}
-  };
+  const [canShare, setCanShare] = useState(false);
+  useEffect(() => { setCanShare(typeof navigator !== "undefined" && typeof navigator.share === "function"); }, []);
   const enc = encodeURIComponent;
+  const copy = async () => { try { await navigator.clipboard.writeText(url); } catch {} setCopied(true); setTimeout(() => setCopied(false), 1800); };
+  const share = () => navigator.share({ title, text: summary, url }).catch(() => {});
   return (
-    <div className="share" aria-label="Share this post">
+    <div className="share" role="group" aria-label="Share">
       <span className="share__label">Share</span>
-      {canShare && <button className="button button--sm" type="button" onClick={share}><Icon name="share" size={14} /> Share…</button>}
-      <button className="button button--sm" type="button" onClick={copy} aria-live="polite">{copied ? "Link copied" : "Copy link"}</button>
-      <a className="button button--sm" href={`https://x.com/intent/post?text=${enc(text)}&url=${enc(url)}`} target="_blank" rel="noopener">X</a>
-      <a className="button button--sm" href={`https://bsky.app/intent/compose?text=${enc(`${text} ${url}`)}`} target="_blank" rel="noopener">Bluesky</a>
-      <a className="button button--sm" href={`https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}`} target="_blank" rel="noopener">LinkedIn</a>
+      <Pill onClick={copy} icon="link" label={copied ? "Link copied" : "Copy link"} done={copied}>{copied ? "Link copied" : "Copy link"}</Pill>
+      {canShare && <Pill onClick={share} icon="share" label="Share…" />}
+      <Pill href={`https://x.com/intent/post?text=${enc(title)}&url=${enc(url)}`} icon="x" label="Share on X" />
+      <Pill href={`https://bsky.app/intent/compose?text=${enc(`${title} ${url}`)}`} icon="butterfly" label="Share on Bluesky" />
+      <Pill href={`https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}`} icon="linkedin" label="Share on LinkedIn" />
     </div>
   );
 }

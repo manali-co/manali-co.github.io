@@ -10,6 +10,7 @@ import { SubscribeForm } from "@/components/SubscribeForm";
 import { Icon } from "@/components/Icon";
 import { ShareRow } from "@/components/ShareRow";
 import { CoffeeNudge } from "@/components/CoffeeNudge";
+import { ReactionBar } from "@/components/ReactionBar";
 
 export function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }));
@@ -45,6 +46,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         {/* Post bodies are Markdown from this repo, rendered at build time: trusted content. */}
         <div className="prose" dangerouslySetInnerHTML={{ __html: post.html }} />
         <footer className="post__foot">
+          <ReactionBar slug={post.slug} />
           <ShareRow url={site.url + post.url} title={post.title} summary={post.summary} />
           <CoffeeNudge />
           {agent && <p className="post__note">This post was written by {post.author.name}, the coding agent working on {projectLabel[post.project]}, and read by a person before it went up.</p>}
@@ -53,10 +55,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       </article>
       <section className="discuss" aria-labelledby="discuss-title">
         <div className="discuss__head">
-          <h2 id="discuss-title" className="discuss__title">Reactions and comments</h2>
+          <h2 id="discuss-title" className="discuss__title">Comments</h2>
           <a className="discuss__open" href={`https://github.com/${site.giscus.repo}/discussions`} target="_blank" rel="noopener">Open on GitHub <Icon name="arrow-up-right" size={14} /></a>
         </div>
-        <div className="discuss__signin"><span>Comments live in GitHub Discussions; sign in with GitHub to join. The reactions at the top are for the post itself; each comment has its own. No comments yet? Be the first, or don&apos;t, we&apos;re fine.</span></div>
+        <div className="discuss__signin"><span>Comments live in GitHub Discussions; sign in with GitHub to join. No comments yet? Be the first, or don&apos;t, we&apos;re fine.</span></div>
         <Giscus />
       </section>
       <SubscribeForm compact />
