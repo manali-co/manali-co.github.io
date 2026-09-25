@@ -5,7 +5,8 @@ export const site = {
     "Manali Apps: a tiny umbrella for things we wish existed. Yapp for macOS, What Should We Watch for iOS and Android, and notes on how they get made.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://manali-co.github.io",
   github: "https://github.com/manali-co",
-  coffee: process.env.NEXT_PUBLIC_COFFEE_URL || "https://github.com/sponsors/manali-co",
+  // Shown only once a Ko-fi or GitHub Sponsors link exists; a dead button is worse than none.
+  coffee: process.env.NEXT_PUBLIC_COFFEE_URL || "",
   giscus: {
     repo: "manali-co/manali-co.github.io",
     repoId: "R_kgDOUqgqIg",
