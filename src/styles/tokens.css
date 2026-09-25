@@ -58,6 +58,7 @@
   --ridge-end: var(--indigo);
   --code-bg: var(--ink);
   --code-text: var(--paper);
+  --code-border: transparent;
   --selection: var(--halo);
   --focus-ring: var(--indigo);
   color-scheme: light;
@@ -144,7 +145,8 @@
   --wordmark-apps: var(--gold);
   --ridge-start: var(--paper);
   --ridge-end: var(--paper);
-  --code-bg: #100F24;
+  --code-bg: #2A2960;
+  --code-border: rgba(154, 160, 234, 0.28);
   --selection: rgba(242, 184, 75, 0.35);
   --focus-ring: var(--gold);
   --shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -177,7 +179,8 @@
     --wordmark-apps: var(--gold);
     --ridge-start: var(--paper);
     --ridge-end: var(--paper);
-    --code-bg: #100F24;
+    --code-bg: #2A2960;
+    --code-border: rgba(154, 160, 234, 0.28);
     --selection: rgba(242, 184, 75, 0.35);
     --focus-ring: var(--gold);
     --shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.3);

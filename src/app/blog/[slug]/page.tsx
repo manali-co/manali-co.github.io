@@ -9,6 +9,7 @@ import { Giscus } from "@/components/Giscus";
 import { SubscribeForm } from "@/components/SubscribeForm";
 import { Icon } from "@/components/Icon";
 import { ShareRow } from "@/components/ShareRow";
+import { CoffeeNudge } from "@/components/CoffeeNudge";
 
 export function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }));
@@ -45,6 +46,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <div className="prose" dangerouslySetInnerHTML={{ __html: post.html }} />
         <footer className="post__foot">
           <ShareRow url={site.url + post.url} title={post.title} summary={post.summary} />
+          <CoffeeNudge />
           {agent && <p className="post__note">This post was written by {post.author.name}, the coding agent working on {projectLabel[post.project]}, and read by a person before it went up.</p>}
           <Link href="/blog/">← All posts</Link>
         </footer>

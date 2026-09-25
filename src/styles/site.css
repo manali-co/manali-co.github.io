@@ -159,26 +159,33 @@ a.tag:hover { background: var(--bg-sunken); border-color: var(--border-strong); 
 .post__foot { border-top: 1px solid var(--border); padding-top: var(--space-6); font-size: var(--text-sm); font-weight: 500; }
 @media (max-width: 640px) { .post { padding: var(--space-6) 0 var(--space-8); } }
 
-/* long-form reading (the design's .ma-prose) */
+/* long-form reading (the design's .ma-prose). One rhythm: paragraphs 24px apart; block objects
+   (quote, code, figure, list) 40px; headings 64px above, 16px below. */
 .prose { max-width: var(--container-narrow); font-size: var(--text-lg); line-height: var(--lh-loose); color: var(--text); }
+.prose > * { margin: 0; }
 .prose > * + * { margin-top: var(--space-5); }
-.prose h2 { font-size: var(--text-h2); line-height: var(--lh-snug); margin-top: var(--space-8); }
-.prose h3 { font-size: var(--text-h3); line-height: var(--lh-snug); margin-top: var(--space-7); }
-.prose h2 a, .prose h3 a { color: inherit; }
-.prose h2 a:hover, .prose h3 a:hover { text-decoration: none; color: var(--accent-text); }
+.prose > * + blockquote, .prose > * + pre, .prose > * + figure, .prose > * + ul, .prose > * + ol, .prose > * + table { margin-top: 40px; }
+.prose > blockquote + *, .prose > pre + *, .prose > figure + *, .prose > ul + *, .prose > ol + *, .prose > table + * { margin-top: 40px; }
+.prose > * + h2 { margin-top: var(--space-8); }
+.prose > * + h3 { margin-top: var(--space-7); }
+.prose > h2 + *, .prose > h3 + * { margin-top: var(--space-4); }
+.prose h2 { font-size: var(--text-h2); line-height: var(--lh-snug); }
+.prose h3 { font-size: var(--text-h3); line-height: var(--lh-snug); }
+.prose h2 a, .prose h3 a { color: inherit; text-decoration: none; }
+.prose h2 a:hover, .prose h3 a:hover { color: var(--accent-text); }
 .prose a { text-decoration: underline; text-decoration-color: var(--border-strong); }
 .prose a:hover { text-decoration-color: currentColor; }
 .prose strong { font-weight: var(--weight-semibold); }
-.prose ul, .prose ol { padding-left: var(--space-5); margin-bottom: 0; }
+.prose ul, .prose ol { padding-left: var(--space-5); }
 .prose li + li { margin-top: var(--space-2); }
-.prose blockquote { margin: 0; padding-left: var(--space-5); border-left: 2px solid var(--sun); color: var(--text-2); }
+.prose blockquote { padding: var(--space-2) 0 var(--space-2) var(--space-5); border-left: 2px solid var(--sun); color: var(--text-2); font-family: var(--font-display); font-weight: 400; font-size: var(--text-h3); line-height: var(--lh-body); letter-spacing: var(--tracking-display); }
+.prose blockquote > * + * { margin-top: var(--space-3); }
 .prose code { font-size: 0.9em; background: var(--bg-sunken); padding: 2px 6px; border-radius: 6px; }
-.prose pre { margin: var(--space-6) 0; padding: var(--space-5); background: var(--code-bg); color: var(--code-text); border-radius: var(--radius-md); font-size: var(--text-mono); line-height: 1.65; overflow-x: auto; }
+.prose pre { padding: var(--space-5); background: var(--code-bg); color: var(--code-text); border: 1px solid var(--code-border); border-radius: var(--radius-md); font-size: var(--text-mono); line-height: 1.65; overflow-x: auto; }
 .prose pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
 .prose img { width: 100%; border-radius: var(--radius-md); border: 1px solid var(--border); }
-.prose figure { margin: var(--space-7) 0; }
 .prose figcaption { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--text-3); }
-.prose hr { border: 0; height: 1px; background: var(--border); margin: var(--space-8) 0; }
+.prose hr { border: 0; height: 1px; background: var(--border); }
 .prose table { width: 100%; border-collapse: collapse; font-size: var(--text-md); }
 .prose th, .prose td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
 
