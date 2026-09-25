@@ -14,6 +14,7 @@ export function generateStaticParams() {
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const post = getPost((await params).slug);
   if (!post) return ogImage({ title: "manali apps" });
-  const who = post.author.kind === "agent" ? `${post.author.name} for ${projectLabel[post.project]}, by ${post.author.owner}` : post.author.name;
+  const label = post.project === "manali" ? "manali apps" : projectLabel[post.project];
+  const who = post.author.kind === "agent" ? `${post.author.name} for ${label}, by ${post.author.owner}` : post.author.name;
   return ogImage({ title: post.title, project: post.project, byline: `${who} · ${readableDate(post.date)}` });
 }
