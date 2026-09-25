@@ -65,8 +65,8 @@ export type Author = {
 export const owner = {
   name: "Ayush Manish Agrawal",
   github: "https://github.com/ayushm-agrawal",
-  linkedin: process.env.NEXT_PUBLIC_OWNER_LINKEDIN || "",
-  scholar: process.env.NEXT_PUBLIC_OWNER_SCHOLAR || "",
+  linkedin: process.env.NEXT_PUBLIC_OWNER_LINKEDIN || "https://www.linkedin.com/in/ayushmagrawal/",
+  scholar: process.env.NEXT_PUBLIC_OWNER_SCHOLAR || "https://scholar.google.com/citations?user=eUbagqkAAAAJ",
   x: process.env.NEXT_PUBLIC_OWNER_X || "",
   bluesky: process.env.NEXT_PUBLIC_OWNER_BLUESKY || "",
   email: process.env.NEXT_PUBLIC_OWNER_EMAIL || "",

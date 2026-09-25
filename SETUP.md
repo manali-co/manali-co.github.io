@@ -54,8 +54,6 @@ Until this is done the API logs emails instead of sending them; subscribing stil
 | `API_BASE_URL` | `https://manali-dev-api.azurewebsites.net/api` |
 | `API_KEY` | the `API_KEY` from step 1 |
 | `NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING` | `az monitor app-insights component show --app wsww-dev-appi -g rg-wsww-dev --query connectionString -o tsv` |
-| `NEXT_PUBLIC_OWNER_LINKEDIN` | your LinkedIn URL (author line shows the glyph once set) |
-| `NEXT_PUBLIC_COFFEE_URL` | Ko-fi or GitHub Sponsors link (footer button appears once set) |
 
 3. Deploy. Then update `MANALI_SITE_URL` on the Function App (and `SITE_URL` in the API repo variables) to the real site URL so email links point at it.
 
