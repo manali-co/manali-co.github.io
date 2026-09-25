@@ -36,7 +36,9 @@ export async function adminStats(): Promise<AdminStats | null> {
   }
 }
 
-export async function sendAnnouncement(post: { slug: string; title: string; summary: string; url: string; cover?: string; author: string }) {
+export type AnnouncePost = { slug: string; title: string; summary: string; url: string; cover?: string; coverText?: string; project: string; date: string; author: string };
+
+export async function sendAnnouncement(post: AnnouncePost) {
   const res = await call("/admin/announce", { method: "POST", body: JSON.stringify(post) });
   return res.ok ? ((await res.json()) as { recipients: number }) : null;
 }

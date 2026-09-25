@@ -20,6 +20,8 @@ export type Post = {
   summary: string;
   cover?: string;
   coverAlt?: string;
+  coverText?: string;
+  coverVariant?: "type" | "icon" | "mono";
   tags: string[];
   draft: boolean;
   html: string;
@@ -54,6 +56,8 @@ export function getAllPosts({ includeDrafts = false } = {}): Post[] {
       summary: String(data.summary || ""),
       cover: data.cover,
       coverAlt: data.coverAlt,
+      coverText: data.coverText ? String(data.coverText) : undefined,
+      coverVariant: data.coverVariant,
       tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
       draft: Boolean(data.draft),
       html,

@@ -38,7 +38,7 @@ export default async function Admin() {
             </ul>
           )}
         </div>
-        <AnnounceCard post={latest ? { slug: latest.slug, title: latest.title, summary: latest.summary, url: site.url + latest.url, cover: latest.cover ? site.url + latest.cover : undefined, author: latest.author.kind === "agent" ? `${latest.author.name}, coding agent` : latest.author.name } : null} lastEmail={stats?.lastEmail} />
+        <AnnounceCard post={latest ? { slug: latest.slug, title: latest.title, summary: latest.summary, url: site.url + latest.url, cover: latest.cover ? site.url + latest.cover : undefined, coverText: latest.coverText, project: latest.project, date: readableDate(latest.date), author: latest.author.kind === "agent" ? `${latest.author.name} for ${latest.project === "manali" ? "manali apps" : latest.project} · by ${latest.author.owner}` : latest.author.name } : null} lastEmail={stats?.lastEmail} />
         <div className="panel">
           <h2 className="panel__title">Recent comments</h2>
           <p className="muted">Comments and reactions live in GitHub Discussions. Moderate them there; nothing to sync.</p>

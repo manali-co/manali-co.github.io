@@ -104,3 +104,86 @@
 .post > *, .featured > *, .post-card--grid > * { min-width: 0; }
 .cover img { height: auto; }
 .byline__owner { display: flex; flex-wrap: wrap; gap: 0 6px; }
+
+/* --- round three: mobile-first nav, byline with owner, subscribe states, brand-built covers, comments chrome --- */
+.nav__inner { gap: 12px; }
+.nav__brand { display: inline-flex; align-items: center; }
+.nav__mark { width: 36px; height: 36px; }
+.nav__lockup { display: none; height: 40px; width: auto; }
+.nav__links { gap: 0; }
+.nav__links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; }
+.nav__links a.nav__subscribe { display: none; margin-left: 8px; min-height: 36px; }
+.nav__links a.nav__subscribe-glyph { width: 44px; height: 44px; justify-content: center; padding: 0; border-radius: var(--radius-pill); color: var(--text-2); }
+@media (min-width: 640px) {
+  .nav__mark { display: none; }
+  .nav__lockup { display: block; }
+  .nav__links a.nav__subscribe { display: inline-flex; }
+  .nav__links a.nav__subscribe-glyph { display: none; }
+}
+.theme-toggle { width: 44px; height: 44px; margin-left: 4px; }
+.page-head__filters .tag, .post__kicker .tag { min-height: 32px; }
+a.tag { position: relative; }
+a.tag::after { content: ""; position: absolute; inset: -6px 0; }
+
+/* byline */
+.byline { display: flex; align-items: flex-start; gap: 10px; font-size: var(--text-sm); color: var(--text-2); line-height: 1.35; }
+.byline--compact { align-items: center; }
+.byline__avatar { width: 32px; height: 32px; flex: none; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--bg-inverse); color: var(--text-inverse); font-size: 12px; font-weight: 600; }
+.byline--compact .byline__avatar { width: 24px; height: 24px; font-size: 10px; }
+.byline__avatar--agent { background: var(--accent-tint); color: var(--accent-text); }
+.byline__text { display: grid; gap: 2px; min-width: 0; }
+.byline__row { display: flex; flex-wrap: wrap; column-gap: 6px; row-gap: 2px; align-items: center; }
+.byline__name { color: var(--text); font-weight: 500; }
+.byline__for { color: var(--text-2); font-weight: 400; }
+.byline__meta { color: var(--text-3); }
+.byline__owner { color: var(--text-3); }
+.byline__owner > span:first-of-type { color: var(--text-2); }
+.byline__glyphs { display: inline-flex; gap: 2px; align-items: center; }
+.glyph { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin: -7px 0; border-radius: 50%; color: var(--text-3); }
+.glyph:hover { color: var(--text); background: var(--accent-tint); text-decoration: none; }
+.author { display: none; }
+
+/* subscribe */
+.subscribe { gap: var(--space-4); padding: var(--space-6); }
+.subscribe--compact { padding: 0; background: transparent; border: 0; box-shadow: none; }
+.subscribe__title { font-family: var(--font-display); font-weight: 500; font-size: var(--text-h3); line-height: 1.25; color: var(--text); }
+.subscribe:not(.subscribe--compact) .subscribe__title { font-size: var(--text-h2); }
+.subscribe__lede { font-size: var(--text-md); color: var(--text-2); }
+.subscribe__form { gap: var(--space-3); align-items: flex-start; }
+.subscribe__form input { height: 48px; flex: 1 1 220px; }
+.subscribe__form input.is-invalid { border-color: var(--wswatch-coral); }
+.subscribe__form .button { flex: 1 1 140px; height: 48px; }
+.subscribe__done { display: flex; gap: 12px; align-items: flex-start; }
+.subscribe__done > div { display: grid; gap: 4px; }
+.subscribe__dot { width: 32px; height: 32px; flex: none; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--accent-tint); color: var(--accent-text); }
+.subscribe__dot--success { background: var(--sun-tint); color: var(--sun); }
+
+/* brand-built covers */
+.cover--type, .cover--icon { position: relative; display: flex; align-items: center; justify-content: center; background: var(--bg-sunken); container-type: inline-size; }
+.cover--type { padding: 8% 10%; }
+.cover__text { font-family: var(--font-display); font-weight: 500; font-size: 14cqw; line-height: 1.05; letter-spacing: -0.02em; color: var(--text); text-align: center; text-wrap: balance; overflow-wrap: anywhere; }
+.cover--mono .cover__text { font-family: var(--font-mono); font-weight: 400; font-size: 11cqw; letter-spacing: 0; }
+.cover--icon.cover--yapp { background: var(--yapp-paper); }
+.cover--icon.cover--wsww { background: var(--wswatch-night); }
+.cover__icon { width: 26%; aspect-ratio: 1; border-radius: 22%; box-shadow: var(--shadow-hover); }
+.cover__mark { position: absolute; left: 5.5%; bottom: 9%; width: 12%; aspect-ratio: 1; background: url("/brand/mark-color.svg") center / contain no-repeat; }
+[data-theme="dark"] .cover--type .cover__mark { background-image: url("/brand/mark-on-dark.svg"); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cover--type .cover__mark { background-image: url("/brand/mark-on-dark.svg"); } }
+.cover--wsww .cover__mark { background-image: url("/brand/mark-on-dark.svg"); }
+.cover__dot { position: absolute; right: 5.5%; top: 10%; width: 12px; height: 12px; border-radius: 50%; background: var(--indigo); }
+.cover__dot--yapp { background: var(--yapp-peach); }
+.cover__dot--what-should-we-watch { background: var(--wswatch-coral); }
+
+/* comments chrome around giscus */
+.discuss__head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.discuss__open { display: inline-flex; align-items: center; gap: 4px; font-size: var(--text-sm); color: var(--text-2); }
+.discuss__signin { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; padding: var(--space-4) var(--space-5); background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: var(--text-sm); color: var(--text-2); }
+
+/* sign-in card */
+.signin { max-width: 400px; margin: clamp(40px, 10vw, 112px) auto clamp(56px, 10vw, 128px); display: grid; gap: var(--space-6); padding: var(--space-6); background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius-xl); text-align: left; }
+.signin__mark { width: 56px; height: 56px; }
+.signin__title { font-size: var(--text-h2); line-height: 1.2; margin-bottom: var(--space-2); }
+.signin__note { display: flex; gap: 6px; align-items: center; font-size: var(--text-sm); color: var(--text-3); }
+
+/* footer coffee glyph */
+.footer__coffee .button svg { color: var(--sun); }

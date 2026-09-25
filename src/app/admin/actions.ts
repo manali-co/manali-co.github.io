@@ -1,8 +1,8 @@
 "use server";
 import { requireOwner } from "@/lib/admin";
-import { sendAnnouncement } from "@/lib/backend";
+import { sendAnnouncement, type AnnouncePost } from "@/lib/backend";
 
-export async function announce(post: { slug: string; title: string; summary: string; url: string; cover?: string; author: string }) {
+export async function announce(post: AnnouncePost) {
   const { ok } = await requireOwner();
   if (!ok) return null;
   return sendAnnouncement(post);

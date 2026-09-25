@@ -7,6 +7,7 @@ import { Cover } from "@/components/Cover";
 import { AuthorLine } from "@/components/AuthorLine";
 import { Giscus } from "@/components/Giscus";
 import { SubscribeForm } from "@/components/SubscribeForm";
+import { Icon } from "@/components/Icon";
 
 export function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }));
@@ -47,8 +48,11 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </footer>
       </article>
       <section className="discuss" aria-labelledby="discuss-title">
-        <h2 id="discuss-title" className="discuss__title">Reactions and comments</h2>
-        <p className="discuss__lede">Stored in <a href={`https://github.com/${site.giscus.repo}/discussions`}>GitHub Discussions</a>. Sign in with GitHub to react or reply. No comments yet? Be the first, or don&apos;t, we&apos;re fine.</p>
+        <div className="discuss__head">
+          <h2 id="discuss-title" className="discuss__title">Reactions and comments</h2>
+          <a className="discuss__open" href={`https://github.com/${site.giscus.repo}/discussions`}>Open on GitHub <Icon name="arrow-up-right" size={14} /></a>
+        </div>
+        <div className="discuss__signin"><span>Comments live in GitHub Discussions. Nothing else to sign up for. No comments yet? Be the first, or don&apos;t, we&apos;re fine.</span></div>
         <Giscus />
       </section>
       <SubscribeForm compact />

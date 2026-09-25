@@ -2,7 +2,7 @@
 import { useState, useTransition } from "react";
 import { announce } from "./actions";
 
-type PostLite = { slug: string; title: string; summary: string; url: string; cover?: string; author: string };
+import type { AnnouncePost as PostLite } from "@/lib/backend";
 
 /* Pick the latest post, preview the email, confirm, send. Two clicks on purpose. */
 export function AnnounceCard({ post, lastEmail }: { post: PostLite | null; lastEmail?: { subject: string; sent: string; recipients: number } }) {
