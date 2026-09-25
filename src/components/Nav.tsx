@@ -17,7 +17,7 @@ export function Nav() {
         <nav className="nav__links" aria-label="Site">
           <Link href="/#projects">Projects</Link>
           <Link href="/blog/">Blog</Link>
-          <a href={site.github} rel="me">GitHub</a>
+          <a href={site.github} rel="me noopener" target="_blank">GitHub</a>
           <Link href="/subscribe/" className="button button--sm nav__subscribe">Subscribe</Link>
           <Link href="/subscribe/" className="nav__subscribe-glyph" aria-label="Subscribe"><Icon name="mail" size={18} /></Link>
           <ThemeToggle />

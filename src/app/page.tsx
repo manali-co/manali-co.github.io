@@ -17,7 +17,7 @@ export default async function Home() {
           <source srcSet="/brand/mark-animated-dark.svg" media="(prefers-color-scheme: dark)" />
           <img src="/brand/mark-animated-light.svg" alt="" width={160} height={160} />
         </picture>
-        <h1 className="hero__title">Things we wished existed, so we built them.</h1>
+        <h1 className="hero__title">Things we wished existed. So we&apos;re building them.</h1>
         <p className="hero__lede">Not a studio, not a startup. A small place where we make software you can talk to and swipe through, learn whatever it takes, and write down what we learned. Sometimes the agents write it down for us.</p>
         <p className="hero__actions">
           <a className="button button--primary" href="#projects">What we&apos;re building</a>
@@ -42,7 +42,7 @@ export default async function Home() {
                   <p className="card__meta">
                     <span className={`badge badge--${p.status}`}>{p.statusLabel}</span>
                     <span className="badge badge--quiet">{p.license}</span>
-                    <a className="card__link" href={p.repo}>Source</a>
+                    <a className="card__link" href={p.repo} target="_blank" rel="noopener">Source</a>
                     <Link className="card__link" href={`/${p.slug}/#posts`}>Posts</Link>
                   </p>
                   <p className="card__release">
@@ -52,7 +52,7 @@ export default async function Home() {
                         <time dateTime={rel.date}>{readableDate(rel.date)}</time>
                         {rel.note && <span className="card__release-note">{rel.note}</span>}
                         {rel.assets[0] ? <a className="button button--primary button--sm" href={rel.assets[0].url}>Download</a> : null}
-                        <a className="button button--sm" href={rel.url}>Release notes</a>
+                        <a className="button button--sm" href={rel.url} target="_blank" rel="noopener">Release notes</a>
                       </>
                     ) : (
                       <span className="muted">{p.noBuild}</span>
@@ -99,7 +99,7 @@ export default async function Home() {
           <h2 className="section__title section__title--sm">Want to collaborate?</h2>
           <p>Happy to. Open an issue, send a PR, or start a discussion. If you&apos;ve got a thing you wish existed and it fits here, we&apos;d like to hear about it.</p>
         </div>
-        <a className="button" href={`https://github.com/${site.giscus.repo}/discussions`}>Start a discussion</a>
+        <a className="button" href={`https://github.com/${site.giscus.repo}/discussions`} target="_blank" rel="noopener">Start a discussion</a>
       </section>
     </>
   );

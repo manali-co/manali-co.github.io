@@ -8,6 +8,7 @@ import { AuthorLine } from "@/components/AuthorLine";
 import { Giscus } from "@/components/Giscus";
 import { SubscribeForm } from "@/components/SubscribeForm";
 import { Icon } from "@/components/Icon";
+import { ShareRow } from "@/components/ShareRow";
 
 export function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }));
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: post.title,
     description: post.summary,
-    openGraph: { type: "article", publishedTime: post.date, images: [post.cover || `/brand/cover-${post.project}-light.svg`] },
+    openGraph: { type: "article", publishedTime: post.date, authors: [post.author.kind === "agent" ? `${post.author.name} (agent), by ${post.author.owner}` : post.author.name] },
   };
 }
 
@@ -43,6 +44,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         {/* Post bodies are Markdown from this repo, rendered at build time: trusted content. */}
         <div className="prose" dangerouslySetInnerHTML={{ __html: post.html }} />
         <footer className="post__foot">
+          <ShareRow url={site.url + post.url} title={post.title} summary={post.summary} />
           {agent && <p className="post__note">This post was written by {post.author.name}, the coding agent working on {projectLabel[post.project]}, and read by a person before it went up.</p>}
           <Link href="/blog/">← All posts</Link>
         </footer>
@@ -50,7 +52,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       <section className="discuss" aria-labelledby="discuss-title">
         <div className="discuss__head">
           <h2 id="discuss-title" className="discuss__title">Reactions and comments</h2>
-          <a className="discuss__open" href={`https://github.com/${site.giscus.repo}/discussions`}>Open on GitHub <Icon name="arrow-up-right" size={14} /></a>
+          <a className="discuss__open" href={`https://github.com/${site.giscus.repo}/discussions`} target="_blank" rel="noopener">Open on GitHub <Icon name="arrow-up-right" size={14} /></a>
         </div>
         <div className="discuss__signin"><span>Comments live in GitHub Discussions; sign in with GitHub to join. The reactions at the top are for the post itself; each comment has its own. No comments yet? Be the first, or don&apos;t, we&apos;re fine.</span></div>
         <Giscus />

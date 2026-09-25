@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: { default: site.name, template: `%s · ${site.name}` },
   description: site.description,
-  openGraph: { siteName: site.name, images: ["/brand/social-preview-1280x640.png"], type: "website" },
+  openGraph: { siteName: site.name, type: "website" },
   twitter: { card: "summary_large_image" },
   icons: { icon: [{ url: "/brand/favicon.svg", type: "image/svg+xml" }, { url: "/brand/favicon-32.png", sizes: "32x32" }], apple: "/brand/apple-touch-icon-180.png" },
   alternates: { types: { "application/atom+xml": "/feed.xml" } },
