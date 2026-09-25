@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Icon } from "./Icon";
 
-type State = "idle" | "submitting" | "success" | "already" | "invalid" | "error";
+type State = "idle" | "submitting" | "success" | "already" | "invalid" | "error" | "unavailable";
 
 const DONE: Record<"success" | "already", { title: string; text: string; icon: string }> = {
   success: { title: "Check your inbox.", text: "We sent a confirmation link. Click it and you're in.", icon: "mail" },
@@ -20,6 +20,7 @@ export function SubscribeForm({ compact = false }: { compact?: boolean }) {
     try {
       const res = await fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) });
       if (res.status === 409) return setState("already");
+      if (res.status === 503) return setState("unavailable");
       if (!res.ok) return setState("error");
       setState("success");
     } catch {
@@ -49,13 +50,13 @@ export function SubscribeForm({ compact = false }: { compact?: boolean }) {
               id="sub-email" type="email" name="email" inputMode="email" autoComplete="email" placeholder="you@example.com" value={email}
               aria-invalid={state === "invalid"} aria-describedby="sub-status"
               className={state === "invalid" ? "is-invalid" : ""}
-              onChange={(e) => { setEmail(e.target.value); if (state === "invalid" || state === "error") setState("idle"); }}
+              onChange={(e) => { setEmail(e.target.value); if (state === "invalid" || state === "error" || state === "unavailable") setState("idle"); }}
               disabled={state === "submitting"}
             />
             <button className="button button--primary" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "Subscribing…" : "Subscribe"}</button>
           </form>
           <p id="sub-status" className={`subscribe__status ${state === "invalid" || state === "error" ? "subscribe__status--err" : ""}`} role="status" aria-live="polite">
-            {state === "invalid" ? "That doesn't look like an email." : state === "error" ? "Something on our side broke. Try again in a minute, or open an issue if it keeps happening." : ""}
+            {state === "invalid" ? "That doesn't look like an email." : state === "unavailable" ? "Email signup isn't switched on yet. The Atom feed works today; this will too, soon." : state === "error" ? "Something on our side broke. Try again in a minute, or open an issue if it keeps happening." : ""}
           </p>
         </>
       )}

@@ -31,54 +31,34 @@ export default async function Home() {
           <span className="section__lede">More to come. We have a list. It&apos;s longer than it should be.</span>
         </div>
         <div className="cards">
-          {projects.map((p) => (
-            <article key={p.slug} className={`card card--project card--${p.well}`}>
-              <img className="card__icon" src={p.icon} alt="" width={72} height={72} />
-              <div className="card__body">
-                <h3 className="card__title"><Link href={`/${p.slug}/`}>{p.name}</Link> <span className="card__platform">{p.platform}</span></h3>
-                <p className="card__blurb">{p.blurb}</p>
-                <p className="card__meta">
-                  <span className={`badge badge--${p.status}`}>{p.statusLabel}</span>
-                  <span className="badge badge--quiet">{p.license}</span>
-                  <a className="card__link" href={p.repo}>Source</a>
-                  <Link className="card__link" href={`/${p.slug}/#posts`}>Posts</Link>
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="releases" className="section">
-        <div className="section__head">
-          <h2 className="section__title">Latest releases</h2>
-          <span className="section__lede">Public builds only. The nitty-gritty lives on the blog.</span>
-        </div>
-        <div className="releases">
           {projects.map((p, i) => {
             const rel = releases[i];
             return (
-              <article key={p.slug} className="release">
-                <div className="release__head">
-                  <img className="release__icon" src={p.icon} alt="" width={40} height={40} />
-                  <h3 className="release__name">{p.name}</h3>
-                  {rel && <span className="release__version">{rel.tag}</span>}
+              <article key={p.slug} className={`card card--project card--${p.well}`}>
+                <img className="card__icon" src={p.icon} alt="" width={72} height={72} />
+                <div className="card__body">
+                  <h3 className="card__title"><Link className="card__stretch" href={`/${p.slug}/`}>{p.name}</Link> <span className="card__platform">{p.platform}</span></h3>
+                  <p className="card__blurb">{p.blurb}</p>
+                  <p className="card__meta">
+                    <span className={`badge badge--${p.status}`}>{p.statusLabel}</span>
+                    <span className="badge badge--quiet">{p.license}</span>
+                    <a className="card__link" href={p.repo}>Source</a>
+                    <Link className="card__link" href={`/${p.slug}/#posts`}>Posts</Link>
+                  </p>
+                  <p className="card__release">
+                    {rel ? (
+                      <>
+                        <span className="release__version">{rel.tag}</span>
+                        <time dateTime={rel.date}>{readableDate(rel.date)}</time>
+                        {rel.note && <span className="card__release-note">{rel.note}</span>}
+                        {rel.assets[0] ? <a className="button button--primary button--sm" href={rel.assets[0].url}>Download</a> : null}
+                        <a className="button button--sm" href={rel.url}>Release notes</a>
+                      </>
+                    ) : (
+                      <span className="muted">{p.noBuild}</span>
+                    )}
+                  </p>
                 </div>
-                {rel ? (
-                  <>
-                    <p className="release__note">{rel.note || "A new build is out."}</p>
-                    <p className="release__meta"><time dateTime={rel.date}>{readableDate(rel.date)}</time></p>
-                    <p className="release__actions">
-                      {rel.assets[0] && <a className="button button--primary button--sm" href={rel.assets[0].url}>Download</a>}
-                      <a className="button button--sm" href={rel.url}>Release notes</a>
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="release__note">{p.noBuild}</p>
-                    <p className="release__actions"><a className="button button--sm" href={p.repo}>Follow the repo</a></p>
-                  </>
-                )}
               </article>
             );
           })}

@@ -8,7 +8,7 @@ export function ProjectTag({ project }: { project: string }) {
   return <span className={`tag tag--${project}`}>{projectLabel[project] || project}</span>;
 }
 
-export function PostCard({ post, featured = false }: { post: Post; featured?: boolean }) {
+export function PostCard({ post, featured = false, row = false }: { post: Post; featured?: boolean; row?: boolean }) {
   if (featured) {
     return (
       <article className="featured">
@@ -23,12 +23,14 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
     );
   }
   return (
-    <li className="post-card post-card--grid">
+    <li className={`post-card ${row ? "post-card--row" : "post-card--grid"}`}>
       <Link className="post-card__cover" href={post.url} tabIndex={-1} aria-hidden="true"><Cover post={post} /></Link>
+      <div className="post-card__body">
       <p className="post-card__kicker"><ProjectTag project={post.project} /><span className="post-card__date">{readableDate(post.date)}</span></p>
       <h2 className="post-card__title"><Link href={post.url}>{post.title}</Link></h2>
       {post.summary && <p className="post-card__summary">{post.summary}</p>}
       <p className="post-card__meta"><AuthorLine author={post.author} project={post.project} compact /><span>{post.readingTime}</span></p>
+      </div>
     </li>
   );
 }

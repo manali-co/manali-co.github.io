@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { giscusTheme } from "./Giscus";
 
 type Theme = "light" | "dark";
 
@@ -13,23 +14,32 @@ function apply(t: Theme | null) {
   });
   // giscus follows along.
   const frame = document.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
-  frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: t === "dark" ? "dark" : t === "light" ? "light" : "preferred_color_scheme" } } }, "https://giscus.app");
+  const mode = t || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: giscusTheme(mode) } } }, "https://giscus.app");
 }
 
+/* System theme by default; a click pins light or dark for this browser. The pressed state is
+   only known on the client, so it's resolved after mount to keep server and client HTML identical. */
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme | null>(null);
+  const [isDark, setIsDark] = useState<boolean | null>(null);
   useEffect(() => {
-    try { const t = localStorage.getItem("theme") as Theme | null; if (t) { setTheme(t); apply(t); } } catch {}
+    let stored: Theme | null = null;
+    try { stored = localStorage.getItem("theme") as Theme | null; } catch {}
+    if (stored) apply(stored);
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const sync = () => setIsDark(stored ? stored === "dark" : mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
-  const isDark = theme ? theme === "dark" : typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches;
   const toggle = () => {
     const next: Theme = isDark ? "light" : "dark";
-    setTheme(next);
+    setIsDark(next === "dark");
     try { localStorage.setItem("theme", next); } catch {}
     apply(next);
   };
   return (
-    <button className="theme-toggle" type="button" aria-label="Toggle light and dark theme" aria-pressed={isDark} onClick={toggle}>
+    <button className="theme-toggle" type="button" aria-label="Toggle light and dark theme" aria-pressed={isDark ?? undefined} onClick={toggle}>
       <span className="theme-toggle__icon" aria-hidden="true" />
     </button>
   );

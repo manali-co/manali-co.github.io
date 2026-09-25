@@ -25,7 +25,8 @@ export default function Blog() {
       </section>
       {featured && <PostCard post={featured} featured />}
       {rest.length > 0 ? (
-        <ol className="post-grid">{rest.map((p) => <PostCard key={p.slug} post={p} />)}</ol>
+        /* A grid needs company: with only one or two more posts, rows read better at every width. */
+        <ol className={rest.length >= 3 ? "post-grid" : "post-rows"}>{rest.map((p) => <PostCard key={p.slug} post={p} row={rest.length < 3} />)}</ol>
       ) : (
         <p className="empty">That&apos;s the whole blog so far. It&apos;ll grow.</p>
       )}

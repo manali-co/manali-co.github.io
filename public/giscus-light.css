@@ -1,0 +1,93 @@
+/* giscus theme for manali apps, light. Values are the site's tokens as literals (giscus runs in an iframe). */
+main {
+  --color-prettylights-syntax-comment: #84839E;
+  --color-prettylights-syntax-constant: #2C2B6B;
+  --color-prettylights-syntax-entity: #5B63C7;
+  --color-prettylights-syntax-storage-modifier-import: #23224A;
+  --color-prettylights-syntax-entity-tag: #3E9C6B;
+  --color-prettylights-syntax-keyword: #C96A95;
+  --color-prettylights-syntax-string: #8A6316;
+  --color-prettylights-syntax-variable: #A65E3B;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #C96A95;
+  --color-prettylights-syntax-invalid-illegal-text: #FFFFFF;
+  --color-prettylights-syntax-invalid-illegal-bg: #C96A95;
+  --color-prettylights-syntax-carriage-return-text: #FFFFFF;
+  --color-prettylights-syntax-carriage-return-bg: #C96A95;
+  --color-prettylights-syntax-string-regexp: #3E9C6B;
+  --color-prettylights-syntax-markup-list: #8A6316;
+  --color-prettylights-syntax-markup-heading: #2C2B6B;
+  --color-prettylights-syntax-markup-italic: #23224A;
+  --color-prettylights-syntax-markup-bold: #23224A;
+  --color-prettylights-syntax-markup-deleted-text: #23224A;
+  --color-prettylights-syntax-markup-deleted-bg: rgba(201,106,149,0.15);
+  --color-prettylights-syntax-markup-inserted-text: #23224A;
+  --color-prettylights-syntax-markup-inserted-bg: rgba(62,156,107,0.15);
+  --color-prettylights-syntax-markup-changed-text: #23224A;
+  --color-prettylights-syntax-markup-changed-bg: rgba(242,184,75,0.25);
+  --color-prettylights-syntax-markup-ignored-text: #55547A;
+  --color-prettylights-syntax-markup-ignored-bg: #EFEBDF;
+  --color-prettylights-syntax-meta-diff-range: #5B63C7;
+  --color-prettylights-syntax-brackethighlighter-angle: #55547A;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #CFCABA;
+  --color-prettylights-syntax-constant-other-reference-link: #8A6316;
+
+  --color-btn-text: #23224A;
+  --color-btn-bg: #FFFFFF;
+  --color-btn-border: #CFCABA;
+  --color-btn-shadow: none;
+  --color-btn-inset-shadow: none;
+  --color-btn-hover-bg: #EFEBDF;
+  --color-btn-hover-border: #84839E;
+  --color-btn-active-bg: #E6E1D2;
+  --color-btn-active-border: #84839E;
+  --color-btn-selected-bg: #E6E1D2;
+  --color-btn-primary-text: #FFFFFF;
+  --color-btn-primary-bg: #5B63C7;
+  --color-btn-primary-border: transparent;
+  --color-btn-primary-shadow: none;
+  --color-btn-primary-inset-shadow: none;
+  --color-btn-primary-hover-bg: #2C2B6B;
+  --color-btn-primary-hover-border: transparent;
+  --color-btn-primary-selected-bg: #2C2B6B;
+  --color-btn-primary-selected-shadow: none;
+  --color-btn-primary-disabled-text: rgba(255,255,255,0.7);
+  --color-btn-primary-disabled-bg: rgba(91,99,199,0.5);
+  --color-btn-primary-disabled-border: transparent;
+  --color-action-list-item-default-hover-bg: #EEEFFA;
+  --color-segmented-control-bg: #EFEBDF;
+  --color-segmented-control-button-bg: #FFFFFF;
+  --color-segmented-control-button-selected-border: #CFCABA;
+
+  --color-fg-default: #23224A;
+  --color-fg-muted: #55547A;
+  --color-fg-subtle: #84839E;
+  --color-canvas-default: #F7F5EE;
+  --color-canvas-overlay: #FFFFFF;
+  --color-canvas-inset: #EFEBDF;
+  --color-canvas-subtle: #FFFFFF;
+  --color-border-default: #E3DFD2;
+  --color-border-muted: #EFEBDF;
+  --color-neutral-muted: #EEEFFA;
+  --color-accent-fg: #5B63C7;
+  --color-accent-emphasis: #5B63C7;
+  --color-accent-muted: rgba(91,99,199,0.4);
+  --color-accent-subtle: #EEEFFA;
+  --color-success-fg: #3E9C6B;
+  --color-attention-fg: #8A6316;
+  --color-attention-muted: rgba(242,184,75,0.4);
+  --color-attention-subtle: #FDF3DC;
+  --color-danger-fg: #C96A95;
+  --color-danger-muted: rgba(201,106,149,0.4);
+  --color-danger-subtle: rgba(201,106,149,0.12);
+  --color-primer-shadow-inset: none;
+  --color-scale-gray-7: #55547A;
+  --color-scale-blue-8: #2C2B6B;
+  --color-social-reaction-bg-hover: #EEEFFA;
+  --color-social-reaction-bg-reacted-hover: rgba(91,99,199,0.2);
+}
+main .pagination-loader-container { background-image: none; }
+main .gsc-loading-image { background-image: none; }
+main .gsc-comment-box-textarea { border-radius: 8px; }
+main .gsc-comment, main .gsc-comment-box { border-radius: 16px; }
+main .btn, main .gsc-reactions-button, main .gsc-social-reaction-summary-item { border-radius: 999px; }
+main .gsc-reactions-count, main .gsc-comments-count { font-family: Comfortaa, Inter, system-ui, sans-serif; font-weight: 500; }

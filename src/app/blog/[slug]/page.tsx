@@ -52,7 +52,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <h2 id="discuss-title" className="discuss__title">Reactions and comments</h2>
           <a className="discuss__open" href={`https://github.com/${site.giscus.repo}/discussions`}>Open on GitHub <Icon name="arrow-up-right" size={14} /></a>
         </div>
-        <div className="discuss__signin"><span>Comments live in GitHub Discussions. Nothing else to sign up for. No comments yet? Be the first, or don&apos;t, we&apos;re fine.</span></div>
+        <div className="discuss__signin"><span>Comments live in GitHub Discussions; sign in with GitHub to join. The reactions at the top are for the post itself; each comment has its own. No comments yet? Be the first, or don&apos;t, we&apos;re fine.</span></div>
         <Giscus />
       </section>
       <SubscribeForm compact />

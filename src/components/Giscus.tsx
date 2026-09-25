@@ -2,14 +2,22 @@
 import { useEffect, useRef } from "react";
 import { site } from "@/lib/site";
 
+/* Our own giscus theme (tokens as literals) when the site is served over https; giscus refuses
+   custom theme URLs otherwise, so localhost gets the closest built-in. */
+export function giscusTheme(mode: "light" | "dark") {
+  const base = typeof window !== "undefined" && window.location.protocol === "https:" ? window.location.origin : "";
+  return base ? `${base}/giscus-${mode}.css` : mode === "dark" ? "noborder_dark" : "noborder_light";
+}
+
 /* Comments and reactions, stored in GitHub Discussions. One discussion per post path. */
 export function Giscus() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el || el.querySelector("iframe, script")) return;
-    let theme = "preferred_color_scheme";
-    try { const t = localStorage.getItem("theme"); if (t === "dark" || t === "light") theme = t; } catch {}
+    let mode: "light" | "dark" = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    try { const t = localStorage.getItem("theme"); if (t === "dark" || t === "light") mode = t; } catch {}
+    const theme = giscusTheme(mode);
     const s = document.createElement("script");
     s.src = "https://giscus.app/client.js";
     s.async = true;
