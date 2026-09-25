@@ -75,7 +75,10 @@ export function ReactionBar({ slug }: { slug: string }) {
     client.current = clientId();
     const q = window.matchMedia("(prefers-reduced-motion: reduce)");
     const f = () => setReduced(q.matches); f(); q.addEventListener("change", f);
-    fetch(`/api/reactions/${slug}?client=${encodeURIComponent(client.current)}`).then((r) => r.json()).then(setData).catch(() => {});
+    fetch(`/api/reactions/${slug}?client=${encodeURIComponent(client.current)}`)
+      .then((r) => (r.ok ? r.json() : { counts: {}, mine: [], unavailable: true }))
+      .then(setData)
+      .catch(() => setData({ counts: {}, mine: [], unavailable: true }));
     return () => q.removeEventListener("change", f);
   }, [slug]);
   const toggle = async (kind: Kind) => {

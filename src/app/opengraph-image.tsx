@@ -2,6 +2,7 @@ import { ogImage, OG_SIZE } from "@/lib/og";
 
 export const size = OG_SIZE;
 export const contentType = "image/png";
+export const dynamic = "force-static";
 export const alt = "manali apps";
 
 export default async function Image() {

@@ -20,7 +20,7 @@ export function SubscribeForm({ compact = false }: { compact?: boolean }) {
     try {
       const res = await fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) });
       if (res.status === 409) return setState("already");
-      if (res.status === 503) return setState("unavailable");
+      if (res.status === 503 || res.status === 404) return setState("unavailable");
       if (!res.ok) return setState("error");
       setState("success");
     } catch {

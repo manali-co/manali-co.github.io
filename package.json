@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "new": "node scripts/new-post.mjs"
+    "new": "node scripts/new-post.mjs",
+    "build:static": "node scripts/static-export.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",
