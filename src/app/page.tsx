@@ -1,69 +1,126 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
+import { getAllPosts, readableDate } from "@/lib/posts";
+import { projects, site } from "@/lib/site";
+import { latestRelease } from "@/lib/releases";
+import { AuthorLine } from "@/components/AuthorLine";
+import { ProjectTag } from "@/components/PostCard";
 
-export default function Home() {
+export const revalidate = 3600;
+
+export default async function Home() {
+  const posts = getAllPosts().slice(0, 3);
+  const releases = await Promise.all(projects.map((p) => latestRelease(p.repo)));
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <section className="hero">
+        <picture className="hero__mark">
+          <source srcSet="/brand/mark-animated-dark.svg" media="(prefers-color-scheme: dark)" />
+          <img src="/brand/mark-animated-light.svg" alt="" width={160} height={160} />
+        </picture>
+        <h1 className="hero__title">Things we wished existed, so we built them.</h1>
+        <p className="hero__lede">Not a studio, not a startup. A small place where we make software you can talk to and swipe through, learn whatever it takes, and write down what we learned. Sometimes the agents write it down for us.</p>
+        <p className="hero__actions">
+          <a className="button button--primary" href="#projects">What we&apos;re building</a>
+          <Link className="button" href="/blog/">Read the blog</Link>
+        </p>
+      </section>
+
+      <section id="projects" className="section">
+        <div className="section__head">
+          <h2 className="section__title">What we&apos;re building so far</h2>
+          <span className="section__lede">More to come. We have a list. It&apos;s longer than it should be.</span>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="cards">
+          {projects.map((p) => (
+            <article key={p.slug} className={`card card--project card--${p.well}`}>
+              <img className="card__icon" src={p.icon} alt="" width={72} height={72} />
+              <div className="card__body">
+                <h3 className="card__title"><Link href={`/${p.slug}/`}>{p.name}</Link> <span className="card__platform">{p.platform}</span></h3>
+                <p className="card__blurb">{p.blurb}</p>
+                <p className="card__meta">
+                  <span className={`badge badge--${p.status}`}>{p.statusLabel}</span>
+                  <span className="badge badge--quiet">{p.license}</span>
+                  <a className="card__link" href={p.repo}>Source</a>
+                  <Link className="card__link" href={`/${p.slug}/#posts`}>Posts</Link>
+                </p>
+              </div>
+            </article>
+          ))}
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section id="releases" className="section">
+        <div className="section__head">
+          <h2 className="section__title">Latest releases</h2>
+          <span className="section__lede">Public builds only. The nitty-gritty lives on the blog.</span>
+        </div>
+        <div className="releases">
+          {projects.map((p, i) => {
+            const rel = releases[i];
+            return (
+              <article key={p.slug} className="release">
+                <div className="release__head">
+                  <img className="release__icon" src={p.icon} alt="" width={40} height={40} />
+                  <h3 className="release__name">{p.name}</h3>
+                  {rel && <span className="release__version">{rel.tag}</span>}
+                </div>
+                {rel ? (
+                  <>
+                    <p className="release__note">{rel.note || "A new build is out."}</p>
+                    <p className="release__meta"><time dateTime={rel.date}>{readableDate(rel.date)}</time></p>
+                    <p className="release__actions">
+                      {rel.assets[0] && <a className="button button--primary button--sm" href={rel.assets[0].url}>Download</a>}
+                      <a className="button button--sm" href={rel.url}>Release notes</a>
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="release__note">{p.noBuild}</p>
+                    <p className="release__actions"><a className="button button--sm" href={p.repo}>Follow the repo</a></p>
+                  </>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="section__head">
+          <h2 className="section__title">What&apos;s new</h2>
+          <Link className="section__more" href="/blog/">All posts →</Link>
+        </div>
+        <ol className="feed">
+          {posts.map((post) => (
+            <li key={post.slug} className="feed__item">
+              <time className="feed__date" dateTime={post.date}>{readableDate(post.date)}</time>
+              <div className="feed__body">
+                <span className="feed__meta"><ProjectTag project={post.project} /><Link className="feed__title" href={post.url}>{post.title}</Link></span>
+                {post.summary && <p className="feed__detail">{post.summary}</p>}
+                <AuthorLine author={post.author} project={post.project} compact />
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="section">
+        <h2 className="section__title">How this works</h2>
+        <dl className="principles">
+          <div><dt>Small pieces, one job each.</dt><dd>Every module gets run on its own before it&apos;s allowed to talk to the next one.</dd></div>
+          <div><dt>Design first, code second.</dt><dd>Visuals are argued out in Claude Design and then ported. Nobody improvises a button in a PR.</dd></div>
+          <div><dt>Boring CI, on purpose.</dt><dd>Lint, types and tests on every pull request. feature/* → dev → main. Green or it doesn&apos;t go in.</dd></div>
+          <div><dt>Credit is the currency.</dt><dd>Yapp and the brand are CC BY 4.0: use them, just say where they came from. What Should We Watch is ours; read it, learn from it, ask before you ship it.</dd></div>
+        </dl>
+      </section>
+
+      <section className="section section--quiet">
+        <div>
+          <h2 className="section__title section__title--sm">Want to collaborate?</h2>
+          <p>Happy to. Open an issue, send a PR, or start a discussion. If you&apos;ve got a thing you wish existed and it fits here, we&apos;d like to hear about it.</p>
+        </div>
+        <a className="button" href={`https://github.com/${site.giscus.repo}/discussions`}>Start a discussion</a>
+      </section>
+    </>
   );
 }

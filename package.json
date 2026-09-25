@@ -6,14 +6,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "new": "node scripts/new-post.mjs"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.9.7",
+    "@microsoft/applicationinsights-web": "^3.4.4",
+    "feed": "^6.0.0",
+    "gray-matter": "^4.0.3",
+    "markdown-it": "^15.0.2",
+    "markdown-it-anchor": "^10.0.0",
     "next": "16.3.6",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@types/markdown-it": "^14.2.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

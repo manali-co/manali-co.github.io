@@ -1,0 +1,106 @@
+/* Web-app additions on top of the ported design system: hero mark, covers, post grid,
+   releases, discussion, subscribe, admin. Mobile-first; desktop rules come last. */
+
+.hero__mark img { width: 120px; height: 120px; }
+@media (min-width: 641px) { .hero__mark img { width: 160px; height: 160px; } }
+
+/* covers */
+.cover, .cover img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--border); display: block; }
+.cover--placeholder img { object-fit: cover; }
+.post__cover { margin: var(--space-2) 0 0; }
+
+/* featured post + grid on the blog index */
+.featured { display: grid; gap: var(--space-5); margin-bottom: var(--space-8); }
+.featured__cover { display: block; }
+.featured__cover .cover, .featured__cover .cover img { border-radius: var(--radius-lg); }
+.featured__body { display: grid; gap: var(--space-3); }
+.featured__title { font-size: var(--text-h2); line-height: var(--lh-snug); }
+.featured__title a { color: var(--text); }
+.featured__title a:hover { color: var(--accent-text); text-decoration: none; }
+.featured__summary { color: var(--text-2); font-size: var(--text-lg); max-width: 60ch; }
+.post-card__kicker { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; font-size: var(--text-sm); color: var(--text-3); }
+.post-grid { list-style: none; margin: 0 0 var(--space-9); padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-6); max-width: none; }
+.post-card--grid { padding: 0; border: 0; gap: var(--space-3); }
+.post-card__cover { display: block; margin-bottom: var(--space-1); }
+@media (min-width: 720px) {
+  .featured { grid-template-columns: 3fr 2fr; align-items: center; gap: var(--space-7); }
+  .featured__title { font-size: var(--text-h1); line-height: var(--lh-tight); }
+  .post-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-7) var(--space-6); }
+}
+.tag--active { background: var(--bg-inverse); color: var(--text-inverse); border-color: var(--bg-inverse); }
+
+/* releases */
+.releases { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+.release { display: grid; gap: var(--space-3); padding: var(--space-5); background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-rest); }
+.release__head { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.release__icon { width: 40px; height: 40px; border-radius: 12px; }
+.release__name { font-size: var(--text-h3); }
+.release__version { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text-3); padding: 2px 8px; border: 1px solid var(--border); border-radius: var(--radius-pill); }
+.release__note { color: var(--text-2); }
+.release__meta { font-size: var(--text-sm); color: var(--text-3); }
+.release__actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+@media (min-width: 720px) { .releases { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* principles */
+.principles { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-6) var(--space-7); }
+.principles div { display: grid; gap: 8px; }
+.principles dt { font-weight: 600; }
+.principles dd { margin: 0; color: var(--text-2); }
+@media (min-width: 720px) { .principles { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); } }
+.section--quiet { display: flex; justify-content: space-between; align-items: center; gap: var(--space-6); flex-wrap: wrap; }
+.section--quiet > div { display: grid; gap: var(--space-2); max-width: 52ch; }
+.section__title--sm { font-size: var(--text-h3); }
+.feed__detail { margin: 0; font-size: var(--text-sm); color: var(--text-2); max-width: 60ch; }
+
+/* author line with owner */
+.byline { display: grid; gap: 4px; }
+.byline__links { display: inline-flex; gap: var(--space-3); font-size: var(--text-sm); }
+.byline__owner { font-size: var(--text-sm); color: var(--text-3); }
+.byline__owner a { color: var(--text-2); }
+
+/* discussion (giscus lives inside) */
+.discuss { max-width: var(--container-narrow); margin: 0 auto var(--space-10); padding-top: var(--space-7); border-top: 1px solid var(--border); display: grid; gap: var(--space-4); }
+.discuss__title { font-size: var(--text-h3); }
+.discuss__lede { font-size: var(--text-sm); color: var(--text-3); max-width: 60ch; }
+
+/* subscribe */
+.subscribe { display: grid; gap: var(--space-3); padding: var(--space-5); background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius-lg); max-width: var(--container-narrow); margin: 0 auto var(--space-9); }
+.subscribe__title { font-size: var(--text-h3); }
+.subscribe__lede { color: var(--text-2); font-size: var(--text-sm); }
+.subscribe__form { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.subscribe__form input { flex: 1 1 220px; height: 44px; padding: 0 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-strong); background: var(--bg); color: var(--text); font: inherit; min-width: 0; }
+.subscribe__form input:focus { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+.subscribe__status { font-size: var(--text-sm); color: var(--text-2); min-height: 1.4em; }
+.subscribe__status--ok { color: var(--status-live); }
+.subscribe__status--err { color: #C96A95; }
+
+/* admin */
+.admin { display: grid; gap: var(--space-5); padding: var(--space-7) 0 var(--space-10); }
+.admin__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+@media (min-width: 720px) { .admin__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.panel { display: grid; gap: var(--space-3); padding: var(--space-5); background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.panel__title { font-size: var(--text-h3); }
+.stat { font-family: var(--font-display); font-size: var(--text-h1); line-height: 1; }
+.stat__label { font-size: var(--text-sm); color: var(--text-3); }
+.list { list-style: none; margin: 0; padding: 0; display: grid; }
+.list li { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) 0; border-bottom: 1px solid var(--border); font-size: var(--text-sm); }
+.list li:last-child { border-bottom: 0; }
+.muted { color: var(--text-3); }
+.signin { max-width: 420px; margin: var(--space-9) auto; display: grid; gap: var(--space-4); text-align: center; }
+
+/* footer coffee line */
+.footer__coffee { display: grid; gap: var(--space-3); justify-items: center; }
+.footer__coffee p { font-size: var(--text-sm); color: var(--text-2); max-width: 44ch; }
+
+/* nav: keep it usable on phones */
+.nav__links a.nav__subscribe { border: 1px solid var(--border-strong); }
+@media (max-width: 480px) { .nav__links a.nav__subscribe { display: none; } }
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* fixes after the first build: the post column must never grow past the reading width, and
+   covers keep 16:9 regardless of the img height attribute */
+.post { grid-template-columns: minmax(0, 1fr); max-width: var(--container-narrow); }
+.post > *, .featured > *, .post-card--grid > * { min-width: 0; }
+.cover img { height: auto; }
+.byline__owner { display: flex; flex-wrap: wrap; gap: 0 6px; }
