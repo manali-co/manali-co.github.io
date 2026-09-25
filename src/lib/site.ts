@@ -66,7 +66,21 @@ export const owner = {
   name: "Ayush Manish Agrawal",
   github: "https://github.com/ayushm-agrawal",
   linkedin: process.env.NEXT_PUBLIC_OWNER_LINKEDIN || "",
+  scholar: process.env.NEXT_PUBLIC_OWNER_SCHOLAR || "",
+  x: process.env.NEXT_PUBLIC_OWNER_X || "",
+  bluesky: process.env.NEXT_PUBLIC_OWNER_BLUESKY || "",
+  email: process.env.NEXT_PUBLIC_OWNER_EMAIL || "",
 };
+
+/* Footer socials, in order. Only the ones with a URL render. */
+export const ownerLinks = [
+  { key: "github", label: "GitHub", href: owner.github, icon: "github" },
+  { key: "linkedin", label: "LinkedIn", href: owner.linkedin, icon: "linkedin" },
+  { key: "scholar", label: "Google Scholar", href: owner.scholar, icon: "scholar" },
+  { key: "x", label: "X", href: owner.x, icon: "x" },
+  { key: "bluesky", label: "Bluesky", href: owner.bluesky, icon: "butterfly" },
+  { key: "email", label: "Email", href: owner.email ? `mailto:${owner.email}` : "", icon: "mail" },
+].filter((l) => l.href);
 
 export const authors: Record<string, Author> = {
   ayush: { id: "ayush", name: "Ayush", kind: "person", links: { github: owner.github, linkedin: owner.linkedin } },
