@@ -61,7 +61,7 @@ Until this is done the API logs emails instead of sending them; subscribing stil
 
 ## 5. giscus: comments and reactions
 
-Done: the giscus GitHub App is installed on `manali-co/manali-co.github.io`, Discussions are enabled, and the ids are in `src/lib/site.ts`. Nothing to do.
+Almost done: Discussions are enabled and the ids are in `src/lib/site.ts`. The app install got as far as GitHub's passkey prompt, which needs you: https://github.com/apps/giscus/installations/new → manali-co → Only select repositories → `manali-co.github.io` → Install → confirm with your passkey.
 
 ## 6. Coffee
 
