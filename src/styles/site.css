@@ -84,7 +84,7 @@ time { font-variant-numeric: tabular-nums; }
 .card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-hover); transform: translateY(-2px); }
 .card__icon { width: var(--icon-well-lg); height: var(--icon-well-lg); flex: none; border-radius: var(--radius-xl); border: 1px solid var(--border); padding: 8px; background: var(--yapp-paper); object-fit: contain; }
 .card--wsww .card__icon, .page-head--wsww .page-head__icon { background: var(--wswatch-night); border-radius: var(--radius-xl); }
-.card--spark .card__icon, .page-head--spark .page-head__icon { background: var(--spark-violet); border-radius: var(--radius-xl); }
+.card--spark .card__icon, .page-head--spark .page-head__icon { background: var(--spark-night); border-radius: var(--radius-xl); }
 .card__body { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; flex: 1; }
 .card__title { font-size: var(--text-h3); line-height: var(--lh-snug); display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
 .card__title a { color: inherit; }
