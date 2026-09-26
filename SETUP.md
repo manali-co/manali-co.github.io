@@ -71,6 +71,15 @@ Until this is done the API logs emails instead of sending them; subscribing stil
 | `API_KEY` | the `API_KEY` from step 1 |
 | `NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING` | `az monitor app-insights component show --app wsww-dev-appi -g rg-wsww-dev --query connectionString -o tsv` |
 
+
+Clerk switches on only when the publishable key looks real (`pk_test_…` or `pk_live_…`). A placeholder is ignored rather than crashing the site, so replace it once you have the keys:
+
+```sh
+vercel env rm NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY production -y && echo "pk_live_..." | vercel env add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY production
+vercel env rm CLERK_SECRET_KEY production -y && echo "sk_live_..." | vercel env add CLERK_SECRET_KEY production
+vercel --prod
+```
+
 3. Deploy. Then update `MANALI_SITE_URL` on the Function App (and `SITE_URL` in the API repo variables) to the real site URL so email links point at it.
 
 ## 5. giscus: comments and reactions
