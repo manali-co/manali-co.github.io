@@ -4,10 +4,22 @@ Everything in code is done. These are the account-side steps that need the owner
 
 ## 1. Azure: let the API repo deploy
 
-The service principal WSWW already uses (its client id is the repo variable `AZURE_CLIENT_ID`) needs one more federated credential for the new repo, and the repo needs two secrets. Variables are already set.
+The service principal WSWW already uses (its client id is the repo variable `AZURE_CLIENT_ID`) is scoped to the WSWW resource groups. It needs the new resource group, rights on it, and a federated credential for the new repo; the repo needs two secrets. Variables are already set.
 
 ```sh
+az login && az account set -s manali
 APP_ID=$(gh variable get AZURE_CLIENT_ID -R manali-co/manali-api)
+SP_ID=$(az ad sp show --id "$APP_ID" --query id -o tsv)
+SUB=$(az account show --query id -o tsv)
+
+# the resource group, and the deployer's rights on it (Bicep also assigns roles, hence UAA)
+az group create -n rg-manali-dev -l eastus2
+az role assignment create --assignee-object-id "$SP_ID" --assignee-principal-type ServicePrincipal \
+  --role Contributor --scope "/subscriptions/$SUB/resourceGroups/rg-manali-dev"
+az role assignment create --assignee-object-id "$SP_ID" --assignee-principal-type ServicePrincipal \
+  --role "User Access Administrator" --scope "/subscriptions/$SUB/resourceGroups/rg-manali-dev"
+
+# let GitHub Actions in the new repo sign in as that principal
 az ad app federated-credential create --id "$APP_ID" --parameters '{
   "name": "manali-api-dev",
   "issuer": "https://token.actions.githubusercontent.com",
@@ -20,10 +32,11 @@ gh secret set MANALI_API_KEY      -R manali-co/manali-api -b "$API_KEY"
 gh secret set MANALI_TOKEN_SECRET -R manali-co/manali-api -b "$TOKEN_SECRET"
 gh secret set RESEND_API_KEY      -R manali-co/manali-api -b "re_..."     # from step 3; can wait
 echo "API_KEY=$API_KEY"   # you'll paste this into Vercel in step 4
-gh workflow run deploy.yml -R manali-co/manali-api
+gh workflow run deploy.yml -R manali-co/manali-api && sleep 5 && gh run watch -R manali-co/manali-api
+curl https://manali-dev-api.azurewebsites.net/api/healthz
 ```
 
-The deploy creates `rg-manali-dev` (Flex Consumption function app + one storage account) and reports to `wsww-dev-appi`. The API URL is the workflow's `apiUrl` output, or `https://manali-dev-api.azurewebsites.net/api`.
+The deploy provisions `rg-manali-dev` (Flex Consumption function app + one storage account) and reports to `wsww-dev-appi`. The API URL is `https://manali-dev-api.azurewebsites.net/api`.
 
 ## 2. Clerk: the admin login
 
