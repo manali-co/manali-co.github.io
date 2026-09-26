@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkEnabled } from "@/lib/clerk-enabled";
 
 /* Everything is public except the owner's admin area. */
 const isAdmin = createRouteMatcher(["/admin(.*)"]);
@@ -7,7 +8,7 @@ const isAdmin = createRouteMatcher(["/admin(.*)"]);
 const withClerk = clerkMiddleware(async (auth, req) => {
   if (isAdmin(req)) await auth.protect();
 });
-export default process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? withClerk : () => undefined;
+export default clerkEnabled ? withClerk : () => undefined;
 
 export const config = {
   matcher: [

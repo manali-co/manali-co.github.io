@@ -1,7 +1,9 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { clerkEnabled } from "./clerk-enabled";
 
 /* The admin area is for the owner only: a Clerk sign-in whose email is on the allowlist. */
 export async function requireOwner() {
+  if (!clerkEnabled) return { ok: false, user: null };
   await auth.protect();
   const user = await currentUser();
   const emails = (user?.emailAddresses || []).map((e) => e.emailAddress.toLowerCase());

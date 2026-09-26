@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fragment } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
+import { clerkEnabled } from "@/lib/clerk-enabled";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { Nav } from "@/components/Nav";
@@ -28,7 +29,7 @@ export const viewport: Viewport = {
 const themeScript = `try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const Provider = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? ClerkProvider : Fragment;
+  const Provider = clerkEnabled ? ClerkProvider : Fragment;
   return (
     <Provider>
       <html lang="en" suppressHydrationWarning>
