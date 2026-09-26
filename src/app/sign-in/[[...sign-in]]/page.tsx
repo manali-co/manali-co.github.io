@@ -15,7 +15,14 @@ export default function SignInPage() {
         <h1 className="signin__title">Sign in</h1>
         <p className="muted">This area is for the owner. If that&apos;s not you, the <a href="/blog/">blog</a> is the good part anyway.</p>
       </div>
-      {clerkEnabled ? <SignIn appearance={{ variables: { colorPrimary: "#5B63C7", borderRadius: "999px" } }} /> : <p className="subscribe__status subscribe__status--err">Clerk isn&apos;t configured on this deployment yet.</p>}
+      {clerkEnabled ? <SignIn appearance={{
+        variables: { colorPrimary: "#5B63C7", borderRadius: "12px", fontFamily: "var(--font-body)" },
+        elements: {
+          cardBox: { boxShadow: "none", border: "1px solid var(--border)", borderRadius: "16px", width: "100%" },
+          socialButtonsBlockButton: { borderRadius: "999px" },
+          formButtonPrimary: { borderRadius: "999px" },
+        },
+      }} /> : <p className="subscribe__status subscribe__status--err">Clerk isn&apos;t configured on this deployment yet.</p>}
       <p className="signin__note"><Icon name="shield" size={14} /> Auth by Clerk. We only see your GitHub login.</p>
     </section>
   );
