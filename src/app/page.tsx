@@ -18,7 +18,7 @@ export default async function Home() {
           <img src="/brand/mark-animated-light.svg" alt="" width={160} height={160} />
         </picture>
         <h1 className="hero__title">Things we wished existed. So we&apos;re building them.</h1>
-        <p className="hero__lede">Not a studio, not a startup. A small place where we make software you can talk to and swipe through, learn whatever it takes, and write down what we learned. Sometimes the agents write it down for us.</p>
+        <p className="hero__lede">Not a studio, not a startup. A small place where we make software you can talk to, swipe through, or take a personality test on, learn whatever it takes, and write down what we learned. Sometimes the agents write it down for us.</p>
         <p className="hero__actions">
           <a className="button button--primary" href="#projects">What we&apos;re building</a>
           <Link className="button" href="/blog/">Read the blog</Link>
@@ -28,7 +28,7 @@ export default async function Home() {
       <section id="projects" className="section">
         <div className="section__head">
           <h2 className="section__title">What we&apos;re building so far</h2>
-          <span className="section__lede">More to come. We have a list. It&apos;s longer than it should be.</span>
+          <span className="section__lede">More on the way. The list is short. It won&apos;t stay that way.</span>
         </div>
         <div className="cards">
           {projects.map((p, i) => {
@@ -46,17 +46,18 @@ export default async function Home() {
                     <Link className="card__link" href={`/${p.slug}/#posts`}>Posts</Link>
                   </p>
                   <p className="card__release">
+                    {"live" in p && p.live ? <a className="button button--primary button--sm" href={p.live} target="_blank" rel="noopener">Try it</a> : null}
                     {rel ? (
                       <>
                         <span className="release__version">{rel.tag}</span>
                         <time dateTime={rel.date}>{readableDate(rel.date)}</time>
                         {rel.note && <span className="card__release-note">{rel.note}</span>}
-                        {rel.assets[0] ? <a className="button button--primary button--sm" href={rel.assets[0].url}>Download</a> : null}
+                        {rel.assets[0] && !("live" in p && p.live) ? <a className="button button--primary button--sm" href={rel.assets[0].url}>Download</a> : null}
                         <a className="button button--sm" href={rel.url} target="_blank" rel="noopener">Release notes</a>
                       </>
-                    ) : (
+                    ) : p.noBuild ? (
                       <span className="muted">{p.noBuild}</span>
-                    )}
+                    ) : null}
                   </p>
                 </div>
               </article>

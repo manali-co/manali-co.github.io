@@ -13,7 +13,15 @@ export type Release = {
    cuts for internal packages (api-v0.1.0, recs-v0.1.0) are not builds anyone can install. */
 function isPublic(r: Record<string, unknown>) {
   const assets = (r.assets as unknown[]) || [];
-  return assets.length > 0 || /^v?\d+\.\d+/.test(String(r.tag_name));
+  return assets.length > 0 || /^v?\d+\.\d+/i.test(String(r.tag_name));
+}
+
+/* The first real paragraph of the release notes: headings, badges and list markers dropped. */
+function firstParagraph(body: string) {
+  const blocks = body.split(/\r?\n\s*\r?\n/).map((b) => b.trim()).filter(Boolean);
+  const block = blocks.find((b) => !/^#{1,6}\s/.test(b) && !/^!\[/.test(b) && !/^(-{3,}|\*{3,})$/.test(b));
+  if (!block) return "";
+  return block.split(/\r?\n/)[0].replace(/^([-*]|\d+\.)\s+/, "").replace(/\*{1,2}|_{1,2}|`/g, "").slice(0, 240);
 }
 
 export async function latestRelease(repoUrl: string): Promise<Release | null> {
@@ -33,7 +41,7 @@ export async function latestRelease(repoUrl: string): Promise<Release | null> {
       date: String(r.published_at).slice(0, 10),
       url: String(r.html_url),
       // First paragraph only. The public site never needs the granular changelog.
-      note: String(r.body || "").split(/\r?\n\r?\n/)[0].replace(/^#+\s*/, "").slice(0, 240),
+      note: firstParagraph(String(r.body || "")),
       assets: ((r.assets as Array<Record<string, unknown>>) || []).map((a) => ({
         name: String(a.name),
         url: String(a.browser_download_url),

@@ -84,6 +84,7 @@ time { font-variant-numeric: tabular-nums; }
 .card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-hover); transform: translateY(-2px); }
 .card__icon { width: var(--icon-well-lg); height: var(--icon-well-lg); flex: none; border-radius: var(--radius-xl); border: 1px solid var(--border); padding: 8px; background: var(--yapp-paper); object-fit: contain; }
 .card--wsww .card__icon, .page-head--wsww .page-head__icon { background: var(--wswatch-night); border-radius: var(--radius-xl); }
+.card--spark .card__icon, .page-head--spark .page-head__icon { background: var(--spark-violet); border-radius: var(--radius-xl); }
 .card__body { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; flex: 1; }
 .card__title { font-size: var(--text-h3); line-height: var(--lh-snug); display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
 .card__title a { color: inherit; }
@@ -106,9 +107,10 @@ time { font-variant-numeric: tabular-nums; }
 /* tags: pills, project dot */
 .tag { display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 11px; border-radius: var(--radius-pill); border: 1px solid var(--border); background: var(--bg-raised); color: var(--text-2); font-size: var(--text-sm); font-weight: 500; line-height: 1; white-space: nowrap; transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out); }
 a.tag:hover { background: var(--bg-sunken); border-color: var(--border-strong); color: var(--text-2); text-decoration: none; }
-.tag--yapp::before, .tag--what-should-we-watch::before, .tag--manali::before { content: ""; width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--indigo); }
+.tag--yapp::before, .tag--what-should-we-watch::before, .tag--spark::before, .tag--manali::before { content: ""; width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--indigo); }
 .tag--yapp::before { background: var(--yapp-peach); }
 .tag--what-should-we-watch::before { background: var(--wswatch-coral); }
+.tag--spark::before { background: var(--spark-rose); }
 
 /* author line */
 .author { display: inline-flex; align-items: center; gap: 8px; font-size: var(--text-sm); color: var(--text); font-weight: 500; }

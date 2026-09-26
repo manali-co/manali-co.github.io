@@ -31,6 +31,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
           <p className="card__meta">
             <span className={`badge badge--${p.status}`}>{p.statusLabel}</span>
             <span className="badge badge--quiet">{p.license}</span>
+            {"live" in p && p.live ? <a className="button button--primary button--sm" href={p.live} target="_blank" rel="noopener">Try it</a> : null}
             <a className="button button--sm" href={p.repo} target="_blank" rel="noopener">Source on GitHub</a>
           </p>
         </div>

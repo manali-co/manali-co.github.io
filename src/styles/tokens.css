@@ -33,6 +33,8 @@
   --wswatch-lilac: #B8A6E6;
   --wswatch-lagoon: #6ECBBE;
   --wswatch-night: #1B1D22;
+  --spark-violet: #8B5CF6;
+  --spark-rose: #E03C7A;
   /* semantic, light */
   --bg: var(--paper);
   --bg-raised: var(--white);

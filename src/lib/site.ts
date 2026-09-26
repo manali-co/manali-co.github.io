@@ -45,11 +45,27 @@ export const projects = [
     license: "Proprietary",
     noBuild: "No public build yet. It ships to TestFlight from main; a public link follows when it's ready.",
   },
+  {
+    slug: "spark" as const,
+    name: "Spark",
+    platform: "Web",
+    status: "live" as const,
+    statusLabel: "live",
+    blurb:
+      "A personality test that makes up the questions as it goes. Each one is written from your last answer, the next one is already waiting because it guessed what you'd pick, and at the end it tells you which kind of teammate you are.",
+    repo: "https://github.com/ayushm-agrawal/spark-personality-test",
+    icon: "/apps/spark-icon.png",
+    well: "spark" as const,
+    license: "All rights reserved",
+    live: "https://personality.ception.one",
+    noBuild: "",
+  },
 ];
 
 export const projectLabel: Record<string, string> = {
   yapp: "Yapp",
   "what-should-we-watch": "What Should We Watch",
+  spark: "Spark",
   manali: "org",
 };
 

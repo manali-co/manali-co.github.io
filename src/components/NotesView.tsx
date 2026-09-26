@@ -4,7 +4,7 @@ import { projects, projectLabel } from "@/lib/site";
 import { PostList } from "@/components/PostList";
 import { SubscribeForm } from "@/components/SubscribeForm";
 
-export const FILTERS = ["all", "yapp", "what-should-we-watch", "manali"] as const;
+export const FILTERS = ["all", "yapp", "what-should-we-watch", "spark", "manali"] as const;
 export type Filter = (typeof FILTERS)[number];
 export const filterHref = (k: string) => (k === "all" ? "/blog/" : `/blog/project/${k}/`);
 
