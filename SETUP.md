@@ -20,12 +20,15 @@ az role assignment create --assignee-object-id "$SP_ID" --assignee-principal-typ
   --role "User Access Administrator" --scope "/subscriptions/$SUB/resourceGroups/rg-manali-dev"
 
 # let GitHub Actions in the new repo sign in as that principal
-az ad app federated-credential create --id "$APP_ID" --parameters '{
-  "name": "manali-api-dev",
-  "issuer": "https://token.actions.githubusercontent.com",
-  "subject": "repo:manali-co/manali-api:environment:dev",
-  "audiences": ["api://AzureADTokenExchange"]
-}'
+# the org's OIDC tokens carry GitHub ids in the subject ("use_immutable_subject"), so the
+# credential must match that exact form; the plain "repo:manali-co/manali-api:..." form is ignored
+SUBJECT=$(gh api repos/manali-co/manali-api/actions/oidc/customization/sub --jq .sub_claim_prefix):environment:dev
+az ad app federated-credential create --id "$APP_ID" --parameters "{
+  \"name\": \"manali-api-dev-id\",
+  \"issuer\": \"https://token.actions.githubusercontent.com\",
+  \"subject\": \"$SUBJECT\",
+  \"audiences\": [\"api://AzureADTokenExchange\"]
+}"
 
 API_KEY=$(openssl rand -hex 24); TOKEN_SECRET=$(openssl rand -hex 32)
 gh secret set MANALI_API_KEY      -R manali-co/manali-api -b "$API_KEY"
