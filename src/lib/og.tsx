@@ -17,7 +17,7 @@ export async function ogImage({ title, kicker, byline, project = "manali", dark 
   title: string; kicker?: string; byline?: string; project?: string; dark?: boolean;
 }) {
   const [comfortaa, inter] = await Promise.all([font("Comfortaa-Medium.ttf"), font("Inter-Regular.ttf")]);
-  const ground = dark ? "#0F0E22" : "#F7F5EE";
+  const ground = dark ? "#0C0C12" : "#F7F5EE";
   const ink = dark ? "#F7F5EE" : "#23224A";
   const muted = dark ? "#B9B8D3" : "#55547A";
   const ridge = dark ? "#FFFFFF" : "#2C2B6B";

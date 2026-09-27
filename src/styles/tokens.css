@@ -4,10 +4,10 @@
   /* brand palette (fixed, from brand/README.md) */
   --indigo-deep: #2C2B6B;
   --indigo: #5B63C7;
-  /* dark ground: option B from the design's dark-ground exploration (deeper indigo-black) */
-  --ground: #0F0E22;
-  --ground-raised: #1B1A3A;
-  --ground-sunken: #0A0918;
+  /* dark ground: option D from the design's dark-ground exploration (near-black, indigo only in accents) */
+  --ground: #0C0C12;
+  --ground-raised: #16161F;
+  --ground-sunken: #08080C;
   --ink: #23224A;
   --gold: #F2B84B;
   --halo: #FBE7B8;
@@ -135,8 +135,8 @@
   --bg-sunken: var(--ground-sunken);
   --bg-inverse: var(--paper);
   --text: var(--paper);
-  --text-2: #B9B8D3;
-  --text-3: #8785AA;
+  --text-2: #B4B3C6;
+  --text-3: #7F7E94;
   --text-inverse: var(--ink);
   --accent: var(--indigo-soft);
   --accent-strong: var(--indigo);
@@ -144,15 +144,15 @@
   --accent-tint: rgba(154, 160, 234, 0.14);
   --accent-fg: var(--ground);
   --sun-tint: rgba(242, 184, 75, 0.16);
-  --border: rgba(154, 160, 234, 0.16);
-  --border-strong: rgba(154, 160, 234, 0.3);
+  --border: rgba(247, 245, 238, 0.1);
+  --border-strong: rgba(247, 245, 238, 0.2);
   --link: var(--indigo-soft);
   --link-hover: var(--paper);
   --wordmark-apps: var(--gold);
   --ridge-start: var(--paper);
   --ridge-end: var(--paper);
-  --code-bg: #23224A;
-  --code-border: rgba(154, 160, 234, 0.3);
+  --code-bg: #1C1B3F;
+  --code-border: rgba(154, 160, 234, 0.32);
   --selection: rgba(242, 184, 75, 0.35);
   --focus-ring: var(--gold);
   --shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -169,8 +169,8 @@
     --bg-sunken: var(--ground-sunken);
     --bg-inverse: var(--paper);
     --text: var(--paper);
-    --text-2: #B9B8D3;
-    --text-3: #8785AA;
+    --text-2: #B4B3C6;
+    --text-3: #7F7E94;
     --text-inverse: var(--ink);
     --accent: var(--indigo-soft);
     --accent-strong: var(--indigo);
@@ -178,15 +178,15 @@
     --accent-tint: rgba(154, 160, 234, 0.14);
     --accent-fg: var(--ground);
     --sun-tint: rgba(242, 184, 75, 0.16);
-    --border: rgba(154, 160, 234, 0.16);
-    --border-strong: rgba(154, 160, 234, 0.3);
+    --border: rgba(247, 245, 238, 0.1);
+    --border-strong: rgba(247, 245, 238, 0.2);
     --link: var(--indigo-soft);
     --link-hover: var(--paper);
     --wordmark-apps: var(--gold);
     --ridge-start: var(--paper);
     --ridge-end: var(--paper);
-    --code-bg: #23224A;
-    --code-border: rgba(154, 160, 234, 0.3);
+    --code-bg: #1C1B3F;
+    --code-border: rgba(154, 160, 234, 0.32);
     --selection: rgba(242, 184, 75, 0.35);
     --focus-ring: var(--gold);
     --shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.3);
