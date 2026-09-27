@@ -41,6 +41,55 @@ curl https://manali-dev-api.azurewebsites.net/api/healthz
 
 The deploy provisions `rg-manali-dev` (Flex Consumption function app + one storage account) and reports to `wsww-dev-appi`. The API URL is `https://manali-dev-api.azurewebsites.net/api`.
 
+## 1b. Azure prod: a second, clean instance
+
+Prod is the same Bicep and workflow, selected by the GitHub environment `prod` (already created, restricted to `main` and `v*` tags, with `APPINSIGHTS_ID` → `wsww-prod-appi` and `SITE_URL` set). The resource group `rg-manali-prod` exists in the `manali` subscription. Prod gets its own storage account, so its tables start empty. What remains is owner-only:
+
+```sh
+APP_ID=$(gh variable get AZURE_CLIENT_ID -R manali-co/manali-api)
+SP_ID=$(az ad sp show --id "$APP_ID" --query id -o tsv)
+SUB=$(az account show --query id -o tsv)
+
+# rights on the prod group
+az role assignment create --assignee-object-id "$SP_ID" --assignee-principal-type ServicePrincipal \
+  --role Contributor --scope "/subscriptions/$SUB/resourceGroups/rg-manali-prod"
+az role assignment create --assignee-object-id "$SP_ID" --assignee-principal-type ServicePrincipal \
+  --role "User Access Administrator" --scope "/subscriptions/$SUB/resourceGroups/rg-manali-prod"
+
+# let the prod environment sign in
+SUBJECT=$(gh api repos/manali-co/manali-api/actions/oidc/customization/sub --jq .sub_claim_prefix):environment:prod
+az ad app federated-credential create --id "$APP_ID" --parameters "{
+  \"name\": \"manali-api-prod-id\",
+  \"issuer\": \"https://token.actions.githubusercontent.com\",
+  \"subject\": \"$SUBJECT\",
+  \"audiences\": [\"api://AzureADTokenExchange\"]
+}"
+
+# prod's own keys (never reuse dev's)
+PROD_API_KEY=$(openssl rand -hex 24); PROD_TOKEN_SECRET=$(openssl rand -hex 32)
+gh secret set MANALI_API_KEY      -R manali-co/manali-api -e prod -b "$PROD_API_KEY"
+gh secret set MANALI_TOKEN_SECRET -R manali-co/manali-api -e prod -b "$PROD_TOKEN_SECRET"
+gh secret set RESEND_API_KEY      -R manali-co/manali-api -e prod -b "re_..."
+gh variable set MAIL_FROM         -R manali-co/manali-api -e prod -b "manali apps <hello@yourdomain>"
+echo "PROD_API_KEY=$PROD_API_KEY"
+
+gh workflow run deploy.yml -R manali-co/manali-api -f environment=prod && sleep 5 && gh run watch -R manali-co/manali-api
+curl https://manali-prod-api.azurewebsites.net/api/healthz
+```
+
+Then point the Vercel **production** environment at prod and leave **preview** on dev:
+
+```sh
+cd ~/projects/manali-web
+vercel env rm API_BASE_URL production -y; echo "https://manali-prod-api.azurewebsites.net/api" | vercel env add API_BASE_URL production
+vercel env rm API_KEY production -y;      echo "$PROD_API_KEY"                                   | vercel env add API_KEY production
+vercel --prod
+```
+
+Later prod deploys: publish a GitHub release (`gh release create v1.0.0 -R manali-co/manali-api --generate-notes`) or run the workflow with `environment=prod`. Pushes to main only touch dev.
+
+If you would rather prod live in its own Azure subscription: create it from your Microsoft Customer Agreement billing account in the portal (Subscriptions → Add), then set `AZURE_SUBSCRIPTION_ID` as a `prod` environment variable and create `rg-manali-prod` plus the two role assignments there instead. Nothing else changes.
+
 ## 2. Clerk: the admin login
 
 1. clerk.com → Create application → name "manali apps" → enable **GitHub** as the only sign-in method.
