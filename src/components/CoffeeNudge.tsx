@@ -8,11 +8,14 @@ const KEY = "ma-coffee-nudge-seen";
 /* One dry line and a small coffee pill at the end of a post. Shows once per session, then stays hidden. */
 export function CoffeeNudge() {
   const [show, setShow] = useState(false);
+  // sessionStorage only exists in the browser; deciding after mount keeps server and client HTML identical.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    try {
-      if (!sessionStorage.getItem(KEY)) { setShow(true); sessionStorage.setItem(KEY, "1"); }
-    } catch { setShow(true); }
+    let first = true;
+    try { first = !sessionStorage.getItem(KEY); if (first) sessionStorage.setItem(KEY, "1"); } catch {}
+    setShow(first);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
   if (!show || !site.coffee) return null;
   return (
     <aside className="nudge" aria-label="Support">

@@ -14,7 +14,9 @@ function Pill({ href, onClick, icon, label, done, children }: { href?: string; o
 export function ShareRow({ url, title, summary }: { url: string; title: string; summary?: string }) {
   const [copied, setCopied] = useState(false);
   const [canShare, setCanShare] = useState(false);
-  useEffect(() => { setCanShare(typeof navigator !== "undefined" && typeof navigator.share === "function"); }, []);
+  // navigator.share is a browser fact; checking after mount keeps server and client HTML identical.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setCanShare(typeof navigator.share === "function"); }, []);
   const enc = encodeURIComponent;
   const copy = async () => { try { await navigator.clipboard.writeText(url); } catch {} setCopied(true); setTimeout(() => setCopied(false), 1800); };
   const share = () => navigator.share({ title, text: summary, url }).catch(() => {});
