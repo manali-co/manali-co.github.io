@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { site, owner, ownerLinks } from "@/lib/site";
 import { Picture } from "./Picture";
 import { Icon } from "./Icon";
@@ -26,7 +27,7 @@ export function Footer() {
           <nav className="footer__nav" aria-label="Footer">
             <a href={site.github} target="_blank" rel="noopener">GitHub org</a>
             <a href="/feed.xml">RSS</a>
-            <a href="/subscribe/">Subscribe</a>
+            <Link href="/subscribe/">Subscribe</Link>
             <a href="https://github.com/manali-co/.github/tree/main/brand" target="_blank" rel="noopener">Brand</a>
           </nav>
         </div>

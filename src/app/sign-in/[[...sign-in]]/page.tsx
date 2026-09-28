@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SignIn } from "@clerk/nextjs";
 import { clerkEnabled } from "@/lib/clerk-enabled";
 import { Picture } from "@/components/Picture";
@@ -13,7 +14,7 @@ export default function SignInPage() {
       <Picture light="/brand/mark-color.svg" dark="/brand/mark-on-dark.svg" alt="" className="signin__mark" width={56} height={56} />
       <div>
         <h1 className="signin__title">Sign in</h1>
-        <p className="muted">This area is for the owner. If that&apos;s not you, the <a href="/blog/">blog</a> is the good part anyway.</p>
+        <p className="muted">This area is for the owner. If that&apos;s not you, the <Link href="/blog/">blog</Link> is the good part anyway.</p>
       </div>
       {clerkEnabled ? <SignIn appearance={{
         variables: { colorPrimary: "#5B63C7", borderRadius: "12px", fontFamily: "var(--font-body)" },
