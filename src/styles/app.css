@@ -361,3 +361,6 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 .soon .release__actions { margin: 0; }
 @keyframes ma-soon { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: 0.75; } }
 @media (prefers-reduced-motion: reduce) { .soon__dot { animation: none; } }
+
+/* short clips in posts: same frame as a cover, never autoplay with sound */
+.prose .clip { display: block; width: 100%; height: auto; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--bg-sunken); margin: var(--space-6) 0; }

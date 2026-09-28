@@ -12,8 +12,16 @@ const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 const md = new MarkdownIt({ html: false, linkify: true, typographer: true }).use(anchor, {
   permalink: anchor.permalink.headerLink({ safariReaderFix: true }),
 });
-// Images in the body load lazily and never stretch past their own size.
+// Images in the body load lazily and never stretch past their own size. An "image" whose file
+// is .mp4 or .webm becomes a silent, looping clip (a sibling .jpg with the same name is its poster).
 md.renderer.rules.image = (tokens, idx, options, env, self) => {
+  const src = String(tokens[idx].attrGet("src") || "");
+  if (/\.(mp4|webm)$/i.test(src)) {
+    const alt = tokens[idx].content.replace(/"/g, "&quot;");
+    const poster = src.replace(/\.(mp4|webm)$/i, "-poster.jpg");
+    const type = src.toLowerCase().endsWith(".webm") ? "video/webm" : "video/mp4";
+    return `<video class="clip" autoplay muted loop playsinline preload="metadata" poster="${poster}" aria-label="${alt}"><source src="${src}" type="${type}">${alt}</video>`;
+  }
   tokens[idx].attrSet("loading", "lazy");
   tokens[idx].attrSet("decoding", "async");
   return self.renderToken(tokens, idx, options);

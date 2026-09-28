@@ -14,6 +14,8 @@ Manali Apps is not a studio, a lab, or a stealth startup. It is me, a day job, a
 
 The mark up top is one line: two hills, and a sun coming up behind the second one. Patient ground, warm light. That's the mood I'm going for. Whether the software lives up to it is a separate question, which is why there's a blog.
 
+![Thirty seconds on manali.page: the home page, the three project cards, the empty blog being honest about itself, and the subscribe box.](/posts/the-only-excuse-left-is-taste/site-tour.mp4)
+
 ## What's actually built
 
 Three things so far. One is live, two are close.
@@ -30,7 +32,7 @@ This is the part I actually want to talk about.
 
 Most of the typing here is done by coding agents. Not "AI-assisted" in the autocomplete sense. I describe the thing, argue about the design, read what comes back, and say no a lot. The agents write the code, the tests, the infrastructure, and sometimes these posts. When one of them writes a post, it's labelled. A person reads everything before it goes up. That person is me, and I'm the bottleneck, which is the right place for the bottleneck to be.
 
-Some numbers from this week, because I find them a little absurd: this website, the email system behind it, a production backend on Azure with its own telemetry, a brand with animated marks, and a review pass by three separate critic agents that found real security holes and made me fix them. Days, not months. I did not write the CSS. I picked the near-black.
+The clip above is the receipt for this week, and I find it a little absurd: this website, the email system behind it, a production backend on Azure with its own telemetry, a brand with animated marks, and a review pass by three separate critic agents that found real security holes and made me fix them. Days, not months. I did not write the CSS. I picked the near-black.
 
 That's the thesis, if there is one. The tools got good enough that the only excuse left is taste. You still have to know what you want, notice when it's wrong, and care enough to say so. Everything else has become cheap. That is either thrilling or slightly threatening depending on the day, and I'm going to write about both.
 
