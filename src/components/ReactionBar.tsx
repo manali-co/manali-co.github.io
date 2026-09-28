@@ -87,7 +87,6 @@ export function ReactionBar({ slug }: { slug: string }) {
     if (!client.current || data.unavailable || !data.loaded || busy) return;
     // optimistic, then reconcile with the server's answer; roll back if it never comes
     const before = data;
-    track("reaction", { post: slug, kind, on: !data.mine.includes(kind) });
     setData((d) => {
       const mine = d.mine.includes(kind) ? d.mine.filter((k) => k !== kind) : [...d.mine, kind];
       const counts = { ...d.counts, [kind]: (d.counts[kind] || 0) + (d.mine.includes(kind) ? -1 : 1) };
@@ -96,7 +95,11 @@ export function ReactionBar({ slug }: { slug: string }) {
     setBusy(true);
     try {
       const res = await fetch(`/api/reactions/${slug}/`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ client: client.current, kind }) });
-      if (res.ok) setData({ ...(await res.json()), loaded: true });
+      if (res.ok) {
+        const next = await res.json();
+        setData({ ...next, loaded: true });
+        track("reaction", { post: slug, kind, on: (next.mine as string[]).includes(kind) });
+      }
       else setData(before);
     } catch { setData(before); } finally { setBusy(false); }
   };

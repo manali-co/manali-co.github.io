@@ -9,6 +9,7 @@ type Props = Record<string, string | number | boolean | undefined>;
 type AI = { trackPageView: (pv?: { name?: string; uri?: string }) => void; trackEvent: (e: { name: string }, p?: Props) => void };
 let ai: AI | null = null;
 const queue: [string, Props | undefined][] = [];
+let loading = false; // one initialisation per page load, even across remounts
 
 /* Custom events: labels, sections, counts. Never an email address or anything a visitor typed. */
 export function track(name: string, props?: Props) {
@@ -24,7 +25,8 @@ function onClick(e: MouseEvent) {
   const area = el.closest("header, footer, nav, article, aside, section, [role=group]") as HTMLElement | null;
   const where = area?.getAttribute("aria-label") || area?.className.toString().split(" ")[0] || area?.tagName.toLowerCase() || "page";
   const href = el instanceof HTMLAnchorElement ? el.href : "";
-  const external = !!href && /^https?:/.test(href) && !href.startsWith(location.origin);
+  let external = false;
+  try { external = !!href && /^https?:/.test(href) && new URL(href).origin !== location.origin; } catch {}
   track(external ? "outbound_click" : "click", { label, where, page: location.pathname, host: external ? new URL(href).host : undefined });
 }
 
@@ -32,7 +34,8 @@ export function Telemetry() {
   const pathname = usePathname();
   useEffect(() => {
     const cs = process.env.NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING;
-    if (!cs || ai) return;
+    if (!cs || ai || loading) return;
+    loading = true;
     import("@microsoft/applicationinsights-web").then(({ ApplicationInsights }) => {
       const inst = new ApplicationInsights({
         config: {
@@ -61,6 +64,8 @@ export function Telemetry() {
       ai = inst as unknown as AI;
       inst.trackPageView({ name: document.title, uri: location.origin + location.pathname });
       for (const [n, pr] of queue.splice(0)) ai.trackEvent({ name: n }, pr);
+      // Module-level and registered once: the same handler and options never stack, and the
+      // listener lives exactly as long as the telemetry client it reports to.
       document.addEventListener("click", onClick, { capture: true, passive: true });
     });
   }, []);

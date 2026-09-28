@@ -27,6 +27,7 @@ export function SubscribeForm({ compact = false }: { compact?: boolean }) {
       track("subscribe", { result: "ok", page: location.pathname });
       setState("success");
     } catch {
+      track("subscribe", { result: "network_error", page: location.pathname });
       setState("error");
     }
   };
