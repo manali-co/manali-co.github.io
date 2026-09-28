@@ -1,0 +1,37 @@
+name: CI
+
+# Every pull request and every push to main: types, lint, the Vercel-style build (which also
+# validates post front matter) and the static export used by the Pages mirror. `main` requires
+# this check to pass, so a bad post fails here instead of on the live site.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit -p .
+      - run: npm run lint
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://manali.page
+      - run: node scripts/static-export.mjs
+        env:
+          NEXT_PUBLIC_SITE_URL: https://manali.page

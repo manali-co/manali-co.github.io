@@ -18,6 +18,10 @@ Home page, blog, subscriptions and a small admin area for [Manali Apps](https://
 | Releases | Pulled from GitHub Releases at build time; the home page shows a download button when a public build exists. |
 | Telemetry | Page views, route changes and client errors go to Application Insights (`wsww-dev-appi`), the same component the API reports to. |
 
+## Publishing
+
+`main` is protected: pull requests only, and the CI check (types, lint, build, static export) must pass. Merging a pull request is publishing; Vercel deploys `main` to manali.page within a couple of minutes and the Pages mirror follows. Every pull request gets a Vercel preview URL, which is where a post is read before it goes up. `npm run new` starts a `post/<slug>` branch for you when you run it on `main`. Admins can bypass the ruleset in an emergency; nobody should need to.
+
 ## How a post should feel
 
 Meaningful or it doesn't go up. Findings, thoughts, the odd evening; never a changelog, never filler. And playful: use the toys. A pull quote (`> ...`) for the line worth repeating, an aside for the detour (`> Aside: ...`, also `Note:`, `Confession:`, `Receipt:`, `Rule:`), a small table for receipts, `<kbd>`-style keys with backticks, a rule (`---`) for a breath, a clip for proof, and colour when a word needs it: `==highlight==`, `::sun[text]` (also `indigo`, `rose`, `coral`, `moss`), `::big[text]` for a size up, `::loud[text]` for the one word you want shouted. Headings are sentences with a point, not labels. Short paragraphs. End on something, not on "thanks for reading". Before it goes up, run it through `/unslop` (the skill lives in `.claude/skills/unslop/`): no AI vocabulary, no em dashes, no rule-of-three padding, active voice, say what it does rather than how it feels.

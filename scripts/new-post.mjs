@@ -33,6 +33,13 @@ if (taken) {
   process.exit(1);
 }
 const file = resolve(dir, `${date}-${slug}.md`);
+// Posts are published by merging. Start a branch for it if we are sitting on main.
+import { execSync } from "node:child_process";
+let branch = "";
+try {
+  const current = execSync("git rev-parse --abbrev-ref HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
+  if (current === "main") { branch = `post/${slug}`; execSync(`git checkout -b ${branch}`, { stdio: "ignore" }); }
+} catch {}
 writeFileSync(
   file,
   `---
@@ -47,3 +54,9 @@ ${args.draft === "true" ? "draft: true\n" : ""}---
 `
 );
 console.log(file);
+console.log(`
+Next:
+  1. write it, then: npm run build        (front matter is checked here)
+  2. git add content && git commit -m "Post: ${title.replace(/"/g, "'")}"
+  3. git push -u origin ${branch || "$(git branch --show-current)"} && gh pr create --fill
+  4. read the Vercel preview on the pull request; merging publishes it`);
