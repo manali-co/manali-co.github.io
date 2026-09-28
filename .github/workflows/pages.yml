@@ -31,7 +31,7 @@ jobs:
         env:
           # Links, canonical tags, feed ids and social cards all point at the full deployment; the
           # Pages copy is a mirror of the reading experience, not a second home.
-          NEXT_PUBLIC_SITE_URL: https://manali-web.vercel.app
+          NEXT_PUBLIC_SITE_URL: https://manali.page
           NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING: ${{ vars.APPINSIGHTS_CONNECTION_STRING }}
       - run: touch out/.nojekyll
       - uses: actions/upload-pages-artifact@v3
