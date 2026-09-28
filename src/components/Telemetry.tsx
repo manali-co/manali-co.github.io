@@ -67,7 +67,7 @@ export function Telemetry() {
       // Module-level and registered once: the same handler and options never stack, and the
       // listener lives exactly as long as the telemetry client it reports to.
       document.addEventListener("click", onClick, { capture: true, passive: true });
-    });
+    }).catch(() => { loading = false; }); // a failed load can retry on the next mount
   }, []);
   useEffect(() => {
     if (ai && pathname) ai.trackPageView({ name: document.title, uri: location.origin + location.pathname });
