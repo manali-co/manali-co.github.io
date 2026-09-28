@@ -18,6 +18,38 @@ export function track(name: string, props?: Props) {
   else if (queue.length < 50) queue.push([name, clean]);
 }
 
+/* Engaged time and reading depth, per page: seconds the tab was actually visible (not just
+   open) and the deepest point scrolled to. Sent when the visitor moves on or the tab hides. */
+const engaged = { path: "", visibleMs: 0, since: 0, maxDepth: 0, sent: false };
+function depthNow() {
+  const h = document.documentElement.scrollHeight - innerHeight;
+  return h <= 0 ? 100 : Math.min(100, Math.round((scrollY / h) * 100));
+}
+function flushEngaged(reason: string) {
+  if (!engaged.path || engaged.sent) return;
+  if (engaged.since) engaged.visibleMs += Date.now() - engaged.since;
+  engaged.since = 0;
+  engaged.sent = true;
+  const device = matchMedia("(max-width: 720px)").matches ? "phone" : "laptop";
+  // Each event carries the visible time since the last one, so a tab that hides and returns
+  // reports two slices; the dashboard sums them per page view.
+  track("page_engaged", { page: engaged.path, seconds: Math.round(engaged.visibleMs / 1000), depth: engaged.maxDepth, device, reason });
+  engaged.visibleMs = 0;
+  (ai as unknown as { flush?: (async?: boolean) => void } | null)?.flush?.(false);
+}
+function startEngaged(path: string) {
+  flushEngaged("navigate");
+  Object.assign(engaged, { path, visibleMs: 0, since: document.visibilityState === "visible" ? Date.now() : 0, maxDepth: depthNow(), sent: false });
+}
+if (typeof window !== "undefined") {
+  addEventListener("scroll", () => { engaged.maxDepth = Math.max(engaged.maxDepth, depthNow()); }, { passive: true });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flushEngaged("hidden");
+    else if (engaged.path) { engaged.sent = false; engaged.since = Date.now(); }
+  });
+  addEventListener("pagehide", () => flushEngaged("leave"));
+}
+
 function onClick(e: MouseEvent) {
   const el = (e.target as HTMLElement | null)?.closest("a, button, [role=button]") as HTMLElement | null;
   if (!el) return;
@@ -71,6 +103,7 @@ export function Telemetry() {
   }, []);
   useEffect(() => {
     if (ai && pathname) ai.trackPageView({ name: document.title, uri: location.origin + location.pathname });
+    if (pathname) startEngaged(pathname);
   }, [pathname]);
   return null;
 }
