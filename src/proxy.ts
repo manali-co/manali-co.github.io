@@ -10,10 +10,9 @@ const withClerk = clerkMiddleware(async (auth, req) => {
 });
 export default clerkEnabled ? withClerk : () => undefined;
 
+/* Only the owner's routes go through Clerk. Readers never touch it: no handshake redirect for
+   crawlers and curl, no Clerk cookies on the blog, and a smaller surface. The announce server
+   action posts to /admin/, which is covered. */
 export const config = {
-  matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest|xml)).*)",
-    "/(api|trpc)(.*)",
-    "/__clerk/(.*)",
-  ],
+  matcher: ["/admin(.*)", "/sign-in(.*)", "/__clerk/(.*)"],
 };

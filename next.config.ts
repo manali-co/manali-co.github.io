@@ -28,7 +28,7 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
       "frame-src https://giscus.app https://*.clerk.accounts.dev https://challenges.cloudflare.com",
-      "connect-src 'self' https://giscus.app https://api.github.com https://*.clerk.accounts.dev https://clerk.com https://*.in.applicationinsights.azure.com https://*.applicationinsights.azure.com https://dc.services.visualstudio.com",
+      "connect-src 'self' https://giscus.app https://api.github.com https://*.clerk.accounts.dev https://clerk.com https://*.in.applicationinsights.azure.com https://*.applicationinsights.azure.com https://dc.services.visualstudio.com https://js.monitor.azure.com",
       "worker-src 'self' blob:",
       "upgrade-insecure-requests",
     ].join("; "),
