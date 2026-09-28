@@ -5,19 +5,15 @@ import { ogImage, OG_SIZE } from "@/lib/og";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 export const dynamic = "force-static";
+// One alt for every card: the static export cannot carry per-post image metadata.
+export const alt = "manali apps";
 
 export function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }));
 }
 
-/* alt text per post, so a shared card reads as the post and not as the site */
-export async function generateImageMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const post = getPost((await params).slug);
-  return [{ id: "card", size: OG_SIZE, contentType: "image/png", alt: post ? `${post.title} · manali apps` : "manali apps" }];
-}
-
 /* The card social networks show when a post is shared. Generated from the post at build time. */
-export default async function Image({ params }: { params: Promise<{ slug: string }>; id?: string }) {
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const post = getPost((await params).slug);
   if (!post) return ogImage({ title: "manali apps" });
   const label = post.project === "manali" ? "manali apps" : projectLabel[post.project];
