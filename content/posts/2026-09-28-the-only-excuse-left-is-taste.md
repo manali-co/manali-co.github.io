@@ -10,7 +10,7 @@ draft: true
 
 Hi. This is the first post, so it explains what this is.
 
-Manali Apps is my evening job. Not a studio and not a startup. The day job pays; the evenings go to a list of things I kept wishing existed. At some point the wishing got embarrassing, so I started building them, and this is where I write down what happened.
+Manali Apps is my evening job. Not a studio and not a startup. The day job pays. The evenings go to a list of things I kept wishing existed. At some point the wishing got embarrassing, so I started building them, and this is where I write down what happened.
 
 The mark is one line. Two hills, and a sun coming up behind the second one. That is the mood I want. Whether the software lives up to it is a separate question, and the blog is where that gets answered.
 
