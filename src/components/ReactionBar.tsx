@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { track } from "./Telemetry";
 
 /* Reactions that leave a mark, from the design's ReactionBar v2. Tap: the chip pops (420ms),
    a tint ripple expands and fades (700ms), six sparks fly out with a 30ms stagger (560ms),
@@ -86,6 +87,7 @@ export function ReactionBar({ slug }: { slug: string }) {
     if (!client.current || data.unavailable || !data.loaded || busy) return;
     // optimistic, then reconcile with the server's answer; roll back if it never comes
     const before = data;
+    track("reaction", { post: slug, kind, on: !data.mine.includes(kind) });
     setData((d) => {
       const mine = d.mine.includes(kind) ? d.mine.filter((k) => k !== kind) : [...d.mine, kind];
       const counts = { ...d.counts, [kind]: (d.counts[kind] || 0) + (d.mine.includes(kind) ? -1 : 1) };

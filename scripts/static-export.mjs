@@ -51,7 +51,7 @@ function redirectToCanonical(dir, rel = "") {
     if (name !== "index.html" && name !== "404.html") continue;
     const path = name === "404.html" ? "/" : `${rel}/`;
     const target = `${host}${path}`;
-    const tag = `<meta http-equiv="refresh" content="0; url=${target}"><script>location.replace(${JSON.stringify(host)} + (${JSON.stringify(name === "404.html")} ? "/" : location.pathname + location.search + location.hash))</script>`;
+    const tag = `<meta name="robots" content="noindex, follow"><meta http-equiv="refresh" content="0; url=${target}"><script>location.replace(${JSON.stringify(host)} + (${JSON.stringify(name === "404.html")} ? "/" : location.pathname + location.search + location.hash))</script>`;
     const html = readFileSync(p, "utf8").replace("<head>", "<head>" + tag);
     writeFileSync(p, html);
   }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SubscribeForm } from "@/components/SubscribeForm";
 import { ConfirmedNote } from "@/components/ConfirmedNote";
 
-export const metadata: Metadata = { title: "Subscribe", description: "New posts by email. No spam, no schedule, unsubscribe in one click." };
+export const metadata: Metadata = { title: "Subscribe", description: "New posts by email. No spam, no schedule, unsubscribe in one click.", alternates: { canonical: "/subscribe/" } };
 
 export default function Subscribe() {
   return (

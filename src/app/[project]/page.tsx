@@ -13,7 +13,7 @@ export const dynamicParams = false;
 export async function generateMetadata({ params }: { params: Promise<{ project: string }> }): Promise<Metadata> {
   const slug = (await params).project;
   const p = projects.find((x) => x.slug === slug);
-  return p ? { title: p.name, description: p.blurb } : {};
+  return p ? { title: p.name, description: p.blurb, alternates: { canonical: `/${p.slug}/` }, openGraph: { url: `/${p.slug}/` } } : {};
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ project: string }> }) {

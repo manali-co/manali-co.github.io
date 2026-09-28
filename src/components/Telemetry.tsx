@@ -5,8 +5,28 @@ import { usePathname } from "next/navigation";
 /* Page views, route changes, client errors and outgoing fetches go to Application Insights
    (the same resource the API reports to), so one workbook shows the whole picture. Loads
    only when NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING is set. */
-type AI = { trackPageView: (pv?: { name?: string; uri?: string }) => void };
+type Props = Record<string, string | number | boolean | undefined>;
+type AI = { trackPageView: (pv?: { name?: string; uri?: string }) => void; trackEvent: (e: { name: string }, p?: Props) => void };
 let ai: AI | null = null;
+const queue: [string, Props | undefined][] = [];
+
+/* Custom events: labels, sections, counts. Never an email address or anything a visitor typed. */
+export function track(name: string, props?: Props) {
+  const clean = props ? (Object.fromEntries(Object.entries(props).filter(([, v]) => v !== undefined)) as Props) : undefined;
+  if (ai) ai.trackEvent({ name }, clean);
+  else if (queue.length < 50) queue.push([name, clean]);
+}
+
+function onClick(e: MouseEvent) {
+  const el = (e.target as HTMLElement | null)?.closest("a, button, [role=button]") as HTMLElement | null;
+  if (!el) return;
+  const label = (el.getAttribute("data-track") || el.getAttribute("aria-label") || el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 60);
+  const area = el.closest("header, footer, nav, article, aside, section, [role=group]") as HTMLElement | null;
+  const where = area?.getAttribute("aria-label") || area?.className.toString().split(" ")[0] || area?.tagName.toLowerCase() || "page";
+  const href = el instanceof HTMLAnchorElement ? el.href : "";
+  const external = !!href && /^https?:/.test(href) && !href.startsWith(location.origin);
+  track(external ? "outbound_click" : "click", { label, where, page: location.pathname, host: external ? new URL(href).host : undefined });
+}
 
 export function Telemetry() {
   const pathname = usePathname();
@@ -38,8 +58,10 @@ export function Telemetry() {
           for (const k of ["uri", "refUri", "target", "name"]) if (k in d) d[k] = clean(d[k]);
         }
       });
-      ai = inst;
+      ai = inst as unknown as AI;
       inst.trackPageView({ name: document.title, uri: location.origin + location.pathname });
+      for (const [n, pr] of queue.splice(0)) ai.trackEvent({ name: n }, pr);
+      document.addEventListener("click", onClick, { capture: true, passive: true });
     });
   }, []);
   useEffect(() => {

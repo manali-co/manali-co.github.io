@@ -15,9 +15,10 @@ export const metadata: Metadata = {
   openGraph: { siteName: site.name, type: "website" },
   twitter: { card: "summary_large_image" },
   icons: { icon: [{ url: "/brand/favicon.svg", type: "image/svg+xml" }, { url: "/brand/favicon-32.png", sizes: "32x32" }], apple: "/brand/apple-touch-icon-180.png" },
-  // One canonical home (site.url) whichever host served the page, so search engines and share
-  // previews never see the Pages mirror and the Vercel deployment as two different sites.
-  alternates: { canonical: "./", types: { "application/atom+xml": "/feed.xml" } },
+  // Each page sets its own canonical path (resolved against site.url), so the Pages mirror and
+  // the Vercel deployment never look like two different sites.
+  alternates: { types: { "application/atom+xml": "/feed.xml" } },
+  robots: { index: true, follow: true, "max-image-preview": "large" },
 };
 
 export const viewport: Viewport = {

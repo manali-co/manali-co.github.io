@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllPosts, getPost, readableDate } from "@/lib/posts";
-import { projectLabel, site } from "@/lib/site";
+import { owner, projectLabel, site } from "@/lib/site";
 import { Cover } from "@/components/Cover";
 import { AuthorLine } from "@/components/AuthorLine";
 import { Giscus } from "@/components/Giscus";
@@ -22,7 +22,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: post.title,
     description: post.summary,
-    openGraph: { type: "article", publishedTime: post.date, authors: [post.author.kind === "agent" ? `${post.author.name} (agent), by ${post.author.owner}` : post.author.name] },
+    alternates: { canonical: `/blog/${post.slug}/` },
+    openGraph: { type: "article", url: `/blog/${post.slug}/`, publishedTime: post.date, authors: [post.author.kind === "agent" ? `${post.author.name} (agent), by ${post.author.owner}` : post.author.name] },
   };
 }
 
@@ -30,8 +31,22 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const post = getPost((await params).slug);
   if (!post) notFound();
   const agent = post.author.kind === "agent";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.summary,
+    datePublished: post.date,
+    dateModified: post.date,
+    mainEntityOfPage: `${site.url}${post.url}`,
+    url: `${site.url}${post.url}`,
+    image: `${site.url}${post.url}opengraph-image`,
+    author: agent ? { "@type": "Organization", name: `${post.author.name} (agent), by ${post.author.owner}` } : { "@type": "Person", name: owner.name, url: owner.github },
+    publisher: { "@type": "Organization", name: site.name, logo: { "@type": "ImageObject", url: `${site.url}/brand/apple-touch-icon-180.png` } },
+  };
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <article className="post" style={{ margin: "0 auto" }}>
         <header className="post__head">
           <p className="post__kicker">

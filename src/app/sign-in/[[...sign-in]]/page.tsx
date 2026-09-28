@@ -5,7 +5,7 @@ import { clerkEnabled } from "@/lib/clerk-enabled";
 import { Picture } from "@/components/Picture";
 import { Icon } from "@/components/Icon";
 
-export const metadata: Metadata = { title: "Sign in", robots: { index: false } };
+export const metadata: Metadata = { title: "Sign in", robots: { index: false, follow: false } };
 
 /* Owner-only sign-in: one card, one button (Clerk renders it), a plain note. */
 export default function SignInPage() {

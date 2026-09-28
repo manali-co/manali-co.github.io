@@ -5,13 +5,30 @@ import { latestRelease } from "@/lib/releases";
 import { AuthorLine } from "@/components/AuthorLine";
 import { ProjectTag } from "@/components/PostCard";
 
+import type { Metadata } from "next";
+
 export const revalidate = 3600;
+
+export const metadata: Metadata = {
+  title: { absolute: `${site.name} · Things we wished existed. So we're building them.` },
+  alternates: { canonical: "/" },
+  openGraph: { url: "/" },
+};
 
 export default async function Home() {
   const posts = getAllPosts().slice(0, 3);
   const releases = await Promise.all(projects.map((p) => (p.repo ? latestRelease(p.repo) : Promise.resolve(null))));
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "Organization", "@id": `${site.url}/#org`, name: site.name, url: site.url, logo: `${site.url}/brand/apple-touch-icon-180.png`, sameAs: [site.github] },
+      { "@type": "WebSite", "@id": `${site.url}/#site`, name: site.name, url: site.url, description: site.description, publisher: { "@id": `${site.url}/#org` } },
+      ...projects.map((p) => ({ "@type": "SoftwareApplication", name: p.name, operatingSystem: p.platform, applicationCategory: "Application", description: p.blurb, url: "live" in p && p.live ? p.live : `${site.url}/${p.slug}/`, publisher: { "@id": `${site.url}/#org` } })),
+    ],
+  };
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <section className="hero">
         <picture className="hero__mark">
           <source srcSet="/brand/mark-animated-dark.svg" media="(prefers-color-scheme: dark)" />
