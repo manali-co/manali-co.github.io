@@ -6,7 +6,7 @@ project: portfolio
 summary: "The first-round call is gone. Your own agent takes the screen, on your own site, from a record you control, and the recruiter walks away with notes and evidence. The early preview is live."
 cover: /posts/screening-rounds-just-changed/cover.png
 coverAlt: "The screening bar on ayushmagrawal.com answering a question and highlighting the Microsoft role on the page."
-draft: true
+draft: false
 ---
 
 The first-round screening call is a thirty-minute meeting to confirm what a resume already says. Every candidate gives it a dozen times. Every recruiter sits through hundreds. It exists because a resume can't answer a follow-up question.
