@@ -1,50 +1,54 @@
 ---
-title: "The screening call is now a link."
+title: "Screening rounds are changed forever."
 date: 2026-09-29
 author: ayush
 project: manali
-summary: "A first-round screen used to be a thirty-minute call to find out what a resume already says. I built a version where the candidate's own agent takes that call, on the candidate's site, from the candidate's record. Early preview inside."
+summary: "The first-round call is gone. Your own agent takes the screen, on your own site, from a record you control, and the recruiter walks away with notes and evidence. The early preview is live."
 cover: /posts/screening-rounds-just-changed/cover.png
 coverAlt: "The screening bar on ayushmagrawal.com answering a question and highlighting the Microsoft role on the page."
 draft: true
 ---
 
-Every hiring process starts the same way. A recruiter reads a resume, then books a thirty-minute call to ask the questions the resume already answers. What did you build. What was hard about it. Have you used this thing we use. The candidate tells the same story again and again. Nobody enjoys it, and it settles very little.
+The first-round screening call is a thirty-minute meeting to confirm what a resume already says. Every candidate gives it a dozen times. Every recruiter sits through hundreds. It exists because a resume can't answer a follow-up question.
 
-I have been building the other version. The screen happens on the candidate's own site, run by the candidate's own agent, from a record the candidate controls. The recruiter asks whatever they want, in text or out loud, and gets answers with the evidence pointed at on the page. It is about six minutes, there is no score, and the recruiter keeps the notes.
+Now it can. I built the thing that replaces the call, and the early preview is live.
 
-> Rule: the agent answers only from the record. If the record does not say, it says so.
+> The recruiter asks. Your agent answers from your record, scrolls to the evidence, and hands over notes. Six minutes, no call, no calendar.
 
 ![A screening in Type mode on ayushmagrawal.com. One question, the page scrolls to the role, the agent answers from the record and highlights the evidence.](/posts/screening-rounds-just-changed/screening.mp4)
 
-## What the recruiter gets
+## What a screen looks like now
 
-They land on a page with one object on it: the screen. They pick Talk or Type. Talk narrates and scrolls the page, and they can interrupt by speaking. Type does the same with captions and nothing spoken, which suits an open office. The agenda is fixed and short. Background, experience, projects, a fit check against their role, then anything else.
+A recruiter opens your site and there is one object on it: the screen. They pick Talk or Type. Talk narrates and scrolls the page, and they can interrupt by speaking. Type does the same with captions and nothing spoken, which suits an open office. The agenda is short and fixed. Background, experience, projects, a fit check against their role, then anything else.
 
-The part I care about most is that it moves the page. Ask about the Microsoft work and the page scrolls to that role, draws a box around it, and the answer says "on the page" before it says anything else. The recruiter is never reading a chat transcript. They are reading the site, with a guide.
+The agent moves the page. Ask about the Microsoft work and the page scrolls to that role, draws a box around it, and the answer starts with "on the page". The recruiter never reads a transcript. They read your site, with a guide who knows every line of it.
 
-The fit check is the other part. Paste a job description and the agent goes line by line: matches, partial, or not on record. Not on record is an honest answer, and it is the one that saves everyone a call.
+Then the part no call has ever done well. Paste the job description and the agent goes through it line by line: matches, partial, or not on record. "Not on record" is a real answer. It is the answer that used to cost everyone a meeting to discover.
 
-At the end there is a wrap-up with the notes it kept, and one button that sends the conversation to me. It never sends on its own. It also never talks about salary, visa or availability. Those are conversations for people.
+At the end there is a wrap-up with the notes it kept and one button that sends the whole conversation to the candidate. The recruiter keeps the notes. The candidate gets the questions. Both sides leave with more than a call ever gave them.
 
-## What the candidate controls
+## Why this is different from a chatbot on a portfolio
 
-This is where it stops being a chatbot on a portfolio.
+Three reasons, and each one is a rule the framework enforces.
 
-The record is a small knowledge graph the candidate writes and owns. Public documents live in the repo. Private material, the full text of papers, the resume, agent-only notes, stays out of git and out of the page, but the agent can read it. The candidate decides what is on record, how it is phrased, and what the agent must decline. When the record changes, the site does not need a redeploy. The knowledge index is rebuilt and uploaded, and the next screen uses it.
+> Rule: the agent answers only from the record. If the record does not say, it says so. It never guesses on your behalf.
 
-> Receipt: the agent, the fit check, the notes, the page tools, the voice session and the budget guard were built as one framework first, then pointed at my record. My site is the first instance, not the product.
+> Rule: the candidate owns the record. Public documents live in the repo. Private material, the full text of papers, the resume, notes only the agent may read, stays out of git and off the page. You decide what is on record, how it is phrased, and what the agent must decline. Salary, visa and availability are declined by default. Those stay with people.
 
-The site is custom to the person because the record is the person. Same framework, different record, different site.
+> Rule: the record is the product. The site is generated from it. Change the record, rebuild the index, and the next screen uses it. No redeploy. Same framework, your record, your site.
 
-## What it is not, yet
+That last one is the point. This is not my portfolio with a chat box. It is a framework: the agent, the fit check, the notes, the page tools, the voice session and the abuse guard were built once, then pointed at my record. My site is the first instance.
 
-It is one instance, mine, and it is early. The fit check is only as honest as the record behind it. And I am the only candidate on it, which is a small sample.
+> Receipt: the whole thing, agent to infrastructure, was designed in Claude Design and built with coding agents in evenings. The candidate-facing part is a folder of Markdown.
 
-The preview is live: [ayushmagrawal.com](https://www.ayushmagrawal.com). Pick Type, ask it something a recruiter would ask, and see whether the answer is one you would trust. Then paste a real job description and watch what it refuses to claim.
+## Try the early preview
+
+It's live at [ayushmagrawal.com](https://www.ayushmagrawal.com). Pick Type, ask it something you'd ask on a screening call, and watch the page move. Then paste a real job description and see what it refuses to claim. That refusal is the feature.
+
+It's early and it's one instance, mine. That's about to change.
 
 ---
 
-I am opening this up to a few more people before it opens to everyone. If you want your own record and your own screen, leave a comment below with what you do. First invites go out from the comments, in order.
+I'm opening it to a small group next. If you want your own record and your own screen, leave a comment below with what you do and where. Invites go out from the comments, in order, before it opens to everyone.
 
-The screening call was never the interesting part of hiring. It was the part that could be a link.
+The screening call was never the interesting part of hiring. It was the part that could be a link. Now it is one.
