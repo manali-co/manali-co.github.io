@@ -4,8 +4,8 @@ date: 2026-09-28
 author: ayush
 project: manali
 summary: "Manali Apps is my evening job. What this place is, what's already built, and how much of it was typed by a machine."
-coverText: "hello."
-draft: true
+cover: /posts/the-only-excuse-left-is-taste/cover.png
+coverAlt: "The Manali mark: two hills and a sun coming up behind the second one."
 ---
 
 Hi. This is the first post, so it explains what this is.
@@ -15,8 +15,6 @@ Manali Apps is my evening job. Not a studio and not a startup. The day job pays.
 The mark is one line. Two hills, and a sun coming up behind the second one. That is the mood I want. Whether the software lives up to it is a separate question, and the blog is where that gets answered.
 
 > Why Manali, you ask. It is my parents. **Man**ish and Son**ali**. They ran a house on patience and on doing things properly when nobody was watching, and I want this place to run the same way. This is for them.
-
-![Twelve seconds of screens: manali.page, the Yapp bar and its states, What Should We Watch, Spark, and the blog.](/posts/the-only-excuse-left-is-taste/designs-reel.mp4)
 
 ## Three things exist. One is live, two are close.
 
