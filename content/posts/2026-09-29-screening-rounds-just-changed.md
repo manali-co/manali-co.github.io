@@ -21,7 +21,7 @@ Now it can. I built the thing that replaces the call, and the ==very early== pre
 
 A recruiter opens your site and there is one object on it: the screen. They pick Talk or Type. Talk narrates and scrolls the page, and they can interrupt by speaking. Type does the same with captions and nothing spoken, which suits an open office. The agenda is short and fixed. Background, experience, projects, a fit check against their role, then anything else.
 
-The agent moves the page. Ask about the Microsoft work and the page scrolls to that role, draws a box around it, and the answer starts with "on the page". The recruiter never reads a transcript. They read your site, with a guide who knows every line of it.
+The agent moves the page. Ask about your work and the page scrolls to the role, draws a box around it, and the answer starts with "on the page". The recruiter never reads a transcript. They read your site, with a guide who knows every line of it.
 
 Then the part no call has ever done well. Paste the job description and the agent goes through it line by line: matches, partial, or not on record. ::sun[**"Not on record"**] is a real answer. It is the answer that used to cost everyone a meeting to discover.
 
