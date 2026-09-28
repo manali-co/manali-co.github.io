@@ -20,7 +20,7 @@ Home page, blog, subscriptions and a small admin area for [Manali Apps](https://
 
 ## How a post should feel
 
-Meaningful or it doesn't go up. Findings, thoughts, the odd evening; never a changelog, never filler. And playful: use the toys. A pull quote (`> ...`) for the line worth repeating, an aside for the detour (`> Aside: ...`, also `Note:`, `Confession:`, `Receipt:`, `Rule:`), a small table for receipts, `<kbd>`-style keys with backticks, a rule (`---`) for a breath, a clip for proof. Headings are sentences with a point, not labels. Short paragraphs. End on something, not on "thanks for reading". Before it goes up, run it through `/unslop` (the skill lives in `.claude/skills/unslop/`): no AI vocabulary, no em dashes, no rule-of-three padding, active voice, say what it does rather than how it feels.
+Meaningful or it doesn't go up. Findings, thoughts, the odd evening; never a changelog, never filler. And playful: use the toys. A pull quote (`> ...`) for the line worth repeating, an aside for the detour (`> Aside: ...`, also `Note:`, `Confession:`, `Receipt:`, `Rule:`), a small table for receipts, `<kbd>`-style keys with backticks, a rule (`---`) for a breath, a clip for proof, and colour when a word needs it: `==highlight==`, `::sun[text]` (also `indigo`, `rose`, `coral`, `moss`), `::big[text]` for a size up, `::loud[text]` for the one word you want shouted. Headings are sentences with a point, not labels. Short paragraphs. End on something, not on "thanks for reading". Before it goes up, run it through `/unslop` (the skill lives in `.claude/skills/unslop/`): no AI vocabulary, no em dashes, no rule-of-three padding, active voice, say what it does rather than how it feels.
 
 ## Images in posts
 

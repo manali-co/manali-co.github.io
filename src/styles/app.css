@@ -377,3 +377,14 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 .prose hr { border: 0; height: 1px; background: var(--border); margin: var(--space-8) auto; width: 40%; }
 .prose .clip + p em, .prose figcaption { color: var(--text-3); font-size: var(--text-sm); }
 .prose h2 { position: relative; }
+
+/* inline ink for post bodies */
+.prose strong { color: var(--text); }
+.prose mark { background: var(--sun-tint); color: inherit; padding: 0 4px; border-radius: 4px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.prose .ink--sun { color: var(--sun); }
+.prose .ink--indigo { color: var(--accent-text); }
+.prose .ink--rose { color: var(--spark-rose); }
+.prose .ink--coral { color: var(--wswatch-coral); }
+.prose .ink--moss { color: var(--status-live); }
+.prose .ink--big { font-family: var(--font-display); font-weight: 500; font-size: 1.35em; line-height: 1; }
+.prose .ink--loud { font-weight: var(--weight-bold, 700); color: var(--sun); letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.95em; }

@@ -44,6 +44,42 @@ md.core.ruler.push("asides", (state) => {
   }
 });
 
+/* Inline colour and emphasis, still plain Markdown:
+     ==text==            a highlight (sun tint)
+     ::sun[text]         coloured ink: sun, indigo, rose, coral, moss
+     ::big[text]         a size up, display face
+     ::loud[text]        bold, sun-coloured, letter-spaced: the word you want shouted
+   Nest them with **bold** and *italic* as usual. */
+const INKS = new Set(["sun", "indigo", "rose", "coral", "moss", "big", "loud"]);
+md.inline.ruler.before("emphasis", "ink", (state, silent) => {
+  const src = state.src, pos = state.pos;
+  const tokenizeSlice = (from: number, to: number) => {
+    const savedPos = state.pos, savedMax = state.posMax;
+    state.pos = from; state.posMax = to; state.md.inline.tokenize(state);
+    state.pos = savedPos; state.posMax = savedMax;
+  };
+  // ==highlight==
+  if (src.charCodeAt(pos) === 0x3d && src.charCodeAt(pos + 1) === 0x3d) {
+    const end = src.indexOf("==", pos + 2);
+    if (end < 0 || end === pos + 2 || end > state.posMax) return false;
+    if (!silent) { state.push("mark_open", "mark", 1); tokenizeSlice(pos + 2, end); state.push("mark_close", "mark", -1); }
+    state.pos = end + 2; return true;
+  }
+  // ::name[text]
+  if (src.charCodeAt(pos) !== 0x3a || src.charCodeAt(pos + 1) !== 0x3a) return false;
+  const m = /^::([a-z]+)\[/.exec(src.slice(pos, pos + 12));
+  if (!m || !INKS.has(m[1])) return false;
+  const start = pos + m[0].length; let depth = 1, i = start;
+  for (; i < state.posMax; i++) { const c = src[i]; if (c === "[") depth++; else if (c === "]" && --depth === 0) break; }
+  if (i >= state.posMax) return false;
+  if (!silent) {
+    const open = state.push("ink_open", "span", 1); open.attrSet("class", `ink ink--${m[1]}`);
+    tokenizeSlice(start, i);
+    state.push("ink_close", "span", -1);
+  }
+  state.pos = i + 1; return true;
+});
+
 const PROJECTS = new Set(Object.keys(projectLabel));
 const SLUG = /^[a-z0-9][a-z0-9-]{0,120}$/;
 

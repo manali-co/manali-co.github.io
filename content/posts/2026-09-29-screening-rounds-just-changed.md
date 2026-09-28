@@ -11,7 +11,7 @@ draft: true
 
 The first-round screening call is a thirty-minute meeting to confirm what a resume already says. Every candidate gives it a dozen times. Every recruiter sits through hundreds. It exists because a resume can't answer a follow-up question.
 
-Now it can. I built the thing that replaces the call, and the early preview is live.
+Now it can. I built the thing that replaces the call, and the ==very early== preview is live.
 
 > The recruiter asks. Your agent answers from your record, scrolls to the evidence, and hands over notes. Six minutes, no call, no calendar.
 
@@ -23,7 +23,7 @@ A recruiter opens your site and there is one object on it: the screen. They pick
 
 The agent moves the page. Ask about the Microsoft work and the page scrolls to that role, draws a box around it, and the answer starts with "on the page". The recruiter never reads a transcript. They read your site, with a guide who knows every line of it.
 
-Then the part no call has ever done well. Paste the job description and the agent goes through it line by line: matches, partial, or not on record. "Not on record" is a real answer. It is the answer that used to cost everyone a meeting to discover.
+Then the part no call has ever done well. Paste the job description and the agent goes through it line by line: matches, partial, or not on record. ::sun[**"Not on record"**] is a real answer. It is the answer that used to cost everyone a meeting to discover.
 
 At the end there is a wrap-up with the notes it kept and one button that sends the whole conversation to the candidate. The recruiter keeps the notes. The candidate gets the questions. Both sides leave with more than a call ever gave them.
 
@@ -37,18 +37,18 @@ Three reasons, and each one is a rule the framework enforces.
 
 > Rule: the record is the product. The site is generated from it. Change the record, rebuild the index, and the next screen uses it. No redeploy. Same framework, your record, your site.
 
-That last one is the point. This is not my portfolio with a chat box. It is a framework: the agent, the fit check, the notes, the page tools, the voice session and the abuse guard were built once, then pointed at my record. My site is the first instance.
+That last one is the point. This is not my portfolio with a chat box. It is ::indigo[**a framework**]: the agent, the fit check, the notes, the page tools, the voice session and the abuse guard were built once, then pointed at my record. My site is the first instance.
 
 > Receipt: the whole thing, agent to infrastructure, was designed in Claude Design and built with coding agents in evenings. The candidate-facing part is a folder of Markdown.
 
 ## Try the early preview
 
-It's live at [ayushmagrawal.com](https://www.ayushmagrawal.com). Pick Type, ask it something you'd ask on a screening call, and watch the page move. Then paste a real job description and see what it refuses to claim. That refusal is the feature.
+It's live at [ayushmagrawal.com](https://www.ayushmagrawal.com). Pick Type, ask it something you'd ask on a screening call, and watch the page move. Then paste a real job description and see what it refuses to claim. ::moss[That refusal is the feature.]
 
-It's early and it's one instance, mine. That's about to change.
+It's ::loud[very] early. One instance, mine, and I'm the only candidate on it. That's about to change.
 
 ---
 
 I'm opening it to a small group next. If you want your own record and your own screen, leave a comment below with what you do and where. Invites go out from the comments, in order, before it opens to everyone.
 
-The screening call was never the interesting part of hiring. It was the part that could be a link. Now it is one.
+The screening call was never the interesting part of hiring. It was the part that could be a link. ::big[Now it is one.]
