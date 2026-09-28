@@ -41,7 +41,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
         {posts.length ? (
           <ol className="post-grid">{posts.map((post) => <PostCard key={post.slug} post={post} />)}</ol>
         ) : (
-          <p className="empty">Nothing written up yet. The commits are moving; the words will catch up. <Link href="/blog/">Read the rest of the blog</Link> meanwhile.</p>
+          <div className="soon">
+            <span className="soon__dot" aria-hidden="true" />
+            <div>
+              <h3 className="soon__title">Nothing written up yet.</h3>
+              <p className="soon__text">The commits are moving; the words will catch up. <Link href="/subscribe/">Subscribe</Link> and the first note about {p.name} finds you.</p>
+            </div>
+          </div>
         )}
       </section>
     </>

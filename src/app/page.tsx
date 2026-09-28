@@ -66,6 +66,18 @@ export default async function Home() {
         </div>
       </section>
 
+      {posts.length === 0 ? (
+        <section className="section">
+          <div className="soon">
+            <span className="soon__dot" aria-hidden="true" />
+            <div>
+              <h2 className="soon__title">The blog is coming soon.</h2>
+              <p className="soon__text">First post is being written. Subscribe and it lands in your inbox the moment it exists; no filler before then.</p>
+              <p className="release__actions"><Link className="button button--primary button--sm" href="/subscribe/">Subscribe</Link><a className="button button--sm" href="/feed.xml">Atom feed</a></p>
+            </div>
+          </div>
+        </section>
+      ) : (
       <section className="section">
         <div className="section__head">
           <h2 className="section__title">What&apos;s new</h2>
@@ -84,6 +96,7 @@ export default async function Home() {
           ))}
         </ol>
       </section>
+      )}
 
       <section className="section">
         <h2 className="section__title">How this works</h2>

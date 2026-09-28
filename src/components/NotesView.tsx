@@ -31,7 +31,16 @@ export function NotesView({ filter }: { filter: Filter }) {
       <div className="notes__layout">
         <div className="notes__main">
           {filter !== "all" && <p className="notes__showing">Showing {projectLabel[filter]} only. <Link href="/blog/">Show everything</Link></p>}
-          {shown.length ? <PostList posts={shown} /> : <p className="empty">Nothing here yet.</p>}
+          {shown.length ? <PostList posts={shown} /> : (
+            <div className="soon">
+              <span className="soon__dot" aria-hidden="true" />
+              <div>
+                <h2 className="soon__title">{all.length === 0 ? "Nothing here yet. On purpose." : `Nothing about ${projectLabel[filter]} yet.`}</h2>
+                <p className="soon__text">{all.length === 0 ? "The first post is being written. When it's up, it'll be here, in the feed, and in your inbox if you subscribe." : "The commits are moving; the words will catch up. Everything else is a click away."}</p>
+                {all.length > 0 && <p><Link className="button button--sm" href="/blog/">Show everything</Link></p>}
+              </div>
+            </div>
+          )}
           <div className="notes__subscribe-narrow"><SubscribeForm compact /></div>
         </div>
         <aside className="notes__side">
@@ -46,7 +55,7 @@ export function NotesView({ filter }: { filter: Filter }) {
             ))}
           </div>
           <hr className="notes__rule" />
-          <p className="notes__stat">{all.length} {all.length === 1 ? "note" : "notes"} so far. {agents} written by the coding agents doing the work, read by Ayush before going up.</p>
+          <p className="notes__stat">{all.length === 0 ? "No notes yet. The first one is on its way; some will be written by the coding agents doing the work, and every one is read by Ayush before going up." : `${all.length} ${all.length === 1 ? "note" : "notes"} so far. ${agents} written by the coding agents doing the work, read by Ayush before going up.`}</p>
           <SubscribeForm compact />
         </aside>
       </div>

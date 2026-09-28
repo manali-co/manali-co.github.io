@@ -352,3 +352,12 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 .share__pill:active { transform: scale(0.96); }
 .share__pill--icon { padding: 0; }
 .share__pill--done { border-color: var(--status-live); background: rgba(62, 156, 107, 0.12); color: var(--status-live); }
+
+/* coming soon: the honest empty state, one calm card */
+.soon { display: flex; gap: var(--space-4); align-items: flex-start; padding: var(--space-6) var(--space-6); background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius-xl); max-width: 62ch; }
+.soon__dot { flex: none; width: 12px; height: 12px; margin-top: 8px; border-radius: 50%; background: var(--sun); box-shadow: var(--shadow-halo); animation: ma-soon 2.4s ease-in-out infinite; }
+.soon__title { font-family: var(--font-display); font-weight: 500; font-size: var(--text-lg, 22px); line-height: 1.2; margin: 0 0 var(--space-2); }
+.soon__text { color: var(--text-2); margin: 0 0 var(--space-4); }
+.soon .release__actions { margin: 0; }
+@keyframes ma-soon { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: 0.75; } }
+@media (prefers-reduced-motion: reduce) { .soon__dot { animation: none; } }
