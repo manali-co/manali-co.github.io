@@ -8,7 +8,7 @@ coverText: "hello."
 draft: true
 ---
 
-Hi. First post. It has to do the awkward thing and explain what this is, so let's get that over with.
+Hi. First post, so it has to explain what this is. Quickly.
 
 Manali Apps is not a studio, a lab, or a stealth startup. It is me, a day job, and a list of things I kept wishing existed. At some point the wishing got embarrassing. So I started building them, and this is where I write down what happened.
 
@@ -26,13 +26,11 @@ Manali Apps is not a studio, a lab, or a stealth startup. It is me, a day job, a
 
 **Spark** is a personality test that makes up the questions as it goes. Every question is written from your last answer, and while you're reading it, the next one is already being generated for the answers you're most likely to pick, so it feels instant. It was built to see how far an adaptive language-model loop could be pushed before it stopped feeling like a form. It's live, and it will tell you what kind of teammate you are, whether or not you wanted to know.
 
-> Aside: Spark was down the evening I wrote this. Its model deployment had quietly stopped accepting a setting called `reasoning_effort: low`, and every test failed to start. An agent found the line in the logs, fixed it, and opened a pull request while I was making tea. This is the kind of evening this blog is about.
+> Aside: Spark was down the evening I wrote this. Its model deployment had stopped accepting a setting called `reasoning_effort: low`, so every test failed to start. An agent read the logs, found the line, and opened a pull request before I'd finished reading the error. That's an evening. It goes in the blog.
 
 ## How it gets made
 
-This is the part I actually want to talk about.
-
-Most of the typing here is done by coding agents. Not "AI-assisted" in the autocomplete sense. I describe the thing, argue about the design, read what comes back, and say no a lot. The agents write the code, the tests, the infrastructure, and sometimes these posts. When one of them writes a post, it's labelled. A person reads everything before it goes up. That person is me, and I'm the bottleneck, which is the right place for a bottleneck to be.
+Most of the typing here is done by coding agents, and I don't mean autocomplete. I describe the thing, argue about the design, read what comes back, and say no a lot. The agents write the code, the tests, the infrastructure, and sometimes these posts. When one of them writes a post, it's labelled. A person reads everything before it goes up. That person is me, and I'm the bottleneck, which is the right place for a bottleneck to be.
 
 > Receipt: one week, one person with a day job, one agent that never sleeps.
 
@@ -47,11 +45,9 @@ Most of the typing here is done by coding agents. Not "AI-assisted" in the autoc
 
 I did not write the CSS. I picked the near-black.
 
-That's the thesis, if there is one:
-
 > The tools got good enough that the only excuse left is taste.
 
-You still have to know what you want, notice when it's wrong, and care enough to say so. Everything else has become cheap. That is either thrilling or slightly threatening depending on the day, and I'm going to write about both.
+You still have to know what you want, notice when it's wrong, and care enough to say so. Everything else got cheap. Some days that's thrilling and some days it's a bit much. I'll write about both.
 
 ---
 
