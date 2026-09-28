@@ -3,13 +3,43 @@ import path from "node:path";
 import matter from "gray-matter";
 import MarkdownIt from "markdown-it";
 import anchor from "markdown-it-anchor";
-import { authors, type Author } from "./site";
+import { authors, projectLabel, type Author } from "./site";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 
-const md = new MarkdownIt({ html: true, linkify: true, typographer: true }).use(anchor, {
+/* html: false on purpose. Posts are written by people and by coding agents; Markdown is all a
+   post needs, and a stray <script> in an agent's PR must not run on the same origin as /admin. */
+const md = new MarkdownIt({ html: false, linkify: true, typographer: true }).use(anchor, {
   permalink: anchor.permalink.headerLink({ safariReaderFix: true }),
 });
+// Images in the body load lazily and never stretch past their own size.
+md.renderer.rules.image = (tokens, idx, options, env, self) => {
+  tokens[idx].attrSet("loading", "lazy");
+  tokens[idx].attrSet("decoding", "async");
+  return self.renderToken(tokens, idx, options);
+};
+
+const PROJECTS = new Set(Object.keys(projectLabel));
+const SLUG = /^[a-z0-9][a-z0-9-]{0,120}$/;
+
+/* Front matter mistakes fail the build with the file name, instead of quietly publishing a post
+   as the wrong author, under the wrong project, or on top of another post. */
+function check(file: string, data: Record<string, unknown>, slug: string, date: string, seen: Map<string, string>) {
+  const fail = (why: string) => { throw new Error(`content/posts/${file}: ${why}`); };
+  if (!data.title) fail("needs a title");
+  if (!SLUG.test(slug)) fail(`slug "${slug}" must be lowercase letters, digits and dashes (set slug: in front matter or rename the file)`);
+  if (seen.has(slug)) fail(`slug "${slug}" is already used by ${seen.get(slug)}`);
+  seen.set(slug, file);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date + "T00:00:00Z"))) fail(`date "${date}" must be YYYY-MM-DD`);
+  if (data.author !== undefined && !(String(data.author) in authors)) fail(`author "${String(data.author)}" is not one of: ${Object.keys(authors).join(", ")}`);
+  if (data.project !== undefined && !PROJECTS.has(String(data.project))) fail(`project "${String(data.project)}" is not one of: ${[...PROJECTS].join(", ")}`);
+  if (data.cover !== undefined) {
+    const cover = String(data.cover);
+    if (!cover.startsWith("/")) fail(`cover "${cover}" must be a site path such as /posts/${slug}/cover.webp (files live under public/)`);
+    if (!fs.existsSync(path.join(process.cwd(), "public", cover))) fail(`cover "${cover}" does not exist under public/`);
+  }
+  if (!data.draft && !data.summary) fail("needs a summary (one or two sentences; it is the card text, the feed description and the email preview)");
+}
 
 export type Post = {
   slug: string;
@@ -40,18 +70,20 @@ function slugOf(file: string) {
 
 export function getAllPosts({ includeDrafts = false } = {}): Post[] {
   if (!fs.existsSync(POSTS_DIR)) return [];
-  const files = fs.readdirSync(POSTS_DIR).filter((f) => f.endsWith(".md"));
+  const files = fs.readdirSync(POSTS_DIR).filter((f) => f.endsWith(".md")).sort();
+  const seen = new Map<string, string>();
   const posts = files.map((file) => {
     const raw = fs.readFileSync(path.join(POSTS_DIR, file), "utf8");
     const { data, content } = matter(raw);
-    const slug = data.slug || slugOf(file);
+    const slug = String(data.slug || slugOf(file));
     const html = md.render(content);
     const date = data.date instanceof Date ? data.date.toISOString().slice(0, 10) : String(data.date || file.slice(0, 10));
+    check(file, data, slug, date, seen);
     return {
       slug,
       title: String(data.title || slug),
       date,
-      author: authors[data.author] || authors.ayush,
+      author: authors[String(data.author || "ayush")],
       project: (data.project || "manali") as Post["project"],
       summary: String(data.summary || ""),
       cover: data.cover,
@@ -59,7 +91,7 @@ export function getAllPosts({ includeDrafts = false } = {}): Post[] {
       coverText: data.coverText ? String(data.coverText) : undefined,
       coverVariant: data.coverVariant,
       tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
-      draft: Boolean(data.draft),
+      draft: data.draft === true,
       html,
       readingTime: readingTime(html),
       url: `/blog/${slug}/`,

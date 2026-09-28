@@ -185,7 +185,7 @@ a.tag:hover { background: var(--bg-sunken); border-color: var(--border-strong); 
 .prose code { font-size: 0.9em; background: var(--bg-sunken); padding: 2px 6px; border-radius: 6px; }
 .prose pre { padding: var(--space-5); background: var(--code-bg); color: var(--code-text); border: 1px solid var(--code-border); border-radius: var(--radius-md); font-size: var(--text-mono); line-height: 1.65; overflow-x: auto; }
 .prose pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
-.prose img { width: 100%; border-radius: var(--radius-md); border: 1px solid var(--border); }
+.prose img { max-width: 100%; height: auto; border-radius: var(--radius-md); border: 1px solid var(--border); }
 .prose figcaption { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--text-3); }
 .prose hr { border: 0; height: 1px; background: var(--border); }
 .prose table { width: 100%; border-collapse: collapse; font-size: var(--text-md); }

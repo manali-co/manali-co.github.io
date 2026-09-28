@@ -4,7 +4,7 @@ import { existsSync, renameSync, mkdirSync, rmSync, readdirSync, readFileSync, w
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
-const parked = ["src/app/api", "src/app/admin", "src/app/sign-in", "src/app/unsubscribe", "src/proxy.ts"];
+const parked = ["src/app/api", "src/app/admin", "src/app/sign-in", "src/app/unsubscribe", "src/app/confirm", "src/proxy.ts"];
 const tmp = "node_modules/.static-parked"; // inside node_modules so the compiler never scans it
 mkdirSync(tmp, { recursive: true });
 const moved = [];

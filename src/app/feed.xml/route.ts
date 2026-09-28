@@ -26,7 +26,7 @@ export function GET() {
       author: [{ name: p.author.kind === "agent" ? `${p.author.name} (agent), by ${p.author.owner}` : p.author.name }],
       date: new Date(p.date + "T00:00:00Z"),
       category: [{ name: p.project }],
-      image: p.cover ? site.url + p.cover : undefined,
+      image: p.cover ? (p.cover.startsWith("/") ? site.url + p.cover : p.cover) : undefined,
     });
   }
   return new Response(feed.atom1(), { headers: { "content-type": "application/atom+xml; charset=utf-8" } });

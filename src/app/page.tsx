@@ -52,7 +52,7 @@ export default async function Home() {
                         <span className="release__version">{rel.tag}</span>
                         <time dateTime={rel.date}>{readableDate(rel.date)}</time>
                         {rel.note && <span className="card__release-note">{rel.note}</span>}
-                        {rel.assets[0] && !("live" in p && p.live) ? <a className="button button--primary button--sm" href={rel.assets[0].url}>Download</a> : null}
+                        {(() => { const a = rel.assets.find((x) => /\.(dmg|pkg|zip|apk|ipa|exe|msi|AppImage)$/i.test(x.name)); return a && !("live" in p && p.live) ? <a className="button button--primary button--sm" href={a.url}>Download</a> : null; })()}
                         <a className="button button--sm" href={rel.url} target="_blank" rel="noopener">Release notes</a>
                       </>
                     ) : p.noBuild ? (

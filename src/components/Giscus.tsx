@@ -9,8 +9,9 @@ export function giscusTheme(mode: "light" | "dark") {
   return base ? `${base}/giscus-${mode}.css` : mode === "dark" ? "noborder_dark" : "noborder_light";
 }
 
-/* Comments and reactions, stored in GitHub Discussions. One discussion per post path. */
-export function Giscus() {
+/* Comments, stored in GitHub Discussions. One discussion per post, keyed by "blog/<slug>" so
+   Vercel and Pages share it and the thread survives a path change. */
+export function Giscus({ term }: { term: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
@@ -27,8 +28,9 @@ export function Giscus() {
       "data-repo-id": site.giscus.repoId,
       "data-category": site.giscus.category,
       "data-category-id": site.giscus.categoryId,
-      "data-mapping": "pathname",
-      "data-strict": "1",
+      "data-mapping": "specific",
+      "data-term": term,
+      "data-strict": "0",
       "data-reactions-enabled": "0",
       "data-emit-metadata": "0",
       "data-input-position": "top",
@@ -38,6 +40,6 @@ export function Giscus() {
     };
     for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v);
     el.appendChild(s);
-  }, []);
+  }, [term]);
   return <div ref={ref} className="giscus" />;
 }

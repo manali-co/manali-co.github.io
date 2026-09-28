@@ -28,16 +28,22 @@ export function Telemetry() {
         },
       });
       inst.loadAppInsights();
+      const clean = (u: unknown) => (typeof u === "string" ? u.split("?")[0].split("#")[0] : u);
       inst.addTelemetryInitializer((item) => {
         item.tags = item.tags || {};
         item.tags["ai.cloud.role"] = "manali-web";
+        // Query strings carry confirm/unsubscribe tokens; they stay out of telemetry entirely.
+        const d = item.baseData as Record<string, unknown> | undefined;
+        if (d) {
+          for (const k of ["uri", "refUri", "target", "name"]) if (k in d) d[k] = clean(d[k]);
+        }
       });
       ai = inst;
-      inst.trackPageView({ name: document.title, uri: location.href });
+      inst.trackPageView({ name: document.title, uri: location.origin + location.pathname });
     });
   }, []);
   useEffect(() => {
-    if (ai && pathname) ai.trackPageView({ name: document.title, uri: location.href });
+    if (ai && pathname) ai.trackPageView({ name: document.title, uri: location.origin + location.pathname });
   }, [pathname]);
   return null;
 }

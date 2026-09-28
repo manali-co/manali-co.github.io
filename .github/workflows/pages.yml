@@ -1,8 +1,8 @@
 name: Publish to GitHub Pages
 
 # Static export of the site (home, blog, posts, projects, feed, social cards) on every push to
-# main. Subscribe, reactions and admin need the Vercel + Azure deployment; on Pages they show
-# their "not switched on yet" states.
+# main. Subscribe, reactions, confirm/unsubscribe and admin need the Vercel + Azure deployment;
+# on Pages they show their "not switched on yet" states, and every canonical link points at Vercel.
 on:
   push:
     branches: [main]
@@ -29,7 +29,10 @@ jobs:
       - run: npm ci
       - run: node scripts/static-export.mjs
         env:
-          NEXT_PUBLIC_SITE_URL: https://manali-co.github.io
+          # Links, canonical tags, feed ids and social cards all point at the full deployment; the
+          # Pages copy is a mirror of the reading experience, not a second home.
+          NEXT_PUBLIC_SITE_URL: https://manali-web.vercel.app
+          NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING: ${{ vars.APPINSIGHTS_CONNECTION_STRING }}
       - run: touch out/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:

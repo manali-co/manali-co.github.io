@@ -18,7 +18,7 @@ const ORDER = ["thumbs-up", "heart", "rocket", "eyes", "laugh", "sun"] as const;
 const LABELS: Record<string, string> = { "thumbs-up": "Thumbs up", heart: "Heart", rocket: "Rocket", eyes: "Eyes", laugh: "Laugh", sun: "Sunrise" };
 const SPARKS = [[-14, -18], [10, -20], [18, -6], [-18, 2], [6, 16], [-6, 18]];
 type Kind = (typeof ORDER)[number];
-type Data = { counts: Record<string, number>; mine: string[]; unavailable?: boolean };
+type Data = { counts: Record<string, number>; mine: string[]; unavailable?: boolean; loaded?: boolean };
 
 function clientId() {
   try {
@@ -75,15 +75,17 @@ export function ReactionBar({ slug }: { slug: string }) {
     client.current = clientId();
     const q = window.matchMedia("(prefers-reduced-motion: reduce)");
     const f = () => setReduced(q.matches); f(); q.addEventListener("change", f);
-    fetch(`/api/reactions/${slug}?client=${encodeURIComponent(client.current)}`)
+    // The browser's id goes in a header, never a URL, so it stays out of request logs.
+    fetch(`/api/reactions/${slug}/`, { headers: client.current ? { "x-client": client.current } : {} })
       .then((r) => (r.ok ? r.json() : { counts: {}, mine: [], unavailable: true }))
-      .then(setData)
-      .catch(() => setData({ counts: {}, mine: [], unavailable: true }));
+      .then((d) => setData({ ...d, loaded: true }))
+      .catch(() => setData({ counts: {}, mine: [], unavailable: true, loaded: true }));
     return () => q.removeEventListener("change", f);
   }, [slug]);
   const toggle = async (kind: Kind) => {
-    if (!client.current || data.unavailable) return;
-    // optimistic, then reconcile with the server's answer
+    if (!client.current || data.unavailable || !data.loaded || busy) return;
+    // optimistic, then reconcile with the server's answer; roll back if it never comes
+    const before = data;
     setData((d) => {
       const mine = d.mine.includes(kind) ? d.mine.filter((k) => k !== kind) : [...d.mine, kind];
       const counts = { ...d.counts, [kind]: (d.counts[kind] || 0) + (d.mine.includes(kind) ? -1 : 1) };
@@ -91,14 +93,15 @@ export function ReactionBar({ slug }: { slug: string }) {
     });
     setBusy(true);
     try {
-      const res = await fetch(`/api/reactions/${slug}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ client: client.current, kind }) });
-      if (res.ok) setData(await res.json());
-    } catch {} finally { setBusy(false); }
+      const res = await fetch(`/api/reactions/${slug}/`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ client: client.current, kind }) });
+      if (res.ok) setData({ ...(await res.json()), loaded: true });
+      else setData(before);
+    } catch { setData(before); } finally { setBusy(false); }
   };
   const total = ORDER.reduce((a, k) => a + (data.counts[k] || 0), 0);
   return (
     <div className="reactions" role="group" aria-label="Reactions">
-      {ORDER.map((k) => <Chip key={k} id={k} count={data.counts[k] || 0} mine={data.mine.includes(k)} onToggle={toggle} reduced={reduced} busy={busy} />)}
+      {ORDER.map((k) => <Chip key={k} id={k} count={data.counts[k] || 0} mine={data.mine.includes(k)} onToggle={toggle} reduced={reduced} busy={busy || !data.loaded} />)}
       {total > 0 && <span className="reactions__total">{total} {total === 1 ? "reaction" : "reactions"}</span>}
       {data.unavailable && <span className="reactions__total">Reactions switch on once the backend is up.</span>}
     </div>

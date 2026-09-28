@@ -27,7 +27,11 @@ export function ThemeToggle() {
     try { stored = localStorage.getItem("theme") as Theme | null; } catch {}
     if (stored) apply(stored);
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const sync = () => setIsDark(stored ? stored === "dark" : mq.matches);
+    const sync = () => {
+      let pinned: Theme | null = null;
+      try { pinned = localStorage.getItem("theme") as Theme | null; } catch {}
+      setIsDark(pinned ? pinned === "dark" : mq.matches);
+    };
     sync();
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);

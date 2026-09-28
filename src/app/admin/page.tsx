@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { requireOwner } from "@/lib/admin";
 import { adminStats } from "@/lib/backend";
 import { getAllPosts, readableDate } from "@/lib/posts";
-import { site } from "@/lib/site";
+import { projectLabel, site } from "@/lib/site";
 import { AnnounceCard } from "./AnnounceCard";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false } };
@@ -29,7 +29,7 @@ export default async function Admin() {
         <div className="panel">
           <h2 className="panel__title">Subscribers</h2>
           <p className="stat">{stats ? stats.subscribers : "—"}</p>
-          <p className="stat__label">{stats ? "confirmed addresses" : "backend not reachable; set API_BASE_URL and API_KEY"}</p>
+          <p className="stat__label">{stats ? `confirmed addresses${stats.pending ? ` · ${stats.pending} waiting to confirm` : ""}` : "backend not reachable; set API_BASE_URL, API_KEY and ADMIN_API_KEY"}</p>
           {stats && stats.recent.length > 0 && (
             <ul className="list">
               {stats.recent.slice(0, 8).map((r) => (
@@ -38,7 +38,7 @@ export default async function Admin() {
             </ul>
           )}
         </div>
-        <AnnounceCard post={latest ? { slug: latest.slug, title: latest.title, summary: latest.summary, url: site.url + latest.url, cover: `${site.url}/blog/${latest.slug}/opengraph-image`, coverText: latest.coverText, project: latest.project, date: readableDate(latest.date), author: latest.author.kind === "agent" ? `${latest.author.name} for ${latest.project === "manali" ? "manali apps" : latest.project} · by ${latest.author.owner}` : latest.author.name } : null} lastEmail={stats?.lastEmail} />
+        <AnnounceCard post={latest ? { slug: latest.slug, title: latest.title, summary: latest.summary, url: site.url + latest.url, cover: `${site.url}/blog/${latest.slug}/opengraph-image`, coverText: latest.coverText, project: latest.project, date: readableDate(latest.date), author: latest.author.kind === "agent" ? `${latest.author.name} for ${projectLabel[latest.project] || "manali apps"} · by ${latest.author.owner}` : latest.author.name } : null} lastEmail={stats?.lastEmail} />
         <div className="panel">
           <h2 className="panel__title">Recent comments</h2>
           <p className="muted">Comments and reactions live in GitHub Discussions. Moderate them there; nothing to sync.</p>

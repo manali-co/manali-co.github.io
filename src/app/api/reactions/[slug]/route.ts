@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
 
 /* Reactions live in the Azure backend; the browser only ever talks to this route. The client
-   id is a random string the browser keeps in localStorage: no account, no IP, nothing personal. */
+   id is a random string the browser keeps in localStorage: no account, no IP, nothing personal.
+   It travels in a header or a POST body, never in a URL, so it never lands in a request log. */
 const BASE = process.env.API_BASE_URL || "";
 const KEY = process.env.API_KEY || "";
 const KINDS = new Set(["thumbs-up", "heart", "rocket", "eyes", "laugh", "sun"]);
-const ok = (s: string, re: RegExp) => re.test(s);
+const SLUG = /^[a-z0-9][a-z0-9-]{0,120}$/;
+const CLIENT = /^[A-Za-z0-9_-]{16,64}$/;
 
-async function upstream(path: string, init?: RequestInit) {
+async function upstream(path: string, init: RequestInit = {}, extra: Record<string, string> = {}) {
   if (!BASE) return null;
   try {
-    const res = await fetch(`${BASE}${path}`, { ...init, headers: { "content-type": "application/json", "x-api-key": KEY }, cache: "no-store" });
+    const res = await fetch(`${BASE}${path}`, { ...init, headers: { "content-type": "application/json", "x-api-key": KEY, ...extra }, cache: "no-store" });
     return res.ok ? await res.json() : null;
   } catch {
     return null;
@@ -19,10 +21,10 @@ async function upstream(path: string, init?: RequestInit) {
 
 export async function GET(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const client = new URL(req.url).searchParams.get("client") || "";
-  if (!ok(slug, /^[a-z0-9][a-z0-9-]{0,120}$/)) return NextResponse.json({ error: "bad slug" }, { status: 400 });
-  const data = await upstream(`/reactions/${slug}?client=${encodeURIComponent(client)}`);
-  return NextResponse.json(data || { counts: {}, mine: [], unavailable: true });
+  if (!SLUG.test(slug)) return NextResponse.json({ error: "bad slug" }, { status: 400 });
+  const client = req.headers.get("x-client") || "";
+  const data = await upstream(`/reactions/${slug}`, {}, CLIENT.test(client) ? { "x-client": client } : {});
+  return NextResponse.json(data || { counts: {}, mine: [], unavailable: true }, { headers: { "cache-control": "no-store" } });
 }
 
 export async function POST(req: Request, { params }: { params: Promise<{ slug: string }> }) {
@@ -30,7 +32,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
   let body: { client?: string; kind?: string } = {};
   try { body = await req.json(); } catch { return NextResponse.json({ error: "bad request" }, { status: 400 }); }
   const client = String(body.client || ""), kind = String(body.kind || "");
-  if (!ok(slug, /^[a-z0-9][a-z0-9-]{0,120}$/) || !ok(client, /^[A-Za-z0-9_-]{16,64}$/) || !KINDS.has(kind)) return NextResponse.json({ error: "bad request" }, { status: 400 });
+  if (!SLUG.test(slug) || !CLIENT.test(client) || !KINDS.has(kind)) return NextResponse.json({ error: "bad request" }, { status: 400 });
   const data = await upstream(`/reactions/${slug}`, { method: "POST", body: JSON.stringify({ client, kind }) });
   if (!data) return NextResponse.json({ error: "unavailable" }, { status: 503 });
   return NextResponse.json(data);

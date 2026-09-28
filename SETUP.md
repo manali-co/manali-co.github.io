@@ -31,10 +31,12 @@ az ad app federated-credential create --id "$APP_ID" --parameters "{
 }"
 
 API_KEY=$(openssl rand -hex 24); TOKEN_SECRET=$(openssl rand -hex 32)
+ADMIN_KEY=$(openssl rand -hex 24)
 gh secret set MANALI_API_KEY      -R manali-co/manali-api -b "$API_KEY"
+gh secret set MANALI_ADMIN_KEY    -R manali-co/manali-api -b "$ADMIN_KEY"
 gh secret set MANALI_TOKEN_SECRET -R manali-co/manali-api -b "$TOKEN_SECRET"
 gh secret set RESEND_API_KEY      -R manali-co/manali-api -b "re_..."     # from step 3; can wait
-echo "API_KEY=$API_KEY"   # you'll paste this into Vercel in step 4
+echo "API_KEY=$API_KEY ADMIN_KEY=$ADMIN_KEY"   # you'll paste these into Vercel in step 4
 gh workflow run deploy.yml -R manali-co/manali-api && sleep 5 && gh run watch -R manali-co/manali-api
 curl https://manali-dev-api.azurewebsites.net/api/healthz
 ```
@@ -66,12 +68,13 @@ az ad app federated-credential create --id "$APP_ID" --parameters "{
 }"
 
 # prod's own keys (never reuse dev's)
-PROD_API_KEY=$(openssl rand -hex 24); PROD_TOKEN_SECRET=$(openssl rand -hex 32)
+PROD_API_KEY=$(openssl rand -hex 24); PROD_ADMIN_KEY=$(openssl rand -hex 24); PROD_TOKEN_SECRET=$(openssl rand -hex 32)
 gh secret set MANALI_API_KEY      -R manali-co/manali-api -e prod -b "$PROD_API_KEY"
+gh secret set MANALI_ADMIN_KEY    -R manali-co/manali-api -e prod -b "$PROD_ADMIN_KEY"
 gh secret set MANALI_TOKEN_SECRET -R manali-co/manali-api -e prod -b "$PROD_TOKEN_SECRET"
 gh secret set RESEND_API_KEY      -R manali-co/manali-api -e prod -b "re_..."
 gh variable set MAIL_FROM         -R manali-co/manali-api -e prod -b "manali apps <hello@yourdomain>"
-echo "PROD_API_KEY=$PROD_API_KEY"
+echo "PROD_API_KEY=$PROD_API_KEY PROD_ADMIN_KEY=$PROD_ADMIN_KEY"
 
 gh workflow run deploy.yml -R manali-co/manali-api -f environment=prod && sleep 5 && gh run watch -R manali-co/manali-api
 curl https://manali-prod-api.azurewebsites.net/api/healthz
@@ -83,6 +86,7 @@ Then point the Vercel **production** environment at prod and leave **preview** o
 cd ~/projects/manali-web
 vercel env rm API_BASE_URL production -y; echo "https://manali-prod-api.azurewebsites.net/api" | vercel env add API_BASE_URL production
 vercel env rm API_KEY production -y;      echo "$PROD_API_KEY"                                   | vercel env add API_KEY production
+echo "$PROD_ADMIN_KEY" | vercel env add ADMIN_API_KEY production      # production only, never preview
 vercel --prod
 ```
 
@@ -111,13 +115,14 @@ Until this is done the API logs emails instead of sending them; subscribing stil
 
 | Name | Value |
 |---|---|
-| `NEXT_PUBLIC_SITE_URL` | the Vercel URL, or your domain later |
+| `NEXT_PUBLIC_SITE_URL` | the Vercel URL, or your domain later. This is the canonical host: the Pages build also links here. |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | from Clerk |
 | `CLERK_SECRET_KEY` | from Clerk |
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | `/sign-in` |
 | `ADMIN_EMAILS` | the email on your GitHub account |
 | `API_BASE_URL` | `https://manali-dev-api.azurewebsites.net/api` |
 | `API_KEY` | the `API_KEY` from step 1 |
+| `ADMIN_API_KEY` | the `ADMIN_KEY` from step 1. **Production only**: it unlocks the subscriber list and the announce button, so preview deployments must not have it. |
 | `NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING` | `az monitor app-insights component show --app wsww-dev-appi -g rg-wsww-dev --query connectionString -o tsv` |
 
 

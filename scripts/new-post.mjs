@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Create a new post with the right front matter. Made for people and agents alike.
 //   npm run new -- --title "Yapp learns to undo" --project yapp --author claude
-import { writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const args = Object.fromEntries(
@@ -13,28 +13,35 @@ const args = Object.fromEntries(
 
 const title = args.title;
 if (!title) {
-  console.error('usage: npm run new -- --title "Post title" [--project yapp|what-should-we-watch|manali] [--author ayush|claude] [--draft]');
+  console.error('usage: npm run new -- --title "Post title" [--summary "One line"] [--project yapp|what-should-we-watch|spark|manali] [--author ayush|claude] [--draft]');
   process.exit(1);
 }
+const PROJECTS = ["yapp", "what-should-we-watch", "spark", "manali"];
+const AUTHORS = ["ayush", "claude"];
 const project = args.project || "manali";
 const author = args.author || "ayush";
+if (!PROJECTS.includes(project)) { console.error(`--project must be one of ${PROJECTS.join(", ")}`); process.exit(1); }
+if (!AUTHORS.includes(author)) { console.error(`--author must be one of ${AUTHORS.join(", ")}`); process.exit(1); }
 const date = new Date().toISOString().slice(0, 10);
-const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+const slug = title.normalize("NFKD").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+if (!slug) { console.error("the title needs at least one letter or digit for the slug"); process.exit(1); }
 const dir = resolve("content/posts");
 mkdirSync(dir, { recursive: true });
-const file = resolve(dir, `${date}-${slug}.md`);
-if (existsSync(file)) {
-  console.error(`already exists: ${file}`);
+const taken = readdirSync(dir).find((f) => f.endsWith(`-${slug}.md`) || f === `${slug}.md`);
+if (taken) {
+  console.error(`slug "${slug}" is already used by content/posts/${taken}; pick another title or set slug: by hand`);
   process.exit(1);
 }
+const file = resolve(dir, `${date}-${slug}.md`);
 writeFileSync(
   file,
   `---
-title: "${title.replace(/"/g, '\\"')}"
+title: ${JSON.stringify(title)}
 date: ${date}
 author: ${author}
 project: ${project}
-summary: ""
+summary: ${JSON.stringify(args.summary && args.summary !== "true" ? args.summary : "")}
+# cover: /posts/${slug}/cover.webp   (put images under public/posts/${slug}/)
 ${args.draft === "true" ? "draft: true\n" : ""}---
 
 `

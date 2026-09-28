@@ -59,7 +59,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <a className="discuss__open" href={`https://github.com/${site.giscus.repo}/discussions`} target="_blank" rel="noopener">Open on GitHub <Icon name="arrow-up-right" size={14} /></a>
         </div>
         <div className="discuss__signin"><span>Comments live in GitHub Discussions; sign in with GitHub to join. No comments yet? Be the first, or don&apos;t, we&apos;re fine.</span></div>
-        <Giscus />
+        <Giscus term={`blog/${post.slug}`} />
       </section>
       <SubscribeForm compact />
     </>

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Icon } from "./Icon";
 
 type State = "idle" | "submitting" | "success" | "already" | "invalid" | "error" | "unavailable";
@@ -13,14 +13,15 @@ const DONE: Record<"success" | "already", { title: string; text: string; icon: s
 export function SubscribeForm({ compact = false }: { compact?: boolean }) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<State>("idle");
+  const id = useId();
+  const emailId = `${id}-email`, statusId = `${id}-status`;
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return setState("invalid");
     setState("submitting");
     try {
-      const res = await fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) });
-      if (res.status === 409) return setState("already");
-      if (res.status === 503 || res.status === 404) return setState("unavailable");
+      const res = await fetch("/api/subscribe/", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) });
+      if (res.status === 503 || res.status === 404 || res.status === 405) return setState("unavailable");
       if (!res.ok) return setState("error");
       setState("success");
     } catch {
@@ -45,17 +46,17 @@ export function SubscribeForm({ compact = false }: { compact?: boolean }) {
             <p className="subscribe__lede">No spam, no schedule, unsubscribe in one click.</p>
           </div>
           <form className="subscribe__form" onSubmit={submit} noValidate>
-            <label className="sr-only" htmlFor="sub-email">Email</label>
+            <label className="sr-only" htmlFor={emailId}>Email</label>
             <input
-              id="sub-email" type="email" name="email" inputMode="email" autoComplete="email" placeholder="you@example.com" value={email}
-              aria-invalid={state === "invalid"} aria-describedby="sub-status"
+              id={emailId} type="email" name="email" inputMode="email" autoComplete="email" placeholder="you@example.com" value={email}
+              aria-invalid={state === "invalid"} aria-describedby={statusId}
               className={state === "invalid" ? "is-invalid" : ""}
               onChange={(e) => { setEmail(e.target.value); if (state === "invalid" || state === "error" || state === "unavailable") setState("idle"); }}
               disabled={state === "submitting"}
             />
             <button className="button button--primary" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "Subscribing…" : "Subscribe"}</button>
           </form>
-          <p id="sub-status" className={`subscribe__status ${state === "invalid" || state === "error" ? "subscribe__status--err" : ""}`} role="status" aria-live="polite">
+          <p id={statusId} className={`subscribe__status ${state === "invalid" || state === "error" ? "subscribe__status--err" : ""}`} role="status" aria-live="polite">
             {state === "invalid" ? "That doesn't look like an email." : state === "unavailable" ? "Email signup isn't switched on yet. The Atom feed works today; this will too, soon." : state === "error" ? "Something on our side broke. Try again in a minute, or open an issue if it keeps happening." : ""}
           </p>
         </>

@@ -18,6 +18,12 @@ Home page, blog, subscriptions and a small admin area for [Manali Apps](https://
 | Releases | Pulled from GitHub Releases at build time; the home page shows a download button when a public build exists. |
 | Telemetry | Page views, route changes and client errors go to Application Insights (`wsww-dev-appi`), the same component the API reports to. |
 
+## Images in posts
+
+Put files under `public/posts/<slug>/` and reference them with a site path: `cover: /posts/<slug>/cover.webp` in front matter, `![what it shows](/posts/<slug>/step-2.webp)` in the body. Relative paths like `./shot.png` do not work: `content/` is not served. Keep them small: WebP or PNG, at most 1600px wide, ideally under 300KB, and 1200×675 for a cover. Body images load lazily and never stretch past their own size. The build fails if a cover path points at a file that is not there.
+
+Front matter is checked at build time: `author` must be a key in `authors` (`src/lib/site.ts`), `project` one of the known projects, `date` a `YYYY-MM-DD`, the slug lowercase and unique, and a `summary` is required unless the post is a draft. Markdown only: raw HTML in a post is rendered as text, never executed.
+
 ## Write a post
 
 ```sh
@@ -32,7 +38,7 @@ date: 2026-09-25
 author: claude            # ayush | claude   (src/lib/site.ts)
 project: yapp             # yapp | what-should-we-watch | manali
 summary: ""               # one sentence; index, feed and the email use it
-cover: /covers/undo.png   # optional, 16:9; without it the project's brand placeholder is used
+cover: /posts/undo/cover.webp   # optional, 16:9; without it the project's brand placeholder is used
 draft: true               # optional; drafts never build
 ```
 
@@ -77,6 +83,7 @@ exceptions | where client_Type == "Browser" | summarize count() by problemId | o
 | `src/styles/` | `tokens.css` (design-system tokens), `site.css` (components), `app.css` (web-app additions). |
 | `content/posts/` | The blog. |
 | `public/brand/`, `public/apps/` | Lockups, marks, covers, app icons. |
+| `public/posts/<slug>/` | Images for one post. Reference them as `/posts/<slug>/name.webp` in front matter and Markdown. |
 | `scripts/new-post.mjs` | Post generator. |
 
 ## Licence
