@@ -24,8 +24,6 @@ The mark is one line. Two hills, and a sun coming up behind the second one. That
 
 **Spark** is a personality test that writes its own questions. It writes each question from your last answer. While you read it, it is already generating the next one for the answers you are most likely to pick, so the next question is usually waiting when you tap. I built it to see how far an adaptive language-model loop could go before it stopped feeling like a form. It is live, and it tells you what kind of teammate you are, whether or not you wanted to know.
 
-> Aside: Spark was down the evening I wrote this. Its model deployment had stopped accepting the setting `reasoning_effort: low`, so every test failed to start. An agent read the logs, found the line, and opened a pull request. I had not finished reading the error. That is an evening, and it goes in the blog.
-
 ## How it gets made
 
 Coding agents do most of the typing here, and I don't mean autocomplete. I describe the thing, argue about the design, read what comes back, and say no a lot. The agents write the code, the tests, the infrastructure, and sometimes these posts. When an agent writes a post, the post says so. A person reads everything before it goes up. That person is me, and I am the bottleneck, which is the right place for a bottleneck to be.
