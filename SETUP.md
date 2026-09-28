@@ -43,22 +43,23 @@ curl https://manali-dev-api.azurewebsites.net/api/healthz
 
 The deploy provisions `rg-manali-dev` (Flex Consumption function app + one storage account) and reports to `wsww-dev-appi`. The API URL is `https://manali-dev-api.azurewebsites.net/api`.
 
-## 1b. Azure prod: a second, clean instance
+## 1b. Azure prod: its own subscription, a clean instance
 
-Prod is the same Bicep and workflow, selected by the GitHub environment `prod` (already created, restricted to `main` and `v*` tags, with `APPINSIGHTS_ID` → `wsww-prod-appi` and `SITE_URL` set). The resource group `rg-manali-prod` exists in the `manali` subscription. Prod gets its own storage account, so its tables start empty. What remains is owner-only:
+Prod runs in the `manali-prod` subscription (created by you on 2026-09-28); dev stays in `manali`. The GitHub environment `prod` already points at it (`AZURE_SUBSCRIPTION_ID`, `SITE_URL`), `rg-manali-prod` exists there, and Bicep creates prod's own Application Insights and storage, so its tables start empty. What remains is owner-only:
 
 ```sh
+az account set -s manali-prod
 APP_ID=$(gh variable get AZURE_CLIENT_ID -R manali-co/manali-api)
 SP_ID=$(az ad sp show --id "$APP_ID" --query id -o tsv)
 SUB=$(az account show --query id -o tsv)
 
-# rights on the prod group
+# the deployer's rights on the prod group (Bicep also assigns roles, hence UAA)
 az role assignment create --assignee-object-id "$SP_ID" --assignee-principal-type ServicePrincipal \
   --role Contributor --scope "/subscriptions/$SUB/resourceGroups/rg-manali-prod"
 az role assignment create --assignee-object-id "$SP_ID" --assignee-principal-type ServicePrincipal \
   --role "User Access Administrator" --scope "/subscriptions/$SUB/resourceGroups/rg-manali-prod"
 
-# let the prod environment sign in
+# let the prod environment sign in (id-form subject, like dev)
 SUBJECT=$(gh api repos/manali-co/manali-api/actions/oidc/customization/sub --jq .sub_claim_prefix):environment:prod
 az ad app federated-credential create --id "$APP_ID" --parameters "{
   \"name\": \"manali-api-prod-id\",
@@ -72,15 +73,14 @@ PROD_API_KEY=$(openssl rand -hex 24); PROD_ADMIN_KEY=$(openssl rand -hex 24); PR
 gh secret set MANALI_API_KEY      -R manali-co/manali-api -e prod -b "$PROD_API_KEY"
 gh secret set MANALI_ADMIN_KEY    -R manali-co/manali-api -e prod -b "$PROD_ADMIN_KEY"
 gh secret set MANALI_TOKEN_SECRET -R manali-co/manali-api -e prod -b "$PROD_TOKEN_SECRET"
-gh secret set RESEND_API_KEY      -R manali-co/manali-api -e prod -b "re_..."
-gh variable set MAIL_FROM         -R manali-co/manali-api -e prod -b "manali apps <hello@yourdomain>"
+gh secret set RESEND_API_KEY      -R manali-co/manali-api -e prod -b "re_..."   # the same Resend key works; or make a second one named "manali prod"
 echo "PROD_API_KEY=$PROD_API_KEY PROD_ADMIN_KEY=$PROD_ADMIN_KEY"
 
 gh workflow run deploy.yml -R manali-co/manali-api -f environment=prod && sleep 5 && gh run watch -R manali-co/manali-api
 curl https://manali-prod-api.azurewebsites.net/api/healthz
 ```
 
-Then point the Vercel **production** environment at prod and leave **preview** on dev:
+Then point Vercel **production** (manali.page) at prod. Preview deployments already use dev:
 
 ```sh
 cd ~/projects/manali-web
@@ -90,9 +90,7 @@ echo "$PROD_ADMIN_KEY" | vercel env add ADMIN_API_KEY production      # producti
 vercel --prod
 ```
 
-Later prod deploys: publish a GitHub release (`gh release create v1.0.0 -R manali-co/manali-api --generate-notes`) or run the workflow with `environment=prod`. Pushes to main only touch dev.
-
-If you would rather prod live in its own Azure subscription: create it from your Microsoft Customer Agreement billing account in the portal (Subscriptions → Add), then set `AZURE_SUBSCRIPTION_ID` as a `prod` environment variable and create `rg-manali-prod` plus the two role assignments there instead. Nothing else changes.
+Later prod deploys: publish a GitHub release (`gh release create v1.0.0 -R manali-co/manali-api --generate-notes`) or run the workflow with `environment=prod`. Pushes to main only touch dev. An empty `rg-manali-prod` was also created earlier in the `manali` subscription by mistake; delete it in the portal whenever.
 
 ## 1c. The domain: manali.page
 
