@@ -14,6 +14,8 @@ Manali Apps is my evening job. Not a studio and not a startup. The day job pays.
 
 The mark is one line. Two hills, and a sun coming up behind the second one. That is the mood I want. Whether the software lives up to it is a separate question, and the blog is where that gets answered.
 
+> Why Manali, you ask. It is my parents. **Man**ish and Son**ali**. They ran a house on patience and on doing things properly when nobody was watching, and I want this place to run the same way. This is for them.
+
 ![Thirty seconds on manali.page: the home page, the three project cards, the empty blog with its coming-soon card, and the subscribe box.](/posts/the-only-excuse-left-is-taste/site-tour.mp4)
 
 ## Three things exist. One is live, two are close.
