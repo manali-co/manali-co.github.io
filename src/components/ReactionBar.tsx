@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { track } from "./Telemetry";
 
 /* Reactions that leave a mark, from the design's ReactionBar v2. Tap: the chip pops (420ms),
    a tint ripple expands and fades (700ms), six sparks fly out with a 30ms stagger (560ms),
@@ -94,7 +95,11 @@ export function ReactionBar({ slug }: { slug: string }) {
     setBusy(true);
     try {
       const res = await fetch(`/api/reactions/${slug}/`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ client: client.current, kind }) });
-      if (res.ok) setData({ ...(await res.json()), loaded: true });
+      if (res.ok) {
+        const next = await res.json();
+        setData({ ...next, loaded: true });
+        track("reaction", { post: slug, kind, on: (next.mine as string[]).includes(kind) });
+      }
       else setData(before);
     } catch { setData(before); } finally { setBusy(false); }
   };

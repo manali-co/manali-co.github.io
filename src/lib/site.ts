@@ -2,7 +2,7 @@ export const site = {
   name: "manali apps",
   tagline: "AI and automated software",
   description:
-    "Manali Apps: a tiny umbrella for things we wish existed. Yapp for macOS, What Should We Watch for iOS and Android, and notes on how they get made.",
+    "Manali Apps is an evening studio for software we wished existed: Yapp for macOS, What Should We Watch for iOS and Android, Spark, and a new way to run recruiter screens. Plus notes on how AI agents build them.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://manali.page",
   github: "https://github.com/manali-co",
   coffee: process.env.NEXT_PUBLIC_COFFEE_URL || "https://ko-fi.com/manaliapps",

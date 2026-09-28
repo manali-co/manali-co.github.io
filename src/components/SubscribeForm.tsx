@@ -1,6 +1,7 @@
 "use client";
 import { useId, useState } from "react";
 import { Icon } from "./Icon";
+import { track } from "./Telemetry";
 
 type State = "idle" | "submitting" | "success" | "already" | "invalid" | "error" | "unavailable";
 
@@ -21,10 +22,12 @@ export function SubscribeForm({ compact = false }: { compact?: boolean }) {
     setState("submitting");
     try {
       const res = await fetch("/api/subscribe/", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) });
-      if (res.status === 503 || res.status === 404 || res.status === 405) return setState("unavailable");
-      if (!res.ok) return setState("error");
+      if (res.status === 503 || res.status === 404 || res.status === 405) { track("subscribe", { result: "unavailable", page: location.pathname }); return setState("unavailable"); }
+      if (!res.ok) { track("subscribe", { result: "error", page: location.pathname }); return setState("error"); }
+      track("subscribe", { result: "ok", page: location.pathname });
       setState("success");
     } catch {
+      track("subscribe", { result: "network_error", page: location.pathname });
       setState("error");
     }
   };

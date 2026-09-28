@@ -12,7 +12,7 @@ export const dynamicParams = false;
 
 export async function generateMetadata({ params }: { params: Promise<{ project: string }> }): Promise<Metadata> {
   const { project } = await params;
-  return { title: `Notes · ${projectLabel[project] || project}` };
+  return { title: `Notes · ${projectLabel[project] || project}`, alternates: { canonical: `/blog/project/${project}/` } };
 }
 
 export default async function BlogByProject({ params }: { params: Promise<{ project: string }> }) {
