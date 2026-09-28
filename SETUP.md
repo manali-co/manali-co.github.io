@@ -94,6 +94,15 @@ Later prod deploys: publish a GitHub release (`gh release create v1.0.0 -R manal
 
 If you would rather prod live in its own Azure subscription: create it from your Microsoft Customer Agreement billing account in the portal (Subscriptions → Add), then set `AZURE_SUBSCRIPTION_ID` as a `prod` environment variable and create `rg-manali-prod` plus the two role assignments there instead. Nothing else changes.
 
+## 1c. The domain: manali.page
+
+Everything below assumes the site lives at `https://manali.page`. Buy it first (Porkbun: https://porkbun.com/checkout?q=manali.page, about $11 a year, flat), then:
+
+1. **Attach it to Vercel.** In the site repo: `vercel domains add manali.page` and `vercel domains add www.manali.page`. Vercel prints the DNS records it wants (an `A` record for the apex and a `CNAME` for `www`). Add them in Porkbun under DNS. `.page` is HTTPS-only; Vercel issues the certificate itself once DNS resolves.
+2. **Make it the canonical URL.** In Vercel: `vercel env rm NEXT_PUBLIC_SITE_URL production -y; echo "https://manali.page" | vercel env add NEXT_PUBLIC_SITE_URL production; vercel --prod`. In the API repo: `gh variable set SITE_URL -R manali-co/manali-api -b "https://manali.page"` (and the same with `-e prod`), then run the deploy workflow. Change `NEXT_PUBLIC_SITE_URL` in `.github/workflows/pages.yml` too so the Pages mirror links there.
+3. **Resend.** Domains → Add `manali.page`, paste its records into Porkbun DNS, wait for "Verified". The sender is already `hello@manali.page`.
+4. **Clerk production.** Create a production instance for the app, set its domain to `manali.page`, add the DNS records Clerk shows, then swap the `pk_live_` / `sk_live_` keys into Vercel the same way as the test keys. That removes the "Development mode" badge.
+
 ## 2. Clerk: the admin login
 
 1. clerk.com → Create application → name "manali apps" → enable **GitHub** as the only sign-in method.
