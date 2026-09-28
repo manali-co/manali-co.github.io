@@ -37,6 +37,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   trailingSlash: true,
+  // Links carry the slash; nothing redirects when a URL arrives without one. Social crawlers fetch the
+  // generated card URL exactly as written in og:image, and some of them refuse a redirect.
+  skipTrailingSlashRedirect: true,
   ...(isStatic
     ? {
         output: "export",
