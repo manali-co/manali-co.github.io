@@ -364,3 +364,16 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 
 /* short clips in posts: same frame as a cover, never autoplay with sound */
 .prose .clip { display: block; width: 100%; height: auto; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--bg-sunken); margin: var(--space-6) 0; }
+
+/* jazz for post bodies: pull quotes with attribution, callout asides, keys, highlights */
+.prose blockquote { position: relative; }
+.prose blockquote cite, .prose blockquote em:last-child:only-child { display: block; margin-top: var(--space-2); font-family: var(--font-body); font-size: var(--text-sm); font-style: normal; color: var(--text-3); }
+.prose blockquote.aside { font-family: var(--font-body); font-size: inherit; border-left: 3px solid var(--sun); background: var(--sun-tint); padding: var(--space-4) var(--space-5); border-radius: 0 var(--radius-lg) var(--radius-lg) 0; color: var(--text); }
+.prose blockquote.aside::before { content: attr(data-kicker); display: block; font-family: var(--font-mono); font-size: var(--text-sm); letter-spacing: 0.06em; text-transform: uppercase; color: var(--sun); margin-bottom: var(--space-2); }
+.prose kbd { display: inline-block; padding: 1px 7px 2px; font-family: var(--font-mono); font-size: 0.85em; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 6px; background: var(--bg-raised); }
+.prose mark { background: var(--sun-tint); color: inherit; padding: 0 3px; border-radius: 3px; }
+.prose table { font-size: var(--text-sm); }
+.prose th { font-family: var(--font-mono); font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-3); }
+.prose hr { border: 0; height: 1px; background: var(--border); margin: var(--space-8) auto; width: 40%; }
+.prose .clip + p em, .prose figcaption { color: var(--text-3); font-size: var(--text-sm); }
+.prose h2 { position: relative; }

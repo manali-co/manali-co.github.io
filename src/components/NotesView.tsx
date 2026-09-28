@@ -18,7 +18,7 @@ export function NotesView({ filter }: { filter: Filter }) {
     <div className="notes">
       <section className="page-head">
         <h1 className="page-head__title">Notes</h1>
-        <p className="page-head__lede">Each project as it moves. Some posts are by people, some by the coding agents doing the work. We say which.</p>
+        <p className="page-head__lede">Findings, thoughts, the odd evening. Anything worth your time and nothing that isn&apos;t. Some posts are by people, some by the coding agents doing the work. We say which.</p>
         <p className="page-head__filters notes__filters">
           {FILTERS.map((k) => (
             <Link key={k} className={`tag ${k !== "all" ? `tag--${k}` : ""} ${filter === k ? "tag--active" : ""}`} href={filterHref(k)}>

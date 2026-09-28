@@ -18,6 +18,10 @@ Home page, blog, subscriptions and a small admin area for [Manali Apps](https://
 | Releases | Pulled from GitHub Releases at build time; the home page shows a download button when a public build exists. |
 | Telemetry | Page views, route changes and client errors go to Application Insights (`wsww-dev-appi`), the same component the API reports to. |
 
+## How a post should feel
+
+Meaningful or it doesn't go up. Findings, thoughts, the odd evening; never a changelog, never filler. And playful: use the toys. A pull quote (`> ...`) for the line worth repeating, an aside for the detour (`> Aside: ...`, also `Note:`, `Confession:`, `Receipt:`, `Rule:`), a small table for receipts, `<kbd>`-style keys with backticks, a rule (`---`) for a breath, a clip for proof. Headings are sentences with a point, not labels. Short paragraphs. End on something, not on "thanks for reading".
+
 ## Images in posts
 
 Put files under `public/posts/<slug>/` and reference them with a site path: `cover: /posts/<slug>/cover.webp` in front matter, `![what it shows](/posts/<slug>/step-2.webp)` in the body. Relative paths like `./shot.png` do not work: `content/` is not served. Keep them small: WebP or PNG, at most 1600px wide, ideally under 300KB, and 1200×675 for a cover. Body images load lazily and never stretch past their own size. A short clip works the same way: `![what it shows](/posts/<slug>/clip.mp4)` renders a silent looping video, with `/posts/<slug>/clip-poster.jpg` as its poster if present. Keep clips under about 3MB, H.264 MP4, no audio. The build fails if a cover path points at a file that is not there.

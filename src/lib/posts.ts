@@ -27,6 +27,23 @@ md.renderer.rules.image = (tokens, idx, options, env, self) => {
   return self.renderToken(tokens, idx, options);
 };
 
+// A blockquote whose first words are "Aside:", "Note:" or "Confession:" renders as a callout with
+// that word as its kicker; any other blockquote is a pull quote. Plain Markdown either way.
+md.core.ruler.push("asides", (state) => {
+  const t = state.tokens;
+  for (let i = 0; i < t.length; i++) {
+    if (t[i].type !== "blockquote_open") continue;
+    const inline = t.slice(i + 1, i + 4).find((x) => x.type === "inline");
+    const m = inline && /^(Aside|Note|Confession|Receipt|Rule):\s*/.exec(inline.content);
+    if (!m) continue;
+    t[i].attrJoin("class", "aside");
+    t[i].attrSet("data-kicker", m[1]);
+    inline.content = inline.content.slice(m[0].length);
+    const first = inline.children?.[0];
+    if (first && first.type === "text") first.content = first.content.slice(m[0].length);
+  }
+});
+
 const PROJECTS = new Set(Object.keys(projectLabel));
 const SLUG = /^[a-z0-9][a-z0-9-]{0,120}$/;
 
