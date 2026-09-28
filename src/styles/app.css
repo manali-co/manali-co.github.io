@@ -102,7 +102,7 @@
    covers keep 16:9 regardless of the img height attribute */
 .post { grid-template-columns: minmax(0, 1fr); max-width: var(--container-narrow); }
 .post > *, .featured > *, .post-card--grid > * { min-width: 0; }
-.cover img { height: auto; }
+.cover img, img.cover { height: auto; }
 .byline__owner { display: flex; flex-wrap: wrap; gap: 0 6px; }
 
 /* --- round three: mobile-first nav, byline with owner, subscribe states, brand-built covers, comments chrome --- */
