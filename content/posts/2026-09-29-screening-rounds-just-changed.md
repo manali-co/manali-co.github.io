@@ -2,7 +2,7 @@
 title: "Screening rounds are changed forever."
 date: 2026-09-29
 author: ayush
-project: manali
+project: portfolio
 summary: "The first-round call is gone. Your own agent takes the screen, on your own site, from a record you control, and the recruiter walks away with notes and evidence. The early preview is live."
 cover: /posts/screening-rounds-just-changed/cover.png
 coverAlt: "The screening bar on ayushmagrawal.com answering a question and highlighting the Microsoft role on the page."

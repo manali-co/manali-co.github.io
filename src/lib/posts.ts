@@ -107,7 +107,7 @@ export type Post = {
   title: string;
   date: string; // ISO yyyy-mm-dd
   author: Author;
-  project: "yapp" | "what-should-we-watch" | "spark" | "manali";
+  project: "yapp" | "what-should-we-watch" | "spark" | "portfolio" | "manali";
   summary: string;
   cover?: string;
   coverAlt?: string;

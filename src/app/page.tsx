@@ -9,7 +9,7 @@ export const revalidate = 3600;
 
 export default async function Home() {
   const posts = getAllPosts().slice(0, 3);
-  const releases = await Promise.all(projects.map((p) => latestRelease(p.repo)));
+  const releases = await Promise.all(projects.map((p) => (p.repo ? latestRelease(p.repo) : Promise.resolve(null))));
   return (
     <>
       <section className="hero">
@@ -37,16 +37,17 @@ export default async function Home() {
               <article key={p.slug} className={`card card--project card--${p.well}`}>
                 <img className="card__icon" src={p.icon} alt="" width={72} height={72} />
                 <div className="card__body">
-                  <h3 className="card__title"><Link className="card__stretch" href={`/${p.slug}/`}>{p.name}</Link> <span className="card__platform">{p.platform}</span></h3>
+                  <h3 className="card__title"><Link className="card__stretch" href={"post" in p && p.post ? p.post : `/${p.slug}/`}>{p.name}</Link> <span className="card__platform">{p.platform}</span></h3>
                   <p className="card__blurb">{p.blurb}</p>
                   <p className="card__meta">
                     <span className={`badge badge--${p.status}`}>{p.statusLabel}</span>
                     <span className="badge badge--quiet">{p.license}</span>
-                    <a className="card__link" href={p.repo} target="_blank" rel="noopener">Source</a>
+                    {p.repo ? <a className="card__link" href={p.repo} target="_blank" rel="noopener">Source</a> : null}
                     <Link className="card__link" href={`/${p.slug}/#posts`}>Posts</Link>
                   </p>
                   <p className="card__release">
-                    {"live" in p && p.live ? <a className="button button--primary button--sm" href={p.live} target="_blank" rel="noopener">Try it</a> : null}
+                    {"post" in p && p.post ? <Link className="button button--primary button--sm" href={p.post}>Read the post</Link> : null}
+                    {"live" in p && p.live ? <a className={`button button--sm ${"post" in p && p.post ? "" : "button--primary"}`} href={p.live} target="_blank" rel="noopener">{"post" in p && p.post ? "Early preview" : "Try it"}</a> : null}
                     {rel ? (
                       <>
                         <span className="release__version">{rel.tag}</span>

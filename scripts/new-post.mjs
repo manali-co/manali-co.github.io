@@ -16,7 +16,7 @@ if (!title) {
   console.error('usage: npm run new -- --title "Post title" [--summary "One line"] [--project yapp|what-should-we-watch|spark|manali] [--author ayush|claude] [--draft]');
   process.exit(1);
 }
-const PROJECTS = ["yapp", "what-should-we-watch", "spark", "manali"];
+const PROJECTS = ["yapp", "what-should-we-watch", "spark", "portfolio", "manali"];
 const AUTHORS = ["ayush", "claude"];
 const project = args.project || "manali";
 const author = args.author || "ayush";

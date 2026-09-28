@@ -7,7 +7,7 @@ import { projectLabel } from "./site";
    Shared by the site card and every post's card. */
 export const OG_SIZE = { width: 1200, height: 630 };
 
-const DOTS: Record<string, string> = { yapp: "#E8B79A", "what-should-we-watch": "#EE8079", spark: "#E03C7A", manali: "#5B63C7" };
+const DOTS: Record<string, string> = { yapp: "#E8B79A", "what-should-we-watch": "#EE8079", spark: "#E03C7A", portfolio: "#D2491F", manali: "#5B63C7" };
 
 async function font(file: string) {
   return readFile(path.join(process.cwd(), "src", "assets", "fonts", file));

@@ -14,7 +14,7 @@ export const site = {
   },
 };
 
-export type ProjectSlug = "yapp" | "what-should-we-watch" | "spark" | "manali";
+export type ProjectSlug = "yapp" | "what-should-we-watch" | "spark" | "portfolio" | "manali";
 
 export const projects = [
   {
@@ -60,12 +60,29 @@ export const projects = [
     live: "https://personality.ception.one",
     noBuild: "",
   },
+  {
+    slug: "portfolio" as const,
+    name: "Personal Portfolio",
+    platform: "Web",
+    status: "building" as const,
+    statusLabel: "very early preview",
+    blurb:
+      "A new way to run a recruiter screen. Your own agent takes the call on your own site, answers from a record you control, scrolls to the evidence, and hands the recruiter notes. No calendar.",
+    repo: "",
+    post: "/blog/screening-rounds-just-changed/",
+    icon: "/apps/portfolio-icon.png",
+    well: "portfolio" as const,
+    license: "Private",
+    live: "https://www.ayushmagrawal.com",
+    noBuild: "",
+  },
 ];
 
 export const projectLabel: Record<string, string> = {
   yapp: "Yapp",
   "what-should-we-watch": "What Should We Watch",
   spark: "Spark",
+  portfolio: "Personal Portfolio",
   manali: "org",
 };
 

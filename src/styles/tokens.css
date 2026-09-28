@@ -39,6 +39,8 @@
   --wswatch-night: #1B1D22;
   --spark-night: #09090B;
   --spark-rose: #E03C7A;
+  --portfolio-paper: #F3F0E8;
+  --portfolio-ember: #D2491F;
   /* semantic, light */
   --bg: var(--paper);
   --bg-raised: var(--white);
