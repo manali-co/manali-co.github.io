@@ -16,7 +16,7 @@ The mark is one line. Two hills, and a sun coming up behind the second one. That
 
 > Why Manali, you ask. It is my parents. **Man**ish and Son**ali**. They ran a house on patience and on doing things properly when nobody was watching, and I want this place to run the same way. This is for them.
 
-![Thirty seconds on manali.page: the home page, the three project cards, the empty blog with its coming-soon card, and the subscribe box.](/posts/the-only-excuse-left-is-taste/site-tour.mp4)
+![Twelve seconds of screens: manali.page, the Yapp bar and its states, What Should We Watch, Spark, and the blog.](/posts/the-only-excuse-left-is-taste/designs-reel.mp4)
 
 ## Three things exist. One is live, two are close.
 
