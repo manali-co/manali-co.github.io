@@ -1,8 +1,9 @@
 name: Publish to GitHub Pages
 
-# Static export of the site (home, blog, posts, projects, feed, social cards) on every push to
-# main. Subscribe, reactions, confirm/unsubscribe and admin need the Vercel + Azure deployment;
-# on Pages they show their "not switched on yet" states, and every canonical link points at Vercel.
+# Static export of the site on every push to main, published as a redirecting mirror: every Pages
+# URL sends the visitor to the same path on manali.page (meta refresh + script), with the static
+# page underneath as a fallback. Subscribe, reactions, confirm/unsubscribe and admin live only on
+# the Vercel + Azure deployment.
 on:
   push:
     branches: [main]

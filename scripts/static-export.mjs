@@ -22,7 +22,7 @@ try {
   for (const [p, dest] of moved) renameSync(dest, p);
   rmSync(tmp, { recursive: true, force: true });
 }
-if (code === 0) fixOgImages("out");
+if (code === 0) { fixOgImages("out"); redirectToCanonical("out"); }
 process.exit(code);
 
 // The export writes social cards as extension-less "opengraph-image" files, which Pages serves as
@@ -37,5 +37,22 @@ function fixOgImages(dir) {
       const after = before.replace(/(opengraph-image|twitter-image)(\\?)?\?[a-f0-9]+/g, "$1.png");
       if (after !== before) writeFileSync(p, after);
     }
+  }
+}
+
+// The Pages copy is a mirror without the API, so anything interactive shows a fallback there. Every
+// page sends the visitor straight to the same path on the canonical host; the content stays as a
+// fallback for anyone with JavaScript and meta refresh both off.
+function redirectToCanonical(dir, rel = "") {
+  const host = (process.env.NEXT_PUBLIC_SITE_URL || "https://manali.page").replace(/\/$/, "");
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    if (statSync(p).isDirectory()) { redirectToCanonical(p, `${rel}/${name}`); continue; }
+    if (name !== "index.html" && name !== "404.html") continue;
+    const path = name === "404.html" ? "/" : `${rel}/`;
+    const target = `${host}${path}`;
+    const tag = `<meta http-equiv="refresh" content="0; url=${target}"><script>location.replace(${JSON.stringify(host)} + (${JSON.stringify(name === "404.html")} ? "/" : location.pathname + location.search + location.hash))</script>`;
+    const html = readFileSync(p, "utf8").replace("<head>", "<head>" + tag);
+    writeFileSync(p, html);
   }
 }

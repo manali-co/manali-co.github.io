@@ -22,6 +22,10 @@ Home page, blog, subscriptions and a small admin area for [Manali Apps](https://
 
 Meaningful or it doesn't go up. Findings, thoughts, the odd evening; never a changelog, never filler. And playful: use the toys. A pull quote (`> ...`) for the line worth repeating, an aside for the detour (`> Aside: ...`, also `Note:`, `Confession:`, `Receipt:`, `Rule:`), a small table for receipts, `<kbd>`-style keys with backticks, a rule (`---`) for a breath, a clip for proof, and colour when a word needs it: `==highlight==`, `::sun[text]` (also `indigo`, `rose`, `coral`, `moss`), `::big[text]` for a size up, `::loud[text]` for the one word you want shouted. Headings are sentences with a point, not labels. Short paragraphs. End on something, not on "thanks for reading". Before it goes up, run it through `/unslop` (the skill lives in `.claude/skills/unslop/`): no AI vocabulary, no em dashes, no rule-of-three padding, active voice, say what it does rather than how it feels.
 
+## Two hosts, one home
+
+manali.page (Vercel) is the site. manali-co.github.io is a static export that redirects every URL to the same path on manali.page; it exists so old links and the org profile keep working, and as a fallback if Vercel is down. Reactions, subscribe, confirm, unsubscribe and admin only work on manali.page.
+
 ## Images in posts
 
 Put files under `public/posts/<slug>/` and reference them with a site path: `cover: /posts/<slug>/cover.webp` in front matter, `![what it shows](/posts/<slug>/step-2.webp)` in the body. Relative paths like `./shot.png` do not work: `content/` is not served. Keep them small: WebP or PNG, at most 1600px wide, ideally under 300KB, and 1200×675 for a cover. Body images load lazily and never stretch past their own size. A short clip works the same way: `![what it shows](/posts/<slug>/clip.mp4)` renders a silent looping video, with `/posts/<slug>/clip-poster.jpg` as its poster if present. Keep clips under about 3MB, H.264 MP4, no audio. The build fails if a cover path points at a file that is not there.
