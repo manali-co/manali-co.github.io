@@ -6,7 +6,6 @@ import { spawnSync } from "node:child_process";
 
 const parked = ["src/app/api", "src/app/admin", "src/app/sign-in", "src/app/unsubscribe", "src/app/confirm", "src/proxy.ts"];
 // With no posts yet, the per-post routes have no params, which "output: export" refuses; park them too.
-import { readdirSync } from "node:fs";
 const hasPosts = existsSync("content/posts") && readdirSync("content/posts").some((f) => f.endsWith(".md"));
 if (!hasPosts) parked.push("src/app/blog/[slug]");
 const tmp = "node_modules/.static-parked"; // inside node_modules so the compiler never scans it
