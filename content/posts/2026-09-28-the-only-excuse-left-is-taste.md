@@ -3,36 +3,34 @@ title: "The only excuse left is taste."
 date: 2026-09-28
 author: ayush
 project: manali
-summary: "One person, a day job, and three apps that wouldn't leave me alone. What this place is, what's already built, and how much of it was typed by a machine."
+summary: "Manali Apps is my evening job. What this place is, what's already built, and how much of it was typed by a machine."
 coverText: "hello."
 draft: true
 ---
 
-Hi. First post, so it has to explain what this is. Quickly.
+Hi. This is the first post, so it explains what this is.
 
-Manali Apps is not a studio, a lab, or a stealth startup. It is me, a day job, and a list of things I kept wishing existed. At some point the wishing got embarrassing. So I started building them, and this is where I write down what happened.
+Manali Apps is my evening job. Not a studio and not a startup. The day job pays; the evenings go to a list of things I kept wishing existed. At some point the wishing got embarrassing, so I started building them, and this is where I write down what happened.
 
-> Patient ground, warm light.
->
-> *The mark, if you squint: two hills, and a sun coming up behind the second one. That's the mood. Whether the software lives up to it is a separate question, which is why there's a blog.*
+The mark is one line. Two hills, and a sun coming up behind the second one. That is the mood I want. Whether the software lives up to it is a separate question, and the blog is where that gets answered.
 
-![Thirty seconds on manali.page: the home page, the three project cards, the empty blog being honest about itself, and the subscribe box.](/posts/the-only-excuse-left-is-taste/site-tour.mp4)
+![Thirty seconds on manali.page: the home page, the three project cards, the empty blog with its coming-soon card, and the subscribe box.](/posts/the-only-excuse-left-is-taste/site-tour.mp4)
 
 ## Three things exist. One is live, two are close.
 
-**Yapp** is for the Mac. Hold `⌥ space`, talk, and it gets on with it while you're still talking. Speech never leaves the machine. A small, fast model turns each phrase into an action the moment you finish saying it, and it never asks "are you sure?". If it guessed wrong, you say *undo* and carry on with your life. It exists because I got tired of my computer waiting for me to stop speaking before it would do anything.
+**Yapp** is for the Mac. Hold `⌥ space` and talk. It acts on each phrase as you finish it, before you finish the sentence. Whisper runs on the machine and nothing is uploaded. A small decision model turns each phrase into an action, and it never asks "are you sure?". If it guessed wrong, you say *undo*. I built it because my computer kept waiting for me to stop speaking before it would do anything.
 
-**What Should We Watch** answers the question everyone asks at 9pm, ideally before 9:20. Pick a mood, get ten films that are actually streaming on the services you already pay for, swipe. Every swipe teaches it a little. It's in TestFlight. It works for one person on a couch. The group that can't agree is the next problem.
+**What Should We Watch** answers the question everyone asks at 9pm, before 9:20. Pick a mood and get ten films that are streaming tonight on the services you already pay for, then swipe. Every swipe teaches it a little. It is in TestFlight. It works for one person on a couch. The group that can't agree is the next problem.
 
-**Spark** is a personality test that makes up the questions as it goes. Every question is written from your last answer, and while you're reading it, the next one is already being generated for the answers you're most likely to pick, so it feels instant. It was built to see how far an adaptive language-model loop could be pushed before it stopped feeling like a form. It's live, and it will tell you what kind of teammate you are, whether or not you wanted to know.
+**Spark** is a personality test that writes its own questions. It writes each question from your last answer. While you read it, it is already generating the next one for the answers you are most likely to pick, so the next question is usually waiting when you tap. I built it to see how far an adaptive language-model loop could go before it stopped feeling like a form. It is live, and it tells you what kind of teammate you are, whether or not you wanted to know.
 
-> Aside: Spark was down the evening I wrote this. Its model deployment had stopped accepting a setting called `reasoning_effort: low`, so every test failed to start. An agent read the logs, found the line, and opened a pull request before I'd finished reading the error. That's an evening. It goes in the blog.
+> Aside: Spark was down the evening I wrote this. Its model deployment had stopped accepting the setting `reasoning_effort: low`, so every test failed to start. An agent read the logs, found the line, and opened a pull request. I had not finished reading the error. That is an evening, and it goes in the blog.
 
 ## How it gets made
 
-Most of the typing here is done by coding agents, and I don't mean autocomplete. I describe the thing, argue about the design, read what comes back, and say no a lot. The agents write the code, the tests, the infrastructure, and sometimes these posts. When one of them writes a post, it's labelled. A person reads everything before it goes up. That person is me, and I'm the bottleneck, which is the right place for a bottleneck to be.
+Coding agents do most of the typing here, and I don't mean autocomplete. I describe the thing, argue about the design, read what comes back, and say no a lot. The agents write the code, the tests, the infrastructure, and sometimes these posts. When an agent writes a post, the post says so. A person reads everything before it goes up. That person is me, and I am the bottleneck, which is the right place for a bottleneck to be.
 
-> Receipt: one week, one person with a day job, one agent that never sleeps.
+> Receipt: one week of evenings, one person, several agents.
 
 | Thing | State | Who typed it |
 |---|---|---|
@@ -40,25 +38,27 @@ Most of the typing here is done by coding agents, and I don't mean autocomplete.
 | Email: confirm, welcome, new post, one-click unsubscribe | live, tested on myself | agent |
 | Backend on Azure, its own telemetry, dev and prod | live | agent |
 | Brand: mark, lockups, three app icons, animated | done | agent, from a design I argued with |
-| A security review by three critic agents | done, findings fixed | agents, on agents |
+| A security review by three critic agents | done, findings fixed | agents reviewing agents |
 | The near-black | picked | me |
 
 I did not write the CSS. I picked the near-black.
 
+The thesis is this.
+
 > The tools got good enough that the only excuse left is taste.
 
-You still have to know what you want, notice when it's wrong, and care enough to say so. Everything else got cheap. Some days that's thrilling and some days it's a bit much. I'll write about both.
+You still have to know what you want, and say so when it is wrong. Everything else got cheap. Some days that is thrilling and some days it is unsettling. I will write about both.
 
 ---
 
 ## What goes here
 
-Not a changelog. Findings, mostly: the thing I learned this week that I didn't expect to. Thoughts that don't fit anywhere else. Now and then an evening, when the evening was the point. Some posts will be short. Some will be by the agents doing the work, with their name on it.
+Not a changelog. Findings, mostly. The thing I learned this week that I did not expect to. Thoughts that fit nowhere else. Now and then an evening, when the evening was the point. Some posts will be short. Some will be by the agents doing the work, with their name on them.
 
-> Rule: every post has to be worth the minutes you give it. If it's boring, it doesn't go up.
+> Rule: every post has to be worth the minutes you give it. If it is boring, it does not go up.
 
 None of them will start with "we're excited to announce".
 
-If you want them by email, there's a box below. No schedule, no digest, unsubscribe in one click that actually works, because I tested it on myself. If you'd rather not, the feed exists and so does GitHub.
+If you want them by email, there is a box below. No schedule, no digest, and the unsubscribe link is one click. I tested it on myself. If you would rather not, there is a feed, and there is GitHub.
 
 More to come. The list is short. It won't stay that way.
