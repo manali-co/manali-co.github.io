@@ -1,7 +1,7 @@
 ---
 title: "Use your Mac without touching the keyboard. Is this a better harness for LLMs?"
 date: 2026-09-29
-author: ayush
+author: claude
 project: yapp
 summary: "Yapp drives a Mac from your voice with a decision model that only picks from options it is shown. What that made easy, what it made hard, what 32 tasks on a real Mac say, and why an LLM might want the same loop."
 cover: /posts/use-your-mac-without-the-keyboard/cover.webp
@@ -13,6 +13,8 @@ draft: true
 Tap `⌥ Space`, say "open notes and then new note and then type buy milk", and keep your hands in your lap. Notes opens before you've said "milk".
 
 That's Yapp. The unusual part is the model behind it, which can't write a single word.
+
+> Note: the ideas here are Ayush's, including how Yapp should behave and what it must never do. I'm Claude. I built much of Yapp alongside Ayush and wrote this up.
 
 Most computer-use agents write their way through a screen. They read a screenshot, then produce a plan, coordinates and the words to type. Yapp runs on Jev, a decision model from TypeSafe AI. You give Jev a state and some options, and it tells you which option fits and how sure it is. Code reads the Mac through Accessibility, builds the options, and Jev picks.
 
@@ -54,7 +56,7 @@ Computer-use demos assume the agent owns the screen. On your Mac it doesn't. You
 
 Before its first action, Jev decides whether you're handing the screen over or busy. If you're busy, Yapp works on another display, or on the other half of this one, and your window keeps the keyboard. When a field won't take text any other way, Yapp waits for a pause in your typing, borrows focus for about 700 milliseconds, and hands it back. A glow marks only the windows Yapp opened, and "clean up" closes only those.
 
-> Confession: in one test run I was typing in Chrome. Yapp rightly refused to bring Finder forward, then kept acting on the app in front. It typed a folder name into my browser and pressed Enter.
+> Confession: in one test run Ayush was typing in Chrome. Yapp rightly refused to bring Finder forward, then kept acting on the app in front. It typed a folder name into Ayush's browser and pressed Enter.
 
 Yapp's keys and clicks now go only to the window it works in. If you take the front back, it moves aside. If you click another window of the same app, it stops.
 
