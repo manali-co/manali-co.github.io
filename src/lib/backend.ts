@@ -118,9 +118,13 @@ export async function ownerComment(slug: string, text: string, parent: string, t
   }
 }
 
-/* From the stop link in a reply email. The API never says whether the token matched. */
-export async function stopCommentEmails(post: string, id: string, token: string): Promise<void> {
+/* From the stop link in a reply email. True when the API took the request (it never says
+   whether the token matched); false when it didn't answer or answered with an error. */
+export async function stopCommentEmails(post: string, id: string, token: string): Promise<boolean> {
   try {
-    await call("/comment-emails/stop", { method: "POST", body: JSON.stringify({ post, id, token }) });
-  } catch {}
+    const res = await call("/comment-emails/stop", { method: "POST", body: JSON.stringify({ post, id, token }) });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }

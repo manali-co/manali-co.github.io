@@ -93,9 +93,14 @@ export function Comments({ slug, title, ask }: { slug: string; title: string; as
   };
   const act = async (id: string, action: "love" | "notify", extra: Record<string, unknown> = {}) => {
     if (!me.client) return;
-    const res = await fetch(`/api/comments/${slug}/${id}/${action}/`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ client: me.client, ...extra }) });
-    if (!res.ok) return;
-    const r = (await res.json()) as { loves?: number; loved?: boolean; notify?: boolean };
+    let r: { loves?: number; loved?: boolean; notify?: boolean };
+    try {
+      const res = await fetch(`/api/comments/${slug}/${id}/${action}/`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ client: me.client, ...extra }) });
+      if (!res.ok) return;
+      r = await res.json();
+    } catch {
+      return; // offline or the API hiccuped: the button simply stays as it was
+    }
     setRows((all) => (all || []).map((c) => (c.id !== id ? c : action === "love" ? { ...c, loves: r.loves, loved: r.loved } : { ...c, notify: r.notify })));
     if (action === "love") track("comment_love", { post: slug, on: !!r.loved });
   };

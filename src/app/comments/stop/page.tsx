@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
 
 /* The stop link in a comment-reply email. Nothing happens on the GET (link scanners open every
    URL in an email); the change is one press away, as a POST. */
-export default async function StopReplies({ searchParams }: { searchParams: Promise<{ post?: string; id?: string; token?: string; done?: string }> }) {
-  const { post = "", id, token, done } = await searchParams;
+export default async function StopReplies({ searchParams }: { searchParams: Promise<{ post?: string; id?: string; token?: string; done?: string; error?: string }> }) {
+  const { post = "", id, token, done, error } = await searchParams;
   const back = /^[a-z0-9][a-z0-9-]{0,120}$/.test(post) ? `/blog/${post}/#comments` : "/blog/";
   if (done === "1") {
     return (
@@ -19,7 +19,7 @@ export default async function StopReplies({ searchParams }: { searchParams: Prom
       </section>
     );
   }
-  if (!id || !token) {
+  if (!id || !token || error === "link") {
     return (
       <section className="page-head" style={{ paddingBottom: "var(--space-10)" }}>
         <h1 className="page-head__title">That link didn&apos;t work.</h1>
@@ -32,6 +32,7 @@ export default async function StopReplies({ searchParams }: { searchParams: Prom
     <section className="page-head" style={{ paddingBottom: "var(--space-10)" }}>
       <h1 className="page-head__title">Stop reply emails?</h1>
       <p className="page-head__lede">You asked for an email when someone replies to your comment. One press and they stop.</p>
+      {error === "retry" && <p className="subscribe__status subscribe__status--err" role="alert">That didn&apos;t go through on our side. Nothing changed yet; try again in a minute.</p>}
       <form action={stopAction} className="release__actions">
         <input type="hidden" name="post" value={post} />
         <input type="hidden" name="id" value={id} />

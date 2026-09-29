@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireOwner } from "@/lib/admin";
 import { adminComments, adminReplies, adminStats } from "@/lib/backend";
-import { moderate, removeReply, replyAsOwner } from "./actions";
+import { removeReply } from "./actions";
+import { CommentActions } from "./CommentActions";
 import { getAllPosts, readableDate } from "@/lib/posts";
 import { projectLabel, site } from "@/lib/site";
 import { AnnounceCard } from "./AnnounceCard";
@@ -56,18 +57,7 @@ export default async function Admin() {
                     {c.owner ? "You" : c.name || "A reader"}{c.email ? <> · <a href={`mailto:${c.email}`}>{c.email}</a></> : ""} · <Link href={`/blog/${c.slug}/#comments`}>{c.title || c.slug}</Link>{c.parent ? " · reply" : ""} · {readableDate(c.created.slice(0, 10))}
                     {c.state === "pending" ? <> · <b>waiting</b></> : null}
                   </span>
-                  <span style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    {c.state === "pending" && <form action={moderate}><input type="hidden" name="slug" value={c.slug} /><input type="hidden" name="id" value={c.id} /><input type="hidden" name="action" value="approve" /><button className="button button--sm button--primary" type="submit">Approve</button></form>}
-                    <form action={moderate}><input type="hidden" name="slug" value={c.slug} /><input type="hidden" name="id" value={c.id} /><input type="hidden" name="action" value="remove" /><button className="button button--sm" type="submit">Remove</button></form>
-                  </span>
-                  {c.state === "live" && !c.owner && (
-                    <form action={replyAsOwner} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <input type="hidden" name="slug" value={c.slug} /><input type="hidden" name="id" value={c.id} /><input type="hidden" name="title" value={c.title} />
-                      <label className="sr-only" htmlFor={`r-${c.id}`}>Reply as the author</label>
-                      <input id={`r-${c.id}`} name="text" className="cc__field" style={{ flex: "1 1 220px", height: 36, padding: "0 12px", fontSize: "var(--text-sm)" }} placeholder="Reply as the author…" maxLength={2000} />
-                      <button className="button button--sm" type="submit">Reply</button>
-                    </form>
-                  )}
+                  <CommentActions slug={c.slug} id={c.id} title={c.title} pending={c.state === "pending"} canReply={c.state === "live" && !c.owner} />
                 </li>
               ))}
             </ul>
