@@ -3,6 +3,7 @@ import { readableDate, type Post } from "@/lib/posts";
 import { projectLabel } from "@/lib/site";
 import { Cover } from "./Cover";
 import { AuthorLine } from "./AuthorLine";
+import { AgentAvatar } from "./AgentAvatar";
 
 const monthOf = (iso: string) => new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
 const dayOf = (iso: string) => new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
@@ -40,7 +41,7 @@ function Row({ post }: { post: Post }) {
           <span className="row__title">{post.title}</span>
           {post.summary && <span className="row__summary">{post.summary}</span>}
           <span className="row__author">
-            <span className={`byline__avatar byline__avatar--${a.kind} row__avatar`} aria-hidden="true">{a.kind === "agent" ? "AI" : a.name[0]}</span>
+            {a.kind === "agent" ? <AgentAvatar project={post.project} size={20} /> : <span className="byline__avatar row__avatar" aria-hidden="true">{a.name[0]}</span>}
             <span>{a.name}{a.kind === "agent" && <span className="muted"> for {post.project === "manali" ? "manali apps" : projectLabel[post.project]}</span>}</span>
           </span>
         </span>

@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { projectLabel } from "./site";
+import { AGENT_PALETTES, markDots } from "./agent-mark";
 
 /* Social cards: 1200x630, brand ground, project dot, title in Comfortaa, byline, the mark.
    Shared by the site card and every post's card. */
@@ -15,8 +16,9 @@ async function font(file: string) {
 
 /* series: the design system's series card (SocialCard kind="series"): a gold "Series" kicker with
    the part count, and the progress line bottom-right, filled for parts out, dashed for coming. */
-export async function ogImage({ title, kicker, byline, project = "manali", dark = true, series }: {
-  title: string; kicker?: string; byline?: string; project?: string; dark?: boolean; series?: { soon: boolean }[];
+/* agent: the post was written by that project's agent; its dot-mark tile sits before the byline. */
+export async function ogImage({ title, kicker, byline, project = "manali", dark = true, series, agent }: {
+  title: string; kicker?: string; byline?: string; project?: string; dark?: boolean; series?: { soon: boolean }[]; agent?: string;
 }) {
   const [comfortaa, inter] = await Promise.all([font("Comfortaa-Medium.ttf"), font("Inter-Regular.ttf")]);
   const ground = dark ? "#0C0C12" : "#F7F5EE";
@@ -47,7 +49,21 @@ export async function ogImage({ title, kicker, byline, project = "manali", dark 
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           <div style={{ fontFamily: "Comfortaa", fontSize: size, lineHeight: 1.1, letterSpacing: -1, maxWidth: 1000, display: "flex" }}>{title}</div>
-          {byline && <div style={{ fontSize: 28, color: muted, display: "flex" }}>{byline}</div>}
+          {byline && (
+            <div style={{ fontSize: 28, color: muted, display: "flex", alignItems: "center", gap: 16 }}>
+              {agent && (() => {
+                const pal = AGENT_PALETTES[agent] || AGENT_PALETTES.manali;
+                return (
+                  <svg viewBox="0 0 100 100" width="56" height="56">
+                    <rect x="0" y="0" width="100" height="100" rx="26" fill={pal.ground} />
+                    {pal.light && <rect x="0.75" y="0.75" width="98.5" height="98.5" rx="25.5" fill="none" stroke="rgba(35,34,74,0.14)" strokeWidth="1.5" />}
+                    {markDots(56).map((c) => <circle key={`${c.i}-${c.j}`} cx={c.cx} cy={c.cy} r={c.r} fill={c.kind === "sun" ? pal.sun : c.kind === "ridge" ? pal.ridge : pal.idle} />)}
+                  </svg>
+                );
+              })()}
+              {byline}
+            </div>
+          )}
         </div>
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, fontFamily: "Comfortaa", fontSize: 34 }}>
