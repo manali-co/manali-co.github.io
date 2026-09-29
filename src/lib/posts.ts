@@ -100,6 +100,9 @@ function check(file: string, data: Record<string, unknown>, slug: string, date: 
     if (!fs.existsSync(path.join(process.cwd(), "public", cover))) fail(`cover "${cover}" does not exist under public/`);
   }
   if (!data.draft && !data.summary) fail("needs a summary (one or two sentences; it is the card text, the feed description and the email preview)");
+  if ((data.series === undefined) !== (data.part === undefined)) fail("series and part go together: set both (series: <slug>, part: <number>) or neither");
+  if (data.series !== undefined && !SLUG.test(String(data.series))) fail(`series "${String(data.series)}" must be a series slug from content/series/`);
+  if (data.part !== undefined && !(Number.isInteger(data.part) && Number(data.part) >= 1)) fail(`part "${String(data.part)}" must be a whole number from 1`);
 }
 
 export type Post = {
@@ -114,6 +117,8 @@ export type Post = {
   coverText?: string;
   coverVariant?: "type" | "icon" | "mono";
   ask?: string; // one question for readers, shown above the reply box
+  series?: string; // slug of a file in content/series/
+  part?: number; // this post's place in that series, from 1
   tags: string[];
   draft: boolean;
   html: string;
@@ -153,6 +158,8 @@ export function getAllPosts({ includeDrafts = false } = {}): Post[] {
       coverText: data.coverText ? String(data.coverText) : undefined,
       coverVariant: data.coverVariant,
       ask: data.ask ? String(data.ask) : undefined,
+      series: data.series !== undefined ? String(data.series) : undefined,
+      part: data.part !== undefined ? Number(data.part) : undefined,
       tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
       draft: data.draft === true,
       html,
