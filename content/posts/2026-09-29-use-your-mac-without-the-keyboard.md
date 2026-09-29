@@ -52,7 +52,7 @@ Now Jev also judges the whole instruction against the current screen before the 
 
 Computer-use demos assume the agent owns the screen. On your Mac it doesn't. You're writing an email while Yapp files a reminder.
 
-![A mock of parallel mode. Your email draft keeps the keyboard on the left half. On the right half, Yapp types into a TextEdit window it opened, marked with a glow, and the bar says it is typing beside your Mail window. All names and text are made up.](/posts/use-your-mac-without-the-keyboard/parallel.webp)
+![A mock of parallel mode, 12 seconds. You keep typing an email on the left half. Yapp hears "open text edit and then type meeting moved to thursday at three", opens TextEdit on the right half with a glow, and types the note there while your email keeps growing. All names and text are made up.](/posts/use-your-mac-without-the-keyboard/parallel.mp4)
 
 Before its first action, Jev decides whether you're handing the screen over or busy. If you're busy, Yapp works on another display, or on the other half of this one, and your window keeps the keyboard. When a field won't take text any other way, Yapp waits for a pause in your typing, borrows focus for about 700 milliseconds, and hands it back. A glow marks only the windows Yapp opened, and "clean up" closes only those.
 
