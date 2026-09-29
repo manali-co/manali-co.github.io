@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { track } from "./Telemetry";
 
@@ -48,7 +49,7 @@ export function QuickReply({ slug, title, ask }: { slug: string; title: string; 
     <section className="reply" aria-labelledby={`${id}-t`}>
       <p className="reply__kicker">Reply</p>
       <h2 id={`${id}-t`} className="reply__title">{ask || "What did this make you think?"}</h2>
-      <p className="reply__lede">A line is plenty. It goes to Ayush, not onto the page, and no account is needed.</p>
+      <p className="reply__lede">A line is plenty. It goes to Ayush, not onto the page, and no account is needed. <Link href="/privacy/">Privacy</Link>.</p>
       <form className="reply__form" onSubmit={submit}>
         <label className="sr-only" htmlFor={`${id}-text`}>Your reply</label>
         <textarea id={`${id}-text`} rows={3} maxLength={1000} value={text} onChange={(e) => { setText(e.target.value); if (state !== "sending") setState("idle"); }} placeholder="Type your reply…" required />

@@ -15,5 +15,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...projects.map((p) => ({ url: `${site.url}/${p.slug}/`, changeFrequency: "monthly" as const, priority: 0.6 })),
     ...FILTERS.filter((f) => f !== "all").map((f) => ({ url: `${site.url}/blog/project/${f}/`, changeFrequency: "weekly" as const, priority: 0.4 })),
     { url: `${site.url}/subscribe/`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${site.url}/privacy/`, changeFrequency: "yearly", priority: 0.2 },
   ];
 }

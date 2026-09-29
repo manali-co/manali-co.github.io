@@ -104,12 +104,13 @@ export function Telemetry() {
           for (const k of ["uri", "refUri", "target", "name"]) if (k in d) d[k] = clean(d[k]);
         }
       });
-      // Anonymous, per browser, no cookie: the random id reactions already keep in localStorage.
-      // Lets the dashboard tell a returning reader from a new one.
+      // Anonymous, per browser, no cookie: a random id used only for telemetry, deliberately a
+      // different value from the one reactions and replies use, so the two can't be joined.
+      // Explained on /privacy/.
       try {
-        let uid = localStorage.getItem("ma-client");
-        if (!uid) { uid = Array.from(crypto.getRandomValues(new Uint8Array(18)), (b) => b.toString(16).padStart(2, "0")).join(""); localStorage.setItem("ma-client", uid); }
-        (inst as unknown as { context: { user: { id: string } } }).context.user.id = uid.slice(0, 16);
+        let uid = localStorage.getItem("ma-visitor");
+        if (!uid) { uid = Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, "0")).join(""); localStorage.setItem("ma-visitor", uid); }
+        (inst as unknown as { context: { user: { id: string } } }).context.user.id = uid;
       } catch {}
       ai = inst as unknown as AI;
       inst.trackPageView({ name: document.title, uri: location.origin + location.pathname });
