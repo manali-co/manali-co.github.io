@@ -7,7 +7,7 @@
 
 # manali apps, the website
 
-Home page, blog, subscriptions and a small admin area for [Manali Apps](https://github.com/manali-co). Next.js on Vercel; the look comes from the *Manali Apps Design System* in Claude Design and is ported into `src/styles/`.
+Home page, blog, subscriptions and a small admin area for [Manali Apps](https://github.com/manali-co). Next.js on Vercel; the look comes from the *Manali Apps Design System* in Claude Design and is ported into `src/styles/`. Claude Design drives every visual change and is kept in step with what ships; the rule is in `CLAUDE.md`.
 
 | Piece | How |
 |---|---|
