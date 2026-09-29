@@ -7,7 +7,7 @@ summary: "Yapp drives a Mac from your voice with a decision model that only pick
 cover: /posts/use-your-mac-without-the-keyboard/cover.webp
 coverAlt: "A mock of Yapp working beside you. Your email keeps the keyboard on the left, and Yapp types in a glowing TextEdit window on the right."
 ask: "How long would you wait for the first click after a vague request like \"find my post about hiring\"? One second, three, ten?"
-draft: true
+draft: false
 ---
 
 Tap `⌥ Space`, say "search for the weather in toronto", and keep your hands in your lap. Your browser opens a new tab and the results load, while the page you had open stays where it was.
