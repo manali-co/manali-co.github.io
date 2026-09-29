@@ -42,7 +42,9 @@ function flushEngaged(reason: string) {
   // reports two slices; the dashboard sums them per page view.
   track("page_engaged", { page: engaged.path, seconds: Math.round(engaged.visibleMs / 100) / 10, depth: engaged.maxDepth, device, reason });
   engaged.visibleMs = 0;
-  (ai as unknown as { flush?: (async?: boolean) => void } | null)?.flush?.(false);
+  // This SDK calls flush's callback unconditionally when async is false, so one must be passed.
+  // Telemetry must never break the page, so any failure here is swallowed.
+  try { (ai as unknown as { flush?: (async?: boolean, cb?: () => void) => void } | null)?.flush?.(false, () => {}); } catch {}
 }
 function startEngaged(path: string) {
   flushEngaged("navigate");
@@ -127,8 +129,11 @@ export function Telemetry() {
     }).catch(() => { loading = false; }); // a failed load can retry on the next mount
   }, []);
   useEffect(() => {
-    if (ai && pathname) ai.trackPageView({ name: document.title, uri: location.origin + location.pathname });
-    if (pathname) startEngaged(pathname);
+    // A throw in this effect would take down the page on every route change. Telemetry never may.
+    try {
+      if (ai && pathname) ai.trackPageView({ name: document.title, uri: location.origin + location.pathname });
+      if (pathname) startEngaged(pathname);
+    } catch {}
   }, [pathname]);
   return null;
 }
