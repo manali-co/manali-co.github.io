@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { getAllPosts, type Post } from "./posts";
+import { getAllPosts, readableDate, type Post } from "./posts";
 import { projectLabel } from "./site";
 
 /* A series is one file in content/series/<slug>.md:
@@ -125,4 +125,33 @@ export function seriesFor(post: Post) {
 
 export function getProjectSeries(project: string) {
   return getPublicSeries().filter((s) => s.project === project);
+}
+
+/* What the series components receive: plain, serialisable, in the design system's shape. */
+export type PartView = { n: number; slug?: string; title: string; href?: string; summary?: string; date?: string; readTime?: string; soon: boolean };
+export type SeriesView = { slug: string; name: string; href: string; summary: string; complete: boolean; parts: PartView[] };
+
+export function seriesView(s: Series): SeriesView {
+  return {
+    slug: s.slug,
+    name: s.title,
+    href: s.url,
+    summary: s.summary,
+    complete: s.complete,
+    parts: s.parts.map((p) =>
+      p.state === "published"
+        ? { n: p.part, slug: p.post.slug, title: p.post.title, href: p.post.url, summary: p.post.summary, date: readableDate(p.post.date), readTime: p.post.readingTime, soon: false }
+        : { n: p.part, title: p.title, soon: true },
+    ),
+  };
+}
+
+/* Title only, from one small file: used by the follow endpoint at request time, where the
+   whole posts folder isn't needed. Null for a slug that isn't a series. */
+export function seriesTitle(slug: string): string | null {
+  if (!SLUG.test(slug)) return null;
+  const file = path.join(SERIES_DIR, `${slug}.md`);
+  if (!fs.existsSync(file)) return null;
+  const title = matter(fs.readFileSync(file, "utf8")).data.title;
+  return title ? String(title) : null;
 }

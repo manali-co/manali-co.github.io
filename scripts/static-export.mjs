@@ -3,11 +3,16 @@
 import { existsSync, renameSync, mkdirSync, rmSync, readdirSync, readFileSync, writeFileSync, copyFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import matter from "gray-matter";
 
 const parked = ["src/app/api", "src/app/admin", "src/app/sign-in", "src/app/unsubscribe", "src/app/confirm", "src/proxy.ts"];
 // With no posts yet, the per-post routes have no params, which "output: export" refuses; park them too.
 const hasPosts = existsSync("content/posts") && readdirSync("content/posts").some((f) => f.endsWith(".md"));
 if (!hasPosts) parked.push("src/app/blog/[slug]");
+// Same for series hubs: a hub exists only once a non-draft post names that series.
+const seriesSlugs = existsSync("content/series") ? readdirSync("content/series").filter((f) => f.endsWith(".md")).map((f) => f.slice(0, -3)) : [];
+const namedSeries = hasPosts ? readdirSync("content/posts").filter((f) => f.endsWith(".md")).map((f) => matter(readFileSync(`content/posts/${f}`, "utf8")).data).filter((d) => d.series && d.draft !== true).map((d) => String(d.series)) : [];
+if (!seriesSlugs.some((s) => namedSeries.includes(s))) parked.push("src/app/series");
 const tmp = "node_modules/.static-parked"; // inside node_modules so the compiler never scans it
 mkdirSync(tmp, { recursive: true });
 const moved = [];

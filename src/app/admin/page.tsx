@@ -6,6 +6,7 @@ import { removeReply } from "./actions";
 import { getAllPosts, readableDate } from "@/lib/posts";
 import { projectLabel, site } from "@/lib/site";
 import { AnnounceCard } from "./AnnounceCard";
+import { seriesFor } from "@/lib/series";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export default async function Admin() {
     );
   }
   const [stats, replies, latest] = [await adminStats(), await adminReplies(), getAllPosts()[0]];
+  const latestSeries = latest ? seriesFor(latest)?.series : undefined; // its followers get the email too
   return (
     <section className="admin">
       <div className="section__head">
@@ -40,7 +42,7 @@ export default async function Admin() {
             </ul>
           )}
         </div>
-        <AnnounceCard post={latest ? { slug: latest.slug, title: latest.title, summary: latest.summary, url: site.url + latest.url, cover: `${site.url}/blog/${latest.slug}/opengraph-image`, coverText: latest.coverText, project: latest.project, date: readableDate(latest.date), author: latest.author.kind === "agent" ? `${latest.author.name} for ${projectLabel[latest.project] || "manali apps"} · by ${latest.author.owner}` : latest.author.name } : null} lastEmail={stats?.lastEmail} />
+        <AnnounceCard post={latest ? { slug: latest.slug, title: latest.title, summary: latest.summary, url: site.url + latest.url, cover: `${site.url}/blog/${latest.slug}/opengraph-image`, coverText: latest.coverText, project: latest.project, date: readableDate(latest.date), author: latest.author.kind === "agent" ? `${latest.author.name} for ${projectLabel[latest.project] || "manali apps"} · by ${latest.author.owner}` : latest.author.name, ...(latestSeries ? { series: latestSeries.slug, seriesTitle: latestSeries.title } : {}) } : null} lastEmail={stats?.lastEmail} />
         <div className="panel">
           <h2 className="panel__title">Replies {replies ? <span className="muted">· {replies.length}</span> : null}</h2>
           {!replies ? <p className="muted">Backend not reachable.</p> : replies.length === 0 ? <p className="muted">No replies yet. They land here and in your inbox.</p> : (
