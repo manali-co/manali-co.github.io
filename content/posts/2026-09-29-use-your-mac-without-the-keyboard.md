@@ -10,7 +10,9 @@ ask: "How long would you wait for the first click after a vague request like \"f
 draft: true
 ---
 
-Tap `⌥ Space`, say "open notes and then new note and then type buy milk", and keep your hands in your lap. Notes opens before you've said "milk".
+Tap `⌥ Space`, say "search for the weather in toronto", and keep your hands in your lap. Your browser opens a new tab and the results load, while the page you had open stays where it was.
+
+![A mock of a web search, 10 seconds. You are in a notes window. You say "search for the weather in toronto". Your browser comes forward with a glow, opens a new tab beside your open page, types the query into the address bar, and made-up results appear.](/posts/use-your-mac-without-the-keyboard/web-search.mp4)
 
 That's Yapp. The unusual part is the model behind it, which can't write a single word.
 
@@ -81,8 +83,6 @@ There's no simulator for "open TextEdit, save it, name it". The benchmark is 32 
 | Several apps and pages deep | 7 | 3 |
 
 One Safari search flakes. Spoken addresses like "open weather com" used to fail. Jev could pick the address bar but couldn't write "weather.com", so Yapp typed "weather com". A search like "the weather in toronto" landed in whatever app was in front. Both were missing options, not bad choices. Code now turns the spoken form into a real address and opens it in your default browser, and a search about the world goes to a new tab there.
-
-![A mock of a web search, 10 seconds. You are in a notes window. You say "search for the weather in toronto". Your browser comes forward with a glow, opens a new tab beside your open page, types the query into the address bar, and made-up results appear.](/posts/use-your-mac-without-the-keyboard/web-search.mp4)
 
 The harness is a computer-use agent too, with the same power to do damage. TextEdit's Save sheet reuses the last folder, which on this Mac was a Postgres data folder, so test files landed beside a database. Closing an unsaved document made TextEdit autosave it to iCloud. Each task now names what it creates with a per-run token, removes only new files that hold its own words, and closes only windows it opened.
 
