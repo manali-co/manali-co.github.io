@@ -13,13 +13,16 @@ let loading = false; // one initialisation per page load, even across remounts
 
 /* Custom events: labels, sections, counts. Never an email address or anything a visitor typed. */
 export function track(name: string, props?: Props) {
-  const clean = props ? (Object.fromEntries(Object.entries(props).filter(([, v]) => v !== undefined)) as Props) : undefined;
-  if (ai) ai.trackEvent({ name }, clean);
-  else if (queue.length < 50) queue.push([name, clean]);
+  let clean = props ? (Object.fromEntries(Object.entries(props).filter(([, v]) => v !== undefined)) as Props) : undefined;
   if (!ai && name === "page_engaged") {
-    // The visitor may leave before the SDK loads; keep this one for the next page load.
+    // The visitor may leave before the SDK loads: park a copy for the next page load. The id
+    // lets that load skip the copy if the in-memory one was sent after all, without ever
+    // mistaking two separate visits with identical numbers for one.
+    clean = { ...clean, eid: Math.random().toString(36).slice(2, 10) };
     try { const k = "ma-pending"; const p = JSON.parse(localStorage.getItem(k) || "[]"); p.push([name, clean]); localStorage.setItem(k, JSON.stringify(p.slice(-20))); } catch {}
   }
+  if (ai) ai.trackEvent({ name }, clean);
+  else if (queue.length < 50) queue.push([name, clean]);
 }
 
 /* Engaged time and reading depth, per page: seconds the tab was actually visible (not just
@@ -106,8 +109,8 @@ export function Telemetry() {
       try {
         const parked = JSON.parse(localStorage.getItem("ma-pending") || "[]") as [string, Props | undefined][];
         localStorage.removeItem("ma-pending");
-        const live = new Set(queue.map(([n, pr]) => n + JSON.stringify(pr)));
-        for (const [n, pr] of parked) if (!live.has(n + JSON.stringify(pr))) ai.trackEvent({ name: n }, pr);
+        const live = new Set(queue.map(([, pr]) => pr?.eid).filter(Boolean));
+        for (const [n, pr] of parked) if (!live.has(pr?.eid)) ai.trackEvent({ name: n }, pr);
       } catch {}
       for (const [n, pr] of queue.splice(0)) ai.trackEvent({ name: n }, pr);
       // Module-level and registered once: the same handler and options never stack, and the
