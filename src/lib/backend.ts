@@ -87,3 +87,44 @@ export async function sendAnnouncement(post: AnnouncePost): Promise<AnnounceResu
     return { error: "failed" };
   }
 }
+
+/* Comments: the owner's side. Public reading and posting go through /api/comments/*. */
+export type AdminComment = { id: string; slug: string; title: string; parent: string; state: "pending" | "live" | "removed"; created: string; text: string; name: string; email: string; owner: boolean };
+
+export async function adminComments(): Promise<AdminComment[] | null> {
+  try {
+    const res = await call("/admin/comments", {}, true);
+    return res.ok ? ((await res.json()) as { comments: AdminComment[] }).comments : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function moderateComment(slug: string, id: string, action: "approve" | "remove"): Promise<boolean> {
+  try {
+    const res = await call(`/admin/comments/${encodeURIComponent(slug)}/${encodeURIComponent(id)}/${action}`, { method: "POST" }, true);
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function ownerComment(slug: string, text: string, parent: string, title: string): Promise<boolean> {
+  try {
+    const res = await call(`/admin/comments/${encodeURIComponent(slug)}`, { method: "POST", body: JSON.stringify({ text, parent, title }) }, true);
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/* From the stop link in a reply email. True when the API took the request (it never says
+   whether the token matched); false when it didn't answer or answered with an error. */
+export async function stopCommentEmails(post: string, id: string, token: string): Promise<boolean> {
+  try {
+    const res = await call("/comment-emails/stop", { method: "POST", body: JSON.stringify({ post, id, token }) });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

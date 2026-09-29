@@ -41,7 +41,7 @@ function clientId() {
 
 /* The mark's sun behind its ridge. Nobody yet: below the hill, a sliver of gold. Others reacted:
    half up. You reacted: risen, with its halo. */
-function SunGlyph({ state, size }: { state: "low" | "mid" | "up"; size: number }) {
+export function SunGlyph({ state, size }: { state: "low" | "mid" | "up"; size: number }) {
   const clip = `ma-sun-${useId().replace(/:/g, "")}`;
   const dy = state === "up" ? 0 : state === "mid" ? 3.4 : 7;
   return (
