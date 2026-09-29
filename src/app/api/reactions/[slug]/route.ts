@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
    It travels in a header or a POST body, never in a URL, so it never lands in a request log. */
 const BASE = process.env.API_BASE_URL || "";
 const KEY = process.env.API_KEY || "";
-const KINDS = new Set(["thumbs-up", "heart", "rocket", "eyes", "laugh", "sun"]);
+const KINDS = new Set(["heart", "idea", "laugh", "rocket", "sun"]); // the five the redesign offers; the API still keeps old thumbs-up and eyes counts
 const SLUG = /^[a-z0-9][a-z0-9-]{0,120}$/;
 const CLIENT = /^[A-Za-z0-9_-]{16,64}$/;
 

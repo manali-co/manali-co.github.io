@@ -324,30 +324,23 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
   .row__title { font-size: var(--text-h3); }
 }
 
-/* --- reactions that leave a mark (design ReactionBar v2) --- */
+/* --- reactions (design system ReactionBar, redesigned 29 Sep): five characters, one hue each --- */
+@keyframes ma-react-beat { 0%, 100% { transform: scale(1); } 30% { transform: scale(1.18); } 55% { transform: scale(0.96); } 75% { transform: scale(1.08); } }
+@keyframes ma-react-glow { 0%, 100% { filter: none; transform: translateY(0); } 50% { filter: drop-shadow(0 0 4px var(--react-idea)); transform: translateY(-1px); } }
+@keyframes ma-react-tilt { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-12deg); } 60% { transform: rotate(9deg); } }
+@keyframes ma-react-lift { 0%, 100% { transform: translate(0, 0); } 45% { transform: translate(2px, -3px); } 70% { transform: translate(1px, -1px); } }
+@keyframes ma-react-peek { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes ma-pill-rise { 0% { opacity: 0; transform: translateY(24px) scale(0.96); } 70% { opacity: 1; transform: translateY(-3px) scale(1); } 100% { opacity: 1; transform: none; } }
+.react__sunrise { transition: transform 700ms var(--ease-settle); }
+.reactions-pill { position: fixed; left: 0; right: 0; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 30; width: max-content; max-width: calc(100vw - 24px); margin: 0 auto; box-sizing: border-box; display: flex; align-items: center; flex-wrap: nowrap; gap: 2px; background: var(--bg-raised); border: 1px solid var(--border-strong); border-radius: var(--radius-pill); box-shadow: var(--shadow-hover), 0 0 0 6px var(--sun-tint); }
+/* A 36px sunken circle to look at, inside a 44px target to press. */
+.reactions-pill__close { flex: none; width: 44px; height: 44px; margin-left: -2px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.reactions-pill__close span { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-sunken); color: var(--text-3); font-size: 18px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+@media (prefers-reduced-motion: reduce) { .react__sunrise { transition: none; } }
 @keyframes ma-react-pop { 0% { transform: scale(1); } 35% { transform: scale(1.18); } 70% { transform: scale(0.96); } 100% { transform: scale(1); } }
 @keyframes ma-react-ripple { from { transform: scale(0.6); opacity: 0.55; } to { transform: scale(2.4); opacity: 0; } }
 @keyframes ma-react-spark { from { transform: translate(0, 0) scale(1); opacity: 1; } to { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; } }
 @keyframes ma-react-count { from { transform: translateY(0.6em); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-@keyframes ma-sun-rise { from { transform: translateY(0.25em) scale(0.8); opacity: 0.4; } to { transform: translateY(0) scale(1); opacity: 1; } }
-.reactions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: var(--space-4); }
-.reactions__total { margin-left: 4px; font-size: var(--text-sm); color: var(--text-3); }
-.react { position: relative; isolation: isolate; display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 12px; border-radius: var(--radius-pill); cursor: pointer; font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; line-height: 1; border: 1px solid var(--border); background: var(--bg-raised); color: var(--text-3); transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out); }
-.react:hover { border-color: var(--border-strong); background: var(--bg-sunken); color: var(--text-2); }
-.react--mine { border: 1.5px solid var(--accent); background: var(--accent-tint); color: var(--accent-text); font-weight: 600; }
-.react--mine.react--sun { border-color: var(--sun); background: var(--sun-tint); color: var(--text); }
-.react--fresh { animation: ma-react-pop 420ms var(--ease-settle); }
-.react--fresh .react__count { animation: ma-react-count 320ms var(--ease-out); }
-.react--fresh.react--sun .react__sun { transform-box: fill-box; transform-origin: center; animation: ma-sun-rise 700ms var(--ease-settle); }
-.react__count { font-variant-numeric: tabular-nums; display: inline-block; }
-.react__dot { position: absolute; right: -3px; top: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
-.react--sun .react__dot { background: var(--sun); }
-.react__burst { position: absolute; inset: 0; pointer-events: none; z-index: -1; }
-.react__ripple { position: absolute; left: 50%; top: 50%; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; background: var(--accent-tint); animation: ma-react-ripple 700ms var(--ease-out) forwards; }
-.react--sun .react__ripple { background: var(--halo); }
-.react__spark { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: var(--accent); animation: ma-react-spark 560ms var(--ease-out) forwards; }
-.react--sun .react__spark { width: 5px; height: 5px; background: #F2B84B; }
-@media (prefers-reduced-motion: reduce) { .react--fresh, .react--fresh .react__count, .react--fresh.react--sun .react__sun { animation: none; } .react__burst { display: none; } }
 
 /* share pills (design ShareRow) */
 .share__pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; min-width: 44px; padding: 0 14px; border-radius: var(--radius-pill); cursor: pointer; font: inherit; font-size: var(--text-sm); font-weight: 500; text-decoration: none; white-space: nowrap; border: 1px solid var(--border); background: var(--bg-raised); color: var(--text-2); transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out); }
@@ -392,15 +385,6 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 .prose .ink--big { font-family: var(--font-display); font-weight: 500; font-size: 1.35em; line-height: 1; }
 .prose .ink--loud { font-weight: var(--weight-bold, 700); color: var(--sun); letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.95em; }
 
-/* reactions that follow the reader */
-.reactions-anchor { min-height: 44px; }
-.reactions--floating { position: fixed; left: 0; right: 0; bottom: max(16px, env(safe-area-inset-bottom)); width: max-content; margin: 0 auto; z-index: 30; padding: 6px 8px 6px 14px; flex-wrap: nowrap; gap: 6px; background: var(--bg-raised); border: 1px solid var(--border-strong); border-radius: var(--radius-pill); box-shadow: var(--shadow-hover); animation: ma-float-in 240ms var(--ease-out); max-width: calc(100vw - 24px); overflow-x: auto; }
-.reactions--floating .react { flex: none; }
-.reactions__prompt { font-family: var(--font-mono); font-size: var(--text-sm); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); margin-right: 2px; }
-.reactions__close { border: 0; background: none; color: var(--text-3); font-size: 20px; line-height: 1; padding: 4px 6px; cursor: pointer; }
-@keyframes ma-float-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .reactions--floating { animation: none; } }
-@media (max-width: 480px) { .reactions--floating .react { padding-left: 8px; padding-right: 8px; } .reactions__prompt { display: none; } }
 
 /* reply box */
 .reply { max-width: 680px; margin: 0 auto var(--space-8); padding: var(--space-6); background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius-xl); }
@@ -487,12 +471,14 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 }
 @media (max-width: 1023px) { .series-hub__side { display: none; } }
 /* post footer: "React" and "Share" share one label column, so the two rows of round buttons line up */
-.foot__label { flex: none; width: 48px; margin-right: 0; font-size: var(--text-sm); color: var(--text-3); }
-.reactions:not(.reactions--floating) .react { min-width: 44px; justify-content: center; } /* docked row only; the floating bar keeps its own sizing */
+/* Same as the ReactionBar's label: mono caps, a 48px column, then 16px to the first button
+   (the share row's own 8px gap plus 8px here). */
+.foot__label { flex: none; width: 48px; margin-right: 8px; font-family: var(--font-mono); font-size: var(--text-sm); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--text-3); }
+@media (max-width: 640px) {
+  .foot__label { flex-basis: 100%; width: auto; margin-right: 0; } /* on phones each label sits above its row, and both rows start at the edge */
+}
 @media (max-width: 480px) {
-  .reactions:not(.reactions--floating) { gap: 6px; }
   .share { gap: 6px; }
-  .foot__label { flex-basis: 100%; width: auto; } /* on phones each label sits above its row, and both rows start at the edge */
   .share__text { display: none; } /* Copy link keeps its aria-label and title */
   .share__pill:has(.share__text) { padding: 0; width: 44px; }
 }
