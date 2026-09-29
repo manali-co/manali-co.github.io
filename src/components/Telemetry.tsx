@@ -129,11 +129,11 @@ export function Telemetry() {
     }).catch(() => { loading = false; }); // a failed load can retry on the next mount
   }, []);
   useEffect(() => {
-    // A throw in this effect would take down the page on every route change. Telemetry never may.
-    try {
-      if (ai && pathname) ai.trackPageView({ name: document.title, uri: location.origin + location.pathname });
-      if (pathname) startEngaged(pathname);
-    } catch {}
+    // A throw in this effect would take down the page on every route change. Telemetry never may,
+    // and a failed page view must not stop engaged-time tracking for the new page.
+    if (!pathname) return;
+    try { if (ai) ai.trackPageView({ name: document.title, uri: location.origin + location.pathname }); } catch {}
+    try { startEngaged(pathname); } catch {}
   }, [pathname]);
   return null;
 }
