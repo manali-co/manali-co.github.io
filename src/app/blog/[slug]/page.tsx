@@ -5,13 +5,11 @@ import { getAllPosts, getPost, readableDate } from "@/lib/posts";
 import { owner, projectLabel, site } from "@/lib/site";
 import { Cover } from "@/components/Cover";
 import { AuthorLine } from "@/components/AuthorLine";
-import { Giscus } from "@/components/Giscus";
 import { SubscribeForm } from "@/components/SubscribeForm";
-import { Icon } from "@/components/Icon";
 import { ShareRow } from "@/components/ShareRow";
 import { CoffeeNudge } from "@/components/CoffeeNudge";
 import { ReactionBar } from "@/components/ReactionBar";
-import { QuickReply } from "@/components/QuickReply";
+import { Comments } from "@/components/comments/Comments";
 import { PostCard } from "@/components/PostCard";
 import { seriesFor, seriesView } from "@/lib/series";
 import { SeriesMarker } from "@/components/series/SeriesMarker";
@@ -85,7 +83,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       </article>
       {series && <aside className="series-rail" aria-label="In this series"><SeriesParts variant="rail" series={series} current={post.slug} /></aside>}
       </div>
-      <QuickReply slug={post.slug} title={post.title} ask={post.ask} />
+      <Comments slug={post.slug} title={post.title} ask={post.ask} />
       {next && (
         <section className="next-post" aria-label="Read next">
           <p className="reply__kicker">Read next</p>
@@ -94,14 +92,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </section>
       )}
       <CoffeeNudge />
-      <section className="discuss" aria-labelledby="discuss-title">
-        <div className="discuss__head">
-          <h2 id="discuss-title" className="discuss__title">Or comment in public</h2>
-          <a className="discuss__open" href={`https://github.com/${site.giscus.repo}/discussions`} target="_blank" rel="noopener">Open on GitHub <Icon name="arrow-up-right" size={14} /></a>
-        </div>
-        <div className="discuss__signin"><span>Public comments live in GitHub Discussions and need a GitHub sign-in. The reply box above doesn&apos;t.</span></div>
-        <Giscus term={`blog/${post.slug}`} />
-      </section>
       <SubscribeForm compact />
     </>
   );
