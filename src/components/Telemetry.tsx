@@ -16,6 +16,10 @@ export function track(name: string, props?: Props) {
   const clean = props ? (Object.fromEntries(Object.entries(props).filter(([, v]) => v !== undefined)) as Props) : undefined;
   if (ai) ai.trackEvent({ name }, clean);
   else if (queue.length < 50) queue.push([name, clean]);
+  if (!ai && name === "page_engaged") {
+    // The visitor may leave before the SDK loads; keep this one for the next page load.
+    try { const k = "ma-pending"; const p = JSON.parse(localStorage.getItem(k) || "[]"); p.push([name, clean]); localStorage.setItem(k, JSON.stringify(p.slice(-20))); } catch {}
+  }
 }
 
 /* Engaged time and reading depth, per page: seconds the tab was actually visible (not just
@@ -33,7 +37,7 @@ function flushEngaged(reason: string) {
   const device = matchMedia("(max-width: 720px)").matches ? "phone" : "laptop";
   // Each event carries the visible time since the last one, so a tab that hides and returns
   // reports two slices; the dashboard sums them per page view.
-  track("page_engaged", { page: engaged.path, seconds: Math.round(engaged.visibleMs / 1000), depth: engaged.maxDepth, device, reason });
+  track("page_engaged", { page: engaged.path, seconds: Math.round(engaged.visibleMs / 100) / 10, depth: engaged.maxDepth, device, reason });
   engaged.visibleMs = 0;
   (ai as unknown as { flush?: (async?: boolean) => void } | null)?.flush?.(false);
 }
@@ -48,6 +52,10 @@ if (typeof window !== "undefined") {
     else if (engaged.path) { engaged.sent = false; engaged.since = Date.now(); }
   });
   addEventListener("pagehide", () => flushEngaged("leave"));
+  // Back/forward cache restores can skip visibilitychange; start a new slice here too.
+  addEventListener("pageshow", (e) => {
+    if ((e as PageTransitionEvent).persisted && engaged.path && document.visibilityState === "visible") { engaged.sent = false; engaged.since = Date.now(); }
+  });
 }
 
 function onClick(e: MouseEvent) {
@@ -95,6 +103,12 @@ export function Telemetry() {
       });
       ai = inst as unknown as AI;
       inst.trackPageView({ name: document.title, uri: location.origin + location.pathname });
+      try {
+        const parked = JSON.parse(localStorage.getItem("ma-pending") || "[]") as [string, Props | undefined][];
+        localStorage.removeItem("ma-pending");
+        const live = new Set(queue.map(([n, pr]) => n + JSON.stringify(pr)));
+        for (const [n, pr] of parked) if (!live.has(n + JSON.stringify(pr))) ai.trackEvent({ name: n }, pr);
+      } catch {}
       for (const [n, pr] of queue.splice(0)) ai.trackEvent({ name: n }, pr);
       // Module-level and registered once: the same handler and options never stack, and the
       // listener lives exactly as long as the telemetry client it reports to.
