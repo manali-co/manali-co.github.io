@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Support · What Should We Watch</title>
+  <meta name="description" content="Get help with What Should We Watch: feedback, your data, and frequently asked questions.">
+  <link rel="canonical" href="https://manali.page/wsww/app/support.html">
+  <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&amp;family=Inter:wght@400;500;600&amp;display=swap">
+  <style>
+    :root {
+      --bg: #F7F5EE; --bg-raised: #FFFFFF; --bg-sunken: #EFEBDF;
+      --text: #23224A; --text-2: #55547A; --text-3: #84839E;
+      --accent: #5B63C7; --accent-tint: #EEEFFA; --sun: #F2B84B; --sun-tint: #FDF3DC;
+      --border: #E3DFD2; --border-strong: #CFCABA;
+      --link: #5B63C7; --link-hover: #2C2B6B; --focus-ring: #5B63C7; --selection: #FBE7B8; --selection-text: #23224A;
+      --font-display: "Comfortaa", ui-rounded, system-ui, sans-serif;
+      --font-body: "Inter", system-ui, -apple-system, sans-serif;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0C0C12; --bg-raised: #16161F; --bg-sunken: #08080C;
+        --text: #F7F5EE; --text-2: #B4B3C6; --text-3: #7F7E94;
+        --accent: #9AA0EA; --accent-tint: rgba(154, 160, 234, 0.14); --sun-tint: rgba(242, 184, 75, 0.16);
+        --border: rgba(247, 245, 238, 0.1); --border-strong: rgba(247, 245, 238, 0.2);
+        --link: #9AA0EA; --link-hover: #F7F5EE; --focus-ring: #F2B84B; --selection: rgba(242, 184, 75, 0.45); --selection-text: #FFFFFF;
+        color-scheme: dark;
+      }
+    }
+    html { -webkit-text-size-adjust: 100%; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-wrap: break-word; }
+    ::selection { background: var(--selection); color: var(--selection-text); }
+    a { color: var(--link); text-underline-offset: 3px; text-decoration-color: var(--border-strong); }
+    a:hover { color: var(--link-hover); text-decoration-color: currentColor; }
+    :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-radius: 8px; }
+    h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; text-wrap: balance; }
+    .wrap { max-width: calc(680px + 48px); margin: 0 auto; padding: 0 24px; }
+    .nav { border-bottom: 1px solid var(--border); }
+    .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; min-height: 64px; padding-top: 8px; padding-bottom: 8px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+    .brand img { width: 32px; height: 32px; }
+    .brand:hover { color: var(--text); }
+    .links { display: flex; gap: 4px; flex-wrap: wrap; }
+    .links a { font-size: 14px; font-weight: 500; color: var(--text-2); padding: 6px 12px; border-radius: 999px; text-decoration: none; }
+    .links a:hover { background: var(--accent-tint); color: var(--text); }
+    .links a[aria-current="page"] { color: var(--text); background: var(--accent-tint); }
+    main { padding: 48px 0 96px; }
+    .kicker { font-size: 14px; color: var(--text-3); margin: 0 0 12px; }
+    h1 { font-size: 40px; line-height: 1.1; }
+    .lede { font-size: 18px; color: var(--text-2); margin: 16px 0 0; }
+    .meta { font-size: 14px; color: var(--text-3); margin: 12px 0 0; }
+    .note { margin: 32px 0 0; padding: 16px 20px; background: var(--sun-tint); border-left: 3px solid var(--sun); border-radius: 0 12px 12px 0; }
+    .note h2 { font-size: 18px; margin: 0 0 8px; }
+    .note ul { margin: 0; }
+    .prose { font-size: 17px; line-height: 1.7; }
+    .prose h2 { font-size: 24px; line-height: 1.3; margin: 48px 0 12px; }
+    .prose h3 { font-size: 19px; line-height: 1.3; margin: 32px 0 8px; }
+    .prose p { margin: 12px 0 0; }
+    .prose ul, .prose ol { padding-left: 24px; margin: 12px 0 0; }
+    .prose li + li { margin-top: 6px; }
+    .prose strong { font-weight: 600; }
+    .placeholder { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; background: var(--bg-sunken); padding: 1px 6px; border-radius: 6px; }
+    footer { border-top: 1px solid var(--border); padding: 24px 0 48px; font-size: 14px; color: var(--text-3); }
+    footer p { margin: 4px 0; }
+    @media (max-width: 640px) { .wrap { padding: 0 16px; } main { padding: 32px 0 64px; } h1 { font-size: 32px; } .prose h2 { font-size: 22px; } }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap">
+      <a class="brand" href="https://manali.page/"><img src="/brand/mark-color.svg" alt="" width="32" height="32">Manali</a>
+      <nav class="links" aria-label="What Should We Watch">
+        <a href="support.html" aria-current="page">Support</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class="wrap">
+      <p class="kicker">What Should We Watch · iOS app</p>
+      <h1>Support</h1>
+      <p class="lede">Stuck, found a bug, or have an idea? Here is how to reach us and how to manage your data.</p>
+
+      <div class="prose">
+        <h2 id="help">Get help</h2>
+        <p>The fastest way to reach us is from inside the app:</p>
+        <ul>
+          <li><strong>Feedback button</strong>: tap the speech-bubble icon in the top-right corner of <strong>Tonight</strong>, <strong>Shortlist</strong> or <strong>Taste</strong>.</li>
+          <li><strong>Settings &rarr; Send feedback</strong>.</li>
+        </ul>
+        <p>Feedback sent from the app includes the app version, device model and iOS version so we can reproduce problems. It does not include your name or email, so if you would like a reply, add a way to reach you in the message, or email us at <span class="placeholder">CONTACT_EMAIL</span>.</p>
+
+        <h2 id="data">Your data and settings</h2>
+        <ul>
+          <li><strong>Export your data</strong>: Account &rarr; Export my data (when signed in).</li>
+          <li><strong>Delete your account</strong>: Account &rarr; Delete account. Your data on our servers is permanently deleted within 60 days.</li>
+          <li><strong>Start your taste over</strong>: Settings &rarr; Reset what we&rsquo;ve learned. This clears your swipes, taste notes and watched history.</li>
+          <li><strong>Turn off the morning follow-up</strong>: Settings &rarr; Ask how it went.</li>
+        </ul>
+        <p>More detail is in our <a href="privacy.html">Privacy Policy</a>.</p>
+
+        <h2 id="faq">Frequently asked questions</h2>
+
+        <h3 id="why-only-some">Why do I only see some films?</h3>
+        <p>The app only suggests films that are streaming on the services you picked, in your country. If a film you expected is missing, it is probably not on your services where you are right now. Add more services, or check that your country is right.</p>
+
+        <h3 id="why-sign-in">Why should I sign in?</h3>
+        <p>Signing in unlocks <strong>Taste</strong> and your own <strong>Disco</strong>, and keeps what the app has learned about your taste when you switch or reset phones. Guests can still swipe, without an account.</p>
+
+        <h3 id="limits">Is there a daily limit?</h3>
+        <p>Yes. Guests get 5 decks a day and signed-in users get 30 decks a day. The limit resets daily.</p>
+
+        <h3 id="wrong-info">A film is on the wrong service, or has gone</h3>
+        <p>Streaming catalogues change often and we refresh ours regularly, but it can lag behind. Let us know through the feedback button and we will look into it.</p>
+
+        <h2 id="contact">Contact</h2>
+        <p>Email <span class="placeholder">CONTACT_EMAIL</span>. What Should We Watch is made by <a href="https://manali.page/">Manali</a>.</p>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="wrap">
+      <p>What Should We Watch is an app by <a href="https://manali.page/">Manali</a>.</p>
+      <p><a href="support.html">Support</a> · <a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Use</a></p>
+    </div>
+  </footer>
+</body>
+</html>

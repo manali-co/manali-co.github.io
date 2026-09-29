@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy · What Should We Watch</title>
+  <meta name="description" content="How What Should We Watch, an iOS app by Manali, collects, uses and protects your data.">
+  <link rel="canonical" href="https://manali.page/wsww/app/privacy.html">
+  <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&amp;family=Inter:wght@400;500;600&amp;display=swap">
+  <style>
+    :root {
+      --bg: #F7F5EE; --bg-raised: #FFFFFF; --bg-sunken: #EFEBDF;
+      --text: #23224A; --text-2: #55547A; --text-3: #84839E;
+      --accent: #5B63C7; --accent-tint: #EEEFFA; --sun: #F2B84B; --sun-tint: #FDF3DC;
+      --border: #E3DFD2; --border-strong: #CFCABA;
+      --link: #5B63C7; --link-hover: #2C2B6B; --focus-ring: #5B63C7; --selection: #FBE7B8; --selection-text: #23224A;
+      --font-display: "Comfortaa", ui-rounded, system-ui, sans-serif;
+      --font-body: "Inter", system-ui, -apple-system, sans-serif;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0C0C12; --bg-raised: #16161F; --bg-sunken: #08080C;
+        --text: #F7F5EE; --text-2: #B4B3C6; --text-3: #7F7E94;
+        --accent: #9AA0EA; --accent-tint: rgba(154, 160, 234, 0.14); --sun-tint: rgba(242, 184, 75, 0.16);
+        --border: rgba(247, 245, 238, 0.1); --border-strong: rgba(247, 245, 238, 0.2);
+        --link: #9AA0EA; --link-hover: #F7F5EE; --focus-ring: #F2B84B; --selection: rgba(242, 184, 75, 0.45); --selection-text: #FFFFFF;
+        color-scheme: dark;
+      }
+    }
+    html { -webkit-text-size-adjust: 100%; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-wrap: break-word; }
+    ::selection { background: var(--selection); color: var(--selection-text); }
+    a { color: var(--link); text-underline-offset: 3px; text-decoration-color: var(--border-strong); }
+    a:hover { color: var(--link-hover); text-decoration-color: currentColor; }
+    :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-radius: 8px; }
+    h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; text-wrap: balance; }
+    .wrap { max-width: calc(680px + 48px); margin: 0 auto; padding: 0 24px; }
+    .nav { border-bottom: 1px solid var(--border); }
+    .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; min-height: 64px; padding-top: 8px; padding-bottom: 8px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+    .brand img { width: 32px; height: 32px; }
+    .brand:hover { color: var(--text); }
+    .links { display: flex; gap: 4px; flex-wrap: wrap; }
+    .links a { font-size: 14px; font-weight: 500; color: var(--text-2); padding: 6px 12px; border-radius: 999px; text-decoration: none; }
+    .links a:hover { background: var(--accent-tint); color: var(--text); }
+    .links a[aria-current="page"] { color: var(--text); background: var(--accent-tint); }
+    main { padding: 48px 0 96px; }
+    .kicker { font-size: 14px; color: var(--text-3); margin: 0 0 12px; }
+    h1 { font-size: 40px; line-height: 1.1; }
+    .lede { font-size: 18px; color: var(--text-2); margin: 16px 0 0; }
+    .meta { font-size: 14px; color: var(--text-3); margin: 12px 0 0; }
+    .note { margin: 32px 0 0; padding: 16px 20px; background: var(--sun-tint); border-left: 3px solid var(--sun); border-radius: 0 12px 12px 0; }
+    .note h2 { font-size: 18px; margin: 0 0 8px; }
+    .note ul { margin: 0; }
+    .prose { font-size: 17px; line-height: 1.7; }
+    .prose h2 { font-size: 24px; line-height: 1.3; margin: 48px 0 12px; }
+    .prose h3 { font-size: 19px; line-height: 1.3; margin: 32px 0 8px; }
+    .prose p { margin: 12px 0 0; }
+    .prose ul, .prose ol { padding-left: 24px; margin: 12px 0 0; }
+    .prose li + li { margin-top: 6px; }
+    .prose strong { font-weight: 600; }
+    .placeholder { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; background: var(--bg-sunken); padding: 1px 6px; border-radius: 6px; }
+    footer { border-top: 1px solid var(--border); padding: 24px 0 48px; font-size: 14px; color: var(--text-3); }
+    footer p { margin: 4px 0; }
+    @media (max-width: 640px) { .wrap { padding: 0 16px; } main { padding: 32px 0 64px; } h1 { font-size: 32px; } .prose h2 { font-size: 22px; } }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap">
+      <a class="brand" href="https://manali.page/"><img src="/brand/mark-color.svg" alt="" width="32" height="32">Manali</a>
+      <nav class="links" aria-label="What Should We Watch">
+        <a href="support.html">Support</a>
+        <a href="privacy.html" aria-current="page">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class="wrap">
+      <!-- Drafted from the app's code as of 29 September 2026. This is not legal advice: have it
+           reviewed by a lawyer before relying on it, and update it with any change to what the app
+           collects, where it is stored, or who processes it. Replace every CONTACT_EMAIL. -->
+      <p class="kicker">What Should We Watch · iOS app</p>
+      <h1>Privacy Policy</h1>
+      <p class="lede">What the app keeps about you, where it lives, who helps us process it, and how to get it back or delete it.</p>
+      <p class="meta">Effective 29 September 2026</p>
+      <p class="meta">Contact: <span class="placeholder">CONTACT_EMAIL</span></p>
+
+      <section class="note" aria-labelledby="in-short">
+        <h2 id="in-short">In short</h2>
+        <ul>
+          <li>We keep what you swipe and what you watched so the app can suggest better films. That is the whole point of the data.</li>
+          <li>No ads, no ad SDKs, no selling your data, no tracking you across other apps.</li>
+          <li>Your shortlist, country, streaming services, settings, name and Disco stay on your phone.</li>
+          <li>Recommendations are ranked with Azure OpenAI (Microsoft). Your name and email are never sent to it.</li>
+          <li>You can reset what the app learned, export your data or delete your account from inside the app.</li>
+        </ul>
+      </section>
+
+      <div class="prose">
+        <h2 id="who">Who we are</h2>
+        <p>What Should We Watch (&ldquo;the app&rdquo;) is made by Manali (<a href="https://manali.page/">manali.page</a>), which is the controller of the personal data described here. &ldquo;We&rdquo; and &ldquo;us&rdquo; mean Manali. You can reach us at <span class="placeholder">CONTACT_EMAIL</span>.</p>
+
+        <h2 id="accounts">Accounts and guests</h2>
+        <p>You can use the app as a guest or sign in.</p>
+        <ul>
+          <li><strong>Signed in.</strong> Sign-in is handled by Clerk, our authentication provider, using Sign in with Apple, Google, or a one-time code sent to your email. We receive your email address, your name if the sign-in method provides it, and the identifiers needed to recognise your account. If you use Sign in with Apple and choose to hide your email, we receive Apple&rsquo;s relay address instead.</li>
+          <li><strong>Guest.</strong> No account is created. The app generates a random device identifier, stores it on your phone, and uses it to keep your swipes together. It is not linked to your name, email or Apple ID, and a new one is generated when you log out.</li>
+        </ul>
+
+        <h2 id="stored">What we store on our servers</h2>
+        <p>These are kept with your account (or guest identifier) so the app can learn your taste:</p>
+        <ul>
+          <li><strong>Swipe decisions</strong>: which films you liked, passed on, saved as maybe, or marked as already seen, with the moods you picked and the context of the moment (time of day, weekday and season).</li>
+          <li><strong>Watched films and reactions</strong>: films you mark as watched and how it went (liked it, it was okay, or not for me).</li>
+          <li><strong>Taste notes</strong>: a short summary of your taste that the app writes and updates from the decisions above.</li>
+          <li><strong>A small preference</strong>: whether you have already seen the tutorial.</li>
+          <li><strong>Feedback you send us</strong>: your message, with the app version, device model and iOS version. We do not attach your name or email to feedback. If you include them in the message itself, we will see them.</li>
+        </ul>
+        <p>This data is stored with Microsoft Azure in the United States (Azure Cosmos DB for data, Azure Functions for the app&rsquo;s backend, and Azure Key Vault for our secrets).</p>
+
+        <h2 id="on-device">What stays on your phone</h2>
+        <p>These are never sent to our servers as part of your profile:</p>
+        <ul>
+          <li>your shortlist;</li>
+          <li>your country and the streaming services you selected (the app sends them along with each request for suggestions, so we only show films you can actually watch, but they are not stored with your profile);</li>
+          <li>your settings;</li>
+          <li>your display name and your Disco (avatar);</li>
+          <li>reminders: the morning &ldquo;how did it go?&rdquo; follow-up is scheduled locally on your phone, not sent from a server.</li>
+        </ul>
+
+        <h2 id="ai">How recommendations are made (AI processing)</h2>
+        <p>To rank films and write the short reason shown with each one, we send the following to Azure OpenAI Service, operated by Microsoft:</p>
+        <ul>
+          <li>the moods you picked and the time context (time of day, weekday, season);</li>
+          <li>your recent decisions: film titles, what you did with them, your reactions and the moods at the time;</li>
+          <li>your taste notes.</li>
+        </ul>
+        <p>Your display name and email are never sent. We do not use your data to train AI models, and under Microsoft&rsquo;s terms for Azure OpenAI Service, prompts and outputs are not used to train Microsoft&rsquo;s or OpenAI&rsquo;s models.</p>
+
+        <h2 id="catalogue">Streaming availability</h2>
+        <p>Which films are on which service in which country comes from a third-party catalogue provider (Movie of the Night&rsquo;s Streaming Availability API). Our servers fetch that catalogue on their own; no personal data about you is sent to the provider.</p>
+        <p>When you open a film, the app sends you to the streaming service&rsquo;s app or website. What happens there is governed by that service&rsquo;s own privacy policy.</p>
+
+        <h2 id="diagnostics">Diagnostics</h2>
+        <p>Our servers record request logs and telemetry in Azure Application Insights: request metadata (such as which endpoint was called, when, the response status and how long it took) and errors. We use this to keep the app working and fast.</p>
+        <p>We do not show ads, include advertising or tracking SDKs, sell your data, or track you across other companies&rsquo; apps and websites.</p>
+
+        <h2 id="use">How we use your data</h2>
+        <ul>
+          <li>To provide the app: sign you in, remember your decisions and suggest films.</li>
+          <li>To improve suggestions over time, for you, using your own history.</li>
+          <li>To read and act on feedback you send.</li>
+          <li>To keep the service secure and working, and to enforce daily limits and our <a href="terms.html">Terms of Use</a>.</li>
+        </ul>
+        <p>Where the law requires a legal basis, we rely on performing our agreement with you (providing the app you asked for) and our legitimate interest in running, securing and improving it.</p>
+
+        <h2 id="sharing">Who we share it with</h2>
+        <p>We share data only with the service providers that run the app for us, and only for that purpose:</p>
+        <ul>
+          <li><strong>Clerk</strong>: sign-in and account management.</li>
+          <li><strong>Microsoft Azure</strong>: hosting, storage, diagnostics and Azure OpenAI Service.</li>
+          <li><strong>Apple and Google</strong>, if you choose to sign in with them, under their own terms.</li>
+        </ul>
+        <p>We may also disclose data if the law requires it. We do not sell or rent personal data.</p>
+
+        <h2 id="choices">Your controls, retention and rights</h2>
+        <ul>
+          <li><strong>Reset what we&rsquo;ve learned</strong> (Settings): deletes your decisions, taste notes and watched history.</li>
+          <li><strong>Export my data</strong> (Account, signed in): exports your country, services, how many decisions you have made, and your shortlist.</li>
+          <li><strong>Delete account</strong> (Account): removes your account and schedules your data on our servers for permanent deletion within 60 days.</li>
+          <li><strong>Log out</strong>: clears the app&rsquo;s data from your phone.</li>
+        </ul>
+        <p>We keep your data until you reset it or delete your account. Feedback messages and diagnostic logs are kept only as long as we need them to run and improve the app.</p>
+        <p>You can also ask us to access, correct or delete your personal data, or ask any question about it, by emailing <span class="placeholder">CONTACT_EMAIL</span>. Depending on where you live, you may have further rights, including to object to or restrict processing, and to complain to your local data protection authority.</p>
+
+        <h2 id="transfers">International transfers</h2>
+        <p>Our servers are in the United States. If you use the app from elsewhere, your data is transferred to and processed in the United States by us and the providers listed above.</p>
+
+        <h2 id="security">Security</h2>
+        <p>Data is encrypted in transit between the app and our servers, and our secrets are held in Azure Key Vault. No system is perfectly secure, but we work to protect what you trust us with.</p>
+
+        <h2 id="children">Children</h2>
+        <p>The app is not directed to children under 13, and we do not knowingly collect personal data from them. If you believe a child has given us personal data, contact us and we will delete it.</p>
+
+        <h2 id="changes">Changes to this policy</h2>
+        <p>If we change this policy, we will update the effective date above, and for significant changes we will tell you in the app. Continuing to use the app after a change means the updated policy applies.</p>
+
+        <h2 id="contact">Contact</h2>
+        <p>Manali · <a href="https://manali.page/">manali.page</a> · <span class="placeholder">CONTACT_EMAIL</span></p>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="wrap">
+      <p>What Should We Watch is an app by <a href="https://manali.page/">Manali</a>.</p>
+      <p><a href="support.html">Support</a> · <a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Use</a></p>
+    </div>
+  </footer>
+</body>
+</html>
