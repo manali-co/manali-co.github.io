@@ -32,8 +32,13 @@ export const viewport: Viewport = {
 
 const themeScript = `try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}`;
 
+// Clerk's own telemetry is off: the CSP blocks it anyway, and the site has its own.
+function ClerkQuiet({ children }: { children: React.ReactNode }) {
+  return <ClerkProvider telemetry={false}>{children}</ClerkProvider>;
+}
+const Provider = clerkEnabled ? ClerkQuiet : Fragment;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const Provider = clerkEnabled ? ClerkProvider : Fragment;
   return (
     <Provider>
       <html lang="en" suppressHydrationWarning>
