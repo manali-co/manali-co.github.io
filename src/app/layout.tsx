@@ -7,6 +7,7 @@ import { site } from "@/lib/site";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { Telemetry } from "@/components/Telemetry";
+import { StaleTabGuard } from "@/components/StaleTabGuard";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </main>
           <Footer />
           <Telemetry />
+          <StaleTabGuard />
         </body>
       </html>
     </Provider>
