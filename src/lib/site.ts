@@ -110,7 +110,7 @@ export const ownerLinks = [
   { key: "github", label: "GitHub", href: owner.github, icon: "github" },
   { key: "linkedin", label: "LinkedIn", href: owner.linkedin, icon: "linkedin" },
   { key: "scholar", label: "Google Scholar", href: owner.scholar, icon: "scholar" },
-  { key: "x", label: "X", href: owner.x, icon: "x" },
+  { key: "x", label: "X", href: owner.x, icon: "x-logo" },
   { key: "bluesky", label: "Bluesky", href: owner.bluesky, icon: "butterfly" },
   { key: "email", label: "Email", href: owner.email ? `mailto:${owner.email}` : "", icon: "mail" },
 ].filter((l) => l.href);

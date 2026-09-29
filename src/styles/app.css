@@ -404,7 +404,7 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 @media (max-width: 480px) { .reactions--floating .react { padding-left: 8px; padding-right: 8px; } .reactions__prompt { display: none; } }
 
 /* reply box */
-.reply { max-width: 680px; margin: var(--space-10) auto var(--space-8); padding: var(--space-6); background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius-xl); }
+.reply { max-width: 680px; margin: 0 auto var(--space-8); padding: var(--space-6); background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius-xl); }
 .reply__kicker { font-family: var(--font-mono); font-size: var(--text-sm); letter-spacing: 0.06em; text-transform: uppercase; color: var(--sun); margin: 0 0 var(--space-2); }
 .reply__title { font-family: var(--font-display); font-weight: 500; font-size: var(--text-h3, 24px); line-height: 1.2; margin: 0 0 var(--space-2); }
 .reply__lede { color: var(--text-2); margin: 0 0 var(--space-4); }

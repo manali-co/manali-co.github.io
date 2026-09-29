@@ -17,7 +17,7 @@ export function PostCard({ post, featured = false, row = false }: { post: Post; 
           <p className="post-card__kicker"><ProjectTag project={post.project} /><span className="post-card__date">{readableDate(post.date)}</span></p>
           <h2 className="featured__title"><Link href={post.url}>{post.title}</Link></h2>
           {post.summary && <p className="featured__summary">{post.summary}</p>}
-          <p className="post-card__meta"><AuthorLine author={post.author} project={post.project} compact /><span>{post.readingTime}</span></p>
+          <div className="post-card__meta"><AuthorLine author={post.author} project={post.project} compact /><span>{post.readingTime}</span></div>
         </div>
       </article>
     );
@@ -29,7 +29,7 @@ export function PostCard({ post, featured = false, row = false }: { post: Post; 
       <p className="post-card__kicker"><ProjectTag project={post.project} /><span className="post-card__date">{readableDate(post.date)}</span></p>
       <h2 className="post-card__title"><Link href={post.url}>{post.title}</Link></h2>
       {post.summary && <p className="post-card__summary">{post.summary}</p>}
-      <p className="post-card__meta"><AuthorLine author={post.author} project={post.project} compact /><span>{post.readingTime}</span></p>
+      <div className="post-card__meta"><AuthorLine author={post.author} project={post.project} compact /><span>{post.readingTime}</span></div>
       </div>
     </li>
   );
