@@ -422,7 +422,7 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 
 /* post footer: "React" and "Share" share one label column, so the two rows of round buttons line up */
 .foot__label { flex: none; width: 48px; margin-right: 0; font-size: var(--text-sm); color: var(--text-3); }
-.react { min-width: 44px; justify-content: center; }
+.reactions:not(.reactions--floating) .react { min-width: 44px; justify-content: center; } /* docked row only; the floating bar keeps its own sizing */
 @media (max-width: 480px) {
   .reactions:not(.reactions--floating) { gap: 6px; }
   .share { gap: 6px; }
