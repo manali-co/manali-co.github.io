@@ -10,7 +10,7 @@ import { projectLabel } from "./site";
      title: "Evening builds"
      summary: "One or two sentences for the hub page, the shelf card and the social card."
      project: manali            # optional, same values as a post's project
-     upcoming:                  # optional: titles of parts not written yet, in order
+     upcoming:                  # optional: titles of the parts not out yet (drafts too), in order
        - "What comes next"
      complete: false            # true once the last part is out; hides "coming soon"
      ---
@@ -76,7 +76,11 @@ export function getAllSeries(): Series[] {
       .filter((p) => p.series === slug)
       .sort((a, b) => a.part! - b.part!)
       .map((post) => ({ part: post.part!, state: "published" as const, post }));
-    let n = out.reduce((m, p) => Math.max(m, p.part), 0);
+    // Published parts must run 1, 2, 3 with no gaps: a part can't go out before the one before it.
+    // Then the upcoming titles fill the parts after the last published one. Those are the parts
+    // not out yet, drafts included, so a draft's slot shows as its coming-soon title.
+    out.forEach((p, i) => { if (p.part !== i + 1) fail(`published parts must run 1, 2, 3 in order; part ${i + 1} is not published but part ${p.part} is`); });
+    let n = out.length;
     for (const title of upcomingTitles) out.push({ part: ++n, state: "upcoming", title });
 
     const dates = out.flatMap((p) => (p.state === "published" ? [p.post.date] : [])).sort();

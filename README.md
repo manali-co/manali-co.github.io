@@ -71,7 +71,7 @@ upcoming:                 # optional: titles of parts not written yet, shown as 
 complete: false           # true after the last part; hides coming soon and Follow
 ```
 
-A post joins with two lines in its front matter, `series: <slug>` and `part: <n>`. The post then gets the series marker at the top, the next part (or coming soon plus "Follow this series") at the end, and the parts rail on laptops. The build fails on a missing series, a part number used twice, or `part` without `series`. Readers who follow a series get one email per new part and nothing else: sending the announcement from `/admin` for a series post reaches every subscriber plus that series' followers. The design is the *series* group in the Claude Design system.
+A post joins with two lines in its front matter, `series: <slug>` and `part: <n>`. The post then gets the series marker at the top, the next part (or coming soon plus "Follow this series") at the end, and the parts rail on laptops. The build fails on a missing series, a part number used twice, `part` without `series`, or published parts with a gap (part 3 out while part 2 is still a draft). The `upcoming` titles stand for every part not out yet, drafts included. Readers who follow a series get one email per new part and nothing else: sending the announcement from `/admin` for a series post reaches every subscriber plus that series' followers. The design is the *series* group in the Claude Design system.
 
 ## Run it
 
