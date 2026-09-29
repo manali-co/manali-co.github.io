@@ -48,7 +48,7 @@ date: ${date}
 author: ${author}
 project: ${project}
 summary: ${JSON.stringify(args.summary && args.summary !== "true" ? args.summary : "")}
-# cover: /posts/${slug}/cover.webp   (put images under public/posts/${slug}/)
+# cover: /posts/${slug}/cover.webp   (put images under public/posts/${slug}/)\nask: ""   # one specific question for readers, shown above the reply box
 ${args.draft === "true" ? "draft: true\n" : ""}---
 
 `

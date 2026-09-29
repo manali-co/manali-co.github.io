@@ -6,6 +6,7 @@ project: portfolio
 summary: "The first-round call is gone. Your own agent takes the screen, on your own site, from a record you control, and the recruiter walks away with notes and evidence. The early preview is live."
 cover: /posts/screening-rounds-just-changed/cover.png
 coverAlt: "The screening bar on ayushmagrawal.com answering a question and highlighting the Microsoft role on the page."
+ask: "What should a candidate's agent always answer, and what should it never touch? Leave an email if you want an invite."
 draft: false
 ---
 
@@ -49,6 +50,6 @@ It's ::loud[very] early. One instance, mine, and I'm the only candidate on it. T
 
 ---
 
-I'm opening it to a small group next. If you want your own record and your own screen, leave a comment below with what you do and where. Invites go out from the comments, in order, before it opens to everyone.
+I'm opening it to a small group next. If you want your own record and your own screen, reply below with what you do and where, and leave an email. No account needed. Invites go out from the replies, in order, before it opens to everyone.
 
 The screening call was never the interesting part of hiring. It was the part that could be a link. ::big[Now it is one.]

@@ -51,6 +51,26 @@ export async function adminStats(): Promise<AdminStats | null> {
   }
 }
 
+export type AdminReply = { slug: string; id: string; text: string; name: string; email: string; created: string };
+
+export async function adminReplies(): Promise<AdminReply[] | null> {
+  try {
+    const res = await call("/admin/replies", {}, true);
+    return res.ok ? ((await res.json()) as { replies: AdminReply[] }).replies : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteReply(slug: string, id: string): Promise<boolean> {
+  try {
+    const res = await call(`/admin/replies/${encodeURIComponent(slug)}/${encodeURIComponent(id)}`, { method: "DELETE" }, true);
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export type AnnouncePost = { slug: string; title: string; summary: string; url: string; cover?: string; coverText?: string; project: string; date: string; author: string; force?: boolean };
 export type AnnounceResult = { recipients: number; subscribers: number } | { error: "already" | "failed" };
 

@@ -113,6 +113,7 @@ export type Post = {
   coverAlt?: string;
   coverText?: string;
   coverVariant?: "type" | "icon" | "mono";
+  ask?: string; // one question for readers, shown above the reply box
   tags: string[];
   draft: boolean;
   html: string;
@@ -151,6 +152,7 @@ export function getAllPosts({ includeDrafts = false } = {}): Post[] {
       coverAlt: data.coverAlt,
       coverText: data.coverText ? String(data.coverText) : undefined,
       coverVariant: data.coverVariant,
+      ask: data.ask ? String(data.ask) : undefined,
       tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
       draft: data.draft === true,
       html,

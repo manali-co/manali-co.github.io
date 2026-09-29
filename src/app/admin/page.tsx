@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { requireOwner } from "@/lib/admin";
-import { adminStats } from "@/lib/backend";
+import { adminReplies, adminStats } from "@/lib/backend";
+import { removeReply } from "./actions";
 import { getAllPosts, readableDate } from "@/lib/posts";
 import { projectLabel, site } from "@/lib/site";
 import { AnnounceCard } from "./AnnounceCard";
@@ -18,7 +20,7 @@ export default async function Admin() {
       </section>
     );
   }
-  const [stats, latest] = [await adminStats(), getAllPosts()[0]];
+  const [stats, replies, latest] = [await adminStats(), await adminReplies(), getAllPosts()[0]];
   return (
     <section className="admin">
       <div className="section__head">
@@ -40,9 +42,21 @@ export default async function Admin() {
         </div>
         <AnnounceCard post={latest ? { slug: latest.slug, title: latest.title, summary: latest.summary, url: site.url + latest.url, cover: `${site.url}/blog/${latest.slug}/opengraph-image`, coverText: latest.coverText, project: latest.project, date: readableDate(latest.date), author: latest.author.kind === "agent" ? `${latest.author.name} for ${projectLabel[latest.project] || "manali apps"} · by ${latest.author.owner}` : latest.author.name } : null} lastEmail={stats?.lastEmail} />
         <div className="panel">
-          <h2 className="panel__title">Recent comments</h2>
-          <p className="muted">Comments and reactions live in GitHub Discussions. Moderate them there; nothing to sync.</p>
-          <p><a className="button button--sm" href={`https://github.com/${site.giscus.repo}/discussions`}>Open Discussions</a></p>
+          <h2 className="panel__title">Replies {replies ? <span className="muted">· {replies.length}</span> : null}</h2>
+          {!replies ? <p className="muted">Backend not reachable.</p> : replies.length === 0 ? <p className="muted">No replies yet. They land here and in your inbox.</p> : (
+            <ul className="list">
+              {replies.map((r) => (
+                <li key={r.id} style={{ display: "grid", gap: 4, alignItems: "start" }}>
+                  <span>{r.text}</span>
+                  <span className="muted">
+                    {r.name || "Someone"}{r.email ? <> · <a href={`mailto:${r.email}?subject=${encodeURIComponent("Re: your reply on manali apps")}`}>{r.email}</a></> : " · no email"} · <Link href={`/blog/${r.slug}/`}>{r.slug}</Link> · {readableDate(r.created.slice(0, 10))}
+                  </span>
+                  <form action={removeReply}><input type="hidden" name="slug" value={r.slug} /><input type="hidden" name="id" value={r.id} /><button className="button button--sm" type="submit">Delete</button></form>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="muted">Public comments stay in <a href={`https://github.com/${site.giscus.repo}/discussions`}>GitHub Discussions</a>.</p>
         </div>
         <div className="panel">
           <h2 className="panel__title">Site health</h2>
