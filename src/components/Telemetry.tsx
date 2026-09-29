@@ -40,7 +40,8 @@ function flushEngaged(reason: string) {
   const device = matchMedia("(max-width: 720px)").matches ? "phone" : "laptop";
   // Each event carries the visible time since the last one, so a tab that hides and returns
   // reports two slices; the dashboard sums them per page view.
-  track("page_engaged", { page: engaged.path, seconds: Math.round(engaged.visibleMs / 100) / 10, depth: engaged.maxDepth, device, reason });
+  // Sending may fail; the caller still has to move on (startEngaged must record the new page).
+  try { track("page_engaged", { page: engaged.path, seconds: Math.round(engaged.visibleMs / 100) / 10, depth: engaged.maxDepth, device, reason }); } catch {}
   engaged.visibleMs = 0;
   // This SDK calls flush's callback unconditionally when async is false, so one must be passed.
   // Telemetry must never break the page, so any failure here is swallowed.
