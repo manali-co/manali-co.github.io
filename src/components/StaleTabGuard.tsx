@@ -11,17 +11,22 @@ export function StaleTabGuard() {
     if (!mine) return; // local dev and the static mirror have nothing to compare
     let stale = false;
     let last = 0;
-    const check = async () => {
-      if (stale || document.visibilityState !== "visible" || Date.now() - last < 60_000) return;
+    let pending: Promise<void> | null = null;
+    let replaying = false;
+    const check = () => {
+      if (stale || pending || document.visibilityState !== "visible" || Date.now() - last < 60_000) return;
       last = Date.now();
-      try {
-        const res = await fetch("/api/build/", { cache: "no-store" });
-        const live = ((await res.json()) as { build?: string }).build;
-        if (live && live !== mine) stale = true;
-      } catch {}
+      pending = (async () => {
+        try {
+          const res = await fetch("/api/build/", { cache: "no-store" });
+          const live = ((await res.json()) as { build?: string }).build;
+          if (live && live !== mine) stale = true;
+        } catch {}
+      })().finally(() => { pending = null; });
     };
     const onClick = (e: MouseEvent) => {
-      if (!stale || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (replaying || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (!stale && !pending) return;
       const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
       if (!a || (a.target && a.target !== "_self") || a.hasAttribute("download")) return;
       const url = new URL(a.href, location.href);
@@ -29,7 +34,15 @@ export function StaleTabGuard() {
       if (url.pathname === location.pathname && url.search === location.search && url.hash) return; // same-page anchor
       e.preventDefault();
       e.stopPropagation(); // keep the old router from also handling it
-      location.assign(url.href);
+      if (stale) return location.assign(url.href);
+      // Clicking into a window fires focus and click together, so the check may still be in
+      // flight. Wait for it, at most 1.5 s, then load fresh or let the router take the click.
+      const wait = new Promise<void>((r) => setTimeout(r, 1500));
+      void Promise.race([pending, wait]).then(() => {
+        if (stale) return location.assign(url.href);
+        replaying = true;
+        try { a.click(); } finally { replaying = false; }
+      });
     };
     document.addEventListener("visibilitychange", check);
     window.addEventListener("focus", check);
