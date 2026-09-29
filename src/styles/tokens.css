@@ -70,6 +70,18 @@
   --selection: var(--halo);
   --selection-text: var(--ink);
   --focus-ring: var(--indigo);
+  /* reactions: each has its own hue from the brand (design system, 29 Sep); light values are
+     deepened for contrast on paper */
+  --react-sun: #F2B84B;
+  --react-sun-tint: var(--gold-tint);
+  --react-heart: #D9605A;
+  --react-heart-tint: rgba(238, 128, 121, 0.14);
+  --react-idea: #5B63C7;
+  --react-idea-tint: var(--indigo-tint);
+  --react-laugh: #2E9C8E;
+  --react-laugh-tint: rgba(110, 203, 190, 0.18);
+  --react-rocket: #7A62C9;
+  --react-rocket-tint: rgba(184, 166, 230, 0.22);
   color-scheme: light;
 
   /* type */
@@ -159,6 +171,7 @@
   --selection: rgba(242, 184, 75, 0.45);
   --selection-text: #FFFFFF;
   --focus-ring: var(--gold);
+  --react-sun: #F2B84B; --react-sun-tint: rgba(242, 184, 75, 0.16); --react-heart: #EE8079; --react-heart-tint: rgba(238, 128, 121, 0.16); --react-idea: #9AA0EA; --react-idea-tint: rgba(154, 160, 234, 0.16); --react-laugh: #6ECBBE; --react-laugh-tint: rgba(110, 203, 190, 0.16); --react-rocket: #B8A6E6; --react-rocket-tint: rgba(184, 166, 230, 0.18);
   --shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.45);
   --shadow-halo: 0 0 0 6px rgba(242, 184, 75, 0.25);
@@ -194,6 +207,7 @@
     --selection: rgba(242, 184, 75, 0.45);
     --selection-text: #FFFFFF;
     --focus-ring: var(--gold);
+    --react-sun: #F2B84B; --react-sun-tint: rgba(242, 184, 75, 0.16); --react-heart: #EE8079; --react-heart-tint: rgba(238, 128, 121, 0.16); --react-idea: #9AA0EA; --react-idea-tint: rgba(154, 160, 234, 0.16); --react-laugh: #6ECBBE; --react-laugh-tint: rgba(110, 203, 190, 0.16); --react-rocket: #B8A6E6; --react-rocket-tint: rgba(184, 166, 230, 0.18);
     --shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.45);
     --shadow-halo: 0 0 0 6px rgba(242, 184, 75, 0.25);
