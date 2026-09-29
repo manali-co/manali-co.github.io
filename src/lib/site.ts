@@ -36,14 +36,21 @@ export const projects = [
     name: "What Should We Watch",
     platform: "iOS & Android",
     status: "building" as const,
-    statusLabel: "building · TestFlight",
+    statusLabel: "coming to the App Store",
     blurb:
       "The question everyone asks at 9pm, answered before 9:20. Pick a mood, get ten films that are actually streaming tonight, swipe to decide.",
-    repo: "https://github.com/manali-co/what-should-we-watch",
+    repo: "", // private since 29 Sep 2026: no Source link anywhere
     icon: "/apps/what-should-we-watch-icon.png",
     well: "wsww" as const,
     license: "Proprietary",
-    noBuild: "No public build yet. It ships to TestFlight from main; a public link follows when it's ready.",
+    noBuild: "Launching on the App Store in the next few days.",
+    /* Launch week: "soon" shows dashed placeholders that don't link. On release, set state to
+       "live", fill href, and set badge to the official store artwork under public/ (Apple and
+       Google both require their own badges), then change status to live. */
+    stores: [
+      { store: "app-store" as const, state: "soon" as const, href: "", badge: "" },
+      { store: "google-play" as const, state: "soon" as const, href: "", badge: "" },
+    ],
   },
   {
     slug: "spark" as const,

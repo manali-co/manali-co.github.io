@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getProjectPosts } from "@/lib/posts";
 import { projects } from "@/lib/site";
 import { PostCard } from "@/components/PostCard";
+import { StoreButton } from "@/components/StoreButton";
 import { SeriesShelf } from "@/components/series/SeriesShelf";
 import { getProjectSeries, seriesView } from "@/lib/series";
 
@@ -37,6 +38,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
             {p.repo ? <a className="button button--sm" href={p.repo} target="_blank" rel="noopener">Source on GitHub</a> : null}
             {"post" in p && p.post ? <Link className="button button--sm" href={p.post}>Read the post</Link> : null}
           </p>
+          {"stores" in p && p.stores && (
+            <>
+              <div className="stores" style={{ marginTop: "var(--space-4)" }}>{p.stores.map((st) => <StoreButton key={st.store} {...st} />)}</div>
+              {p.stores.every((st) => st.state === "soon") && p.noBuild && <p className="muted" style={{ marginTop: "var(--space-3)" }}>{p.noBuild}</p>}
+            </>
+          )}
         </div>
       </section>
       {getProjectSeries(slug).length > 0 && <section className="section"><SeriesShelf series={getProjectSeries(slug).map(seriesView)} /></section>}
