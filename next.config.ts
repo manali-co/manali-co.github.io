@@ -36,6 +36,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  /* A tab opened before a deploy would otherwise ask the new deploy for the old build's files,
+     get 404s, flash an error and then reload. With the deployment id, Next sees the mismatch on
+     the next click and does one clean full load instead. Unset for the static export. */
+  deploymentId: process.env.VERCEL_DEPLOYMENT_ID || undefined,
   trailingSlash: true,
   // Links carry the slash; nothing redirects when a URL arrives without one. Social crawlers fetch the
   // generated card URL exactly as written in og:image, and some of them refuse a redirect.
