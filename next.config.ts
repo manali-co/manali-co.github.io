@@ -47,6 +47,10 @@ const nextConfig: NextConfig = {
         turbopack: { resolveAlias: { "@clerk/nextjs": stub } },
       }
     : {
+        // The project's vercel.app address still answers; send it to the real one.
+        async redirects() {
+          return [{ source: "/:path*", has: [{ type: "host", value: "manali-web.vercel.app" }], destination: "https://manali.page/:path*", permanent: true }];
+        },
         async headers() {
           return [{ source: "/(.*)", headers: securityHeaders }];
         },

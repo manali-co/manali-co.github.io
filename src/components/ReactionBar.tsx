@@ -67,7 +67,36 @@ function Chip({ id, count, mine, onToggle, reduced, busy }: { id: Kind; count: n
   );
 }
 
+/* Reactions follow the reader: once they are a quarter of the way into the post and the bar's
+   own place is still below them, the same bar floats at the bottom of the screen. It settles
+   back into place when the reader reaches it, and can be dismissed for the rest of the visit. */
+function useFloating(anchor: React.RefObject<HTMLDivElement | null>) {
+  const [floating, setFloating] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  useEffect(() => {
+    const el = anchor.current;
+    const article = document.querySelector("article.post");
+    if (!el || !article) return;
+    // Float only between "a quarter of the way into the post" and "the bar's own place is on
+    // screen". Once the reader is past it (reply box, comments), it stays in place.
+    const update = () => {
+      const bar = el.getBoundingClientRect();
+      const a = article.getBoundingClientRect();
+      const progress = -a.top / Math.max(1, a.height - innerHeight);
+      const stillBelow = bar.top > innerHeight - 8;
+      setFloating(progress > 0.25 && stillBelow);
+    };
+    update();
+    addEventListener("scroll", update, { passive: true });
+    addEventListener("resize", update);
+    return () => { removeEventListener("scroll", update); removeEventListener("resize", update); };
+  }, [anchor]);
+  return { floating: floating && !dismissed, dismiss: () => setDismissed(true) };
+}
+
 export function ReactionBar({ slug }: { slug: string }) {
+  const anchor = useRef<HTMLDivElement>(null);
+  const { floating, dismiss } = useFloating(anchor);
   const [data, setData] = useState<Data>({ counts: {}, mine: [] });
   const [busy, setBusy] = useState(false);
   const [reduced, setReduced] = useState(false);
@@ -104,11 +133,15 @@ export function ReactionBar({ slug }: { slug: string }) {
     } catch { setData(before); } finally { setBusy(false); }
   };
   const total = ORDER.reduce((a, k) => a + (data.counts[k] || 0), 0);
+  if (data.unavailable) return null; // no backend on this host: nothing to press, so show nothing
   return (
-    <div className="reactions" role="group" aria-label="Reactions">
-      {ORDER.map((k) => <Chip key={k} id={k} count={data.counts[k] || 0} mine={data.mine.includes(k)} onToggle={toggle} reduced={reduced} busy={busy || !data.loaded} />)}
-      {total > 0 && <span className="reactions__total">{total} {total === 1 ? "reaction" : "reactions"}</span>}
-      {data.unavailable && <span className="reactions__total">Reactions switch on once the backend is up.</span>}
+    <div ref={anchor} className="reactions-anchor">
+      <div className={`reactions ${floating ? "reactions--floating" : ""}`} role="group" aria-label="Reactions">
+        {floating && <span className="reactions__prompt">React</span>}
+        {ORDER.map((k) => <Chip key={k} id={k} count={data.counts[k] || 0} mine={data.mine.includes(k)} onToggle={toggle} reduced={reduced} busy={busy || !data.loaded} />)}
+        {!floating && total > 0 && <span className="reactions__total">{total} {total === 1 ? "reaction" : "reactions"}</span>}
+        {floating && <button type="button" className="reactions__close" aria-label="Hide reactions" onClick={dismiss}>×</button>}
+      </div>
     </div>
   );
 }

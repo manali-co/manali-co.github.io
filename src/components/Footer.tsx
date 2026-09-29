@@ -31,7 +31,7 @@ export function Footer() {
             <a href="https://github.com/manali-co/.github/tree/main/brand" target="_blank" rel="noopener">Brand</a>
           </nav>
         </div>
-        <p className="footer__note">Yapp and the brand are CC BY 4.0. Use them, just say where they came from. What Should We Watch is source-available.</p>
+        <p className="footer__note"><Link href="/privacy/">Privacy</Link> · Yapp and the brand are CC BY 4.0. Use them, just say where they came from. What Should We Watch is source-available.</p>
       </div>
     </footer>
   );

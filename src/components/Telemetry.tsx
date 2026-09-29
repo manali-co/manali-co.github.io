@@ -104,6 +104,14 @@ export function Telemetry() {
           for (const k of ["uri", "refUri", "target", "name"]) if (k in d) d[k] = clean(d[k]);
         }
       });
+      // Anonymous, per browser, no cookie: a random id used only for telemetry, deliberately a
+      // different value from the one reactions and replies use, so they are never matched by id.
+      // Explained on /privacy/.
+      try {
+        let uid = localStorage.getItem("ma-visitor");
+        if (!uid) { uid = Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, "0")).join(""); localStorage.setItem("ma-visitor", uid); }
+        (inst as unknown as { context: { user: { id: string } } }).context.user.id = uid;
+      } catch {}
       ai = inst as unknown as AI;
       inst.trackPageView({ name: document.title, uri: location.origin + location.pathname });
       try {

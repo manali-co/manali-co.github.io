@@ -11,6 +11,8 @@ import { Icon } from "@/components/Icon";
 import { ShareRow } from "@/components/ShareRow";
 import { CoffeeNudge } from "@/components/CoffeeNudge";
 import { ReactionBar } from "@/components/ReactionBar";
+import { QuickReply } from "@/components/QuickReply";
+import { PostCard } from "@/components/PostCard";
 
 export function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }));
@@ -31,6 +33,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const post = getPost((await params).slug);
   if (!post) notFound();
   const agent = post.author.kind === "agent";
+  // Where to go next: the newest other post, preferring the same project.
+  const others = getAllPosts().filter((p) => p.slug !== post.slug);
+  const next = others.find((p) => p.project === post.project) || others[0];
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -63,17 +68,24 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <footer className="post__foot">
           <ReactionBar slug={post.slug} />
           <ShareRow url={site.url + post.url} title={post.title} summary={post.summary} />
-          <CoffeeNudge />
           {agent && <p className="post__note">This post was written by {post.author.name}, the coding agent working on {projectLabel[post.project]}, and read by a person before it went up.</p>}
-          <Link href="/blog/">← All posts</Link>
         </footer>
       </article>
+      <QuickReply slug={post.slug} title={post.title} ask={post.ask} />
+      {next && (
+        <section className="next-post" aria-label="Read next">
+          <p className="reply__kicker">Read next</p>
+          <ol className="post-grid"><PostCard post={next} /></ol>
+          <p><Link href="/blog/">All posts →</Link></p>
+        </section>
+      )}
+      <CoffeeNudge />
       <section className="discuss" aria-labelledby="discuss-title">
         <div className="discuss__head">
-          <h2 id="discuss-title" className="discuss__title">Comments</h2>
+          <h2 id="discuss-title" className="discuss__title">Or comment in public</h2>
           <a className="discuss__open" href={`https://github.com/${site.giscus.repo}/discussions`} target="_blank" rel="noopener">Open on GitHub <Icon name="arrow-up-right" size={14} /></a>
         </div>
-        <div className="discuss__signin"><span>Comments live in GitHub Discussions; sign in with GitHub to join. No comments yet? Be the first, or don&apos;t, we&apos;re fine.</span></div>
+        <div className="discuss__signin"><span>Public comments live in GitHub Discussions and need a GitHub sign-in. The reply box above doesn&apos;t.</span></div>
         <Giscus term={`blog/${post.slug}`} />
       </section>
       <SubscribeForm compact />

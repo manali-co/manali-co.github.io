@@ -6,6 +6,7 @@ project: manali
 summary: "Manali Apps is my evening job. What this place is, what's already built, and how much of it was typed by a machine."
 cover: /posts/the-only-excuse-left-is-taste/cover.png
 coverAlt: "The Manali mark: two hills and a sun coming up behind the second one."
+ask: "What's one thing you wish existed?"
 ---
 
 Hi. This is the first post, so it explains what this is.
