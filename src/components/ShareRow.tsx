@@ -25,7 +25,7 @@ export function ShareRow({ url, title, summary }: { url: string; title: string; 
       <span className="share__label">Share</span>
       <Pill onClick={copy} icon="link" label={copied ? "Link copied" : "Copy link"} done={copied}>{copied ? "Link copied" : "Copy link"}</Pill>
       {canShare && <Pill onClick={share} icon="share" label="Share…" />}
-      <Pill href={`https://x.com/intent/post?text=${enc(title)}&url=${enc(url)}`} icon="x" label="Share on X" />
+      <Pill href={`https://x.com/intent/post?text=${enc(title)}&url=${enc(url)}`} icon="x-logo" label="Share on X" />
       <Pill href={`https://bsky.app/intent/compose?text=${enc(`${title} ${url}`)}`} icon="butterfly" label="Share on Bluesky" />
       <Pill href={`https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}`} icon="linkedin" label="Share on LinkedIn" />
     </div>

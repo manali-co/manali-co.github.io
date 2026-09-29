@@ -40,9 +40,12 @@ function flushEngaged(reason: string) {
   const device = matchMedia("(max-width: 720px)").matches ? "phone" : "laptop";
   // Each event carries the visible time since the last one, so a tab that hides and returns
   // reports two slices; the dashboard sums them per page view.
-  track("page_engaged", { page: engaged.path, seconds: Math.round(engaged.visibleMs / 100) / 10, depth: engaged.maxDepth, device, reason });
+  // Sending may fail; the caller still has to move on (startEngaged must record the new page).
+  try { track("page_engaged", { page: engaged.path, seconds: Math.round(engaged.visibleMs / 100) / 10, depth: engaged.maxDepth, device, reason }); } catch {}
   engaged.visibleMs = 0;
-  (ai as unknown as { flush?: (async?: boolean) => void } | null)?.flush?.(false);
+  // This SDK calls flush's callback unconditionally when async is false, so one must be passed.
+  // Telemetry must never break the page, so any failure here is swallowed.
+  try { (ai as unknown as { flush?: (async?: boolean, cb?: () => void) => void } | null)?.flush?.(false, () => {}); } catch {}
 }
 function startEngaged(path: string) {
   flushEngaged("navigate");
@@ -127,8 +130,11 @@ export function Telemetry() {
     }).catch(() => { loading = false; }); // a failed load can retry on the next mount
   }, []);
   useEffect(() => {
-    if (ai && pathname) ai.trackPageView({ name: document.title, uri: location.origin + location.pathname });
-    if (pathname) startEngaged(pathname);
+    // A throw in this effect would take down the page on every route change. Telemetry never may,
+    // and a failed page view must not stop engaged-time tracking for the new page.
+    if (!pathname) return;
+    try { if (ai) ai.trackPageView({ name: document.title, uri: location.origin + location.pathname }); } catch {}
+    try { startEngaged(pathname); } catch {}
   }, [pathname]);
   return null;
 }

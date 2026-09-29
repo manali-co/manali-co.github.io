@@ -17,7 +17,18 @@ const PATHS: Record<string, string> = {
   sun: "M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41M12 8a4 4 0 1 0 0 8 4 4 0 1 0 0-8z",
 };
 
+/* Brand marks are filled shapes, not strokes. The X logo is from Simple Icons (CC0). */
+const FILLED: Record<string, string> = {
+  "x-logo": "M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z",
+};
+
 export function Icon({ name, size = 16, label }: { name: keyof typeof PATHS | string; size?: number; label?: string }) {
+  const filled = FILLED[name];
+  if (filled) return (
+    <svg viewBox="0 0 24 24" width={size * 0.85} height={size * 0.85} fill="currentColor" role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true} style={{ display: "inline-block", flex: "none", verticalAlign: "middle" }}>
+      <path d={filled} />
+    </svg>
+  );
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true} style={{ display: "inline-block", flex: "none", verticalAlign: "middle" }}>
       <path d={PATHS[name] || PATHS.check} />
