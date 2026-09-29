@@ -105,7 +105,7 @@ export function Telemetry() {
         }
       });
       // Anonymous, per browser, no cookie: a random id used only for telemetry, deliberately a
-      // different value from the one reactions and replies use, so the two can't be joined.
+      // different value from the one reactions and replies use, so they are never matched by id.
       // Explained on /privacy/.
       try {
         let uid = localStorage.getItem("ma-visitor");
