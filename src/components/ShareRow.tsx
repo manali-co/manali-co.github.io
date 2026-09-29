@@ -8,7 +8,7 @@ import { Icon } from "./Icon";
 function Pill({ href, onClick, icon, label, done, children }: { href?: string; onClick?: () => void; icon: string; label: string; done?: boolean; children?: React.ReactNode }) {
   const cls = `share__pill ${done ? "share__pill--done" : ""} ${children ? "" : "share__pill--icon"}`;
   if (href) return <a className={cls} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} title={label}><Icon name={icon} size={16} />{children}</a>;
-  return <button className={cls} type="button" onClick={onClick} aria-label={label} title={label} aria-live="polite"><Icon name={done ? "check" : icon} size={16} />{children}</button>;
+  return <button className={cls} type="button" onClick={onClick} aria-label={label} title={label} aria-live="polite"><Icon name={done ? "check" : icon} size={16} />{children && <span className="share__text">{children}</span>}</button>;
 }
 
 export function ShareRow({ url, title, summary }: { url: string; title: string; summary?: string }) {
@@ -22,7 +22,7 @@ export function ShareRow({ url, title, summary }: { url: string; title: string; 
   const share = () => navigator.share({ title, text: summary, url }).catch(() => {});
   return (
     <div className="share" role="group" aria-label="Share">
-      <span className="share__label">Share</span>
+      <span className="share__label foot__label">Share</span>
       <Pill onClick={copy} icon="link" label={copied ? "Link copied" : "Copy link"} done={copied}>{copied ? "Link copied" : "Copy link"}</Pill>
       {canShare && <Pill onClick={share} icon="share" label="Share…" />}
       <Pill href={`https://x.com/intent/post?text=${enc(title)}&url=${enc(url)}`} icon="x-logo" label="Share on X" />

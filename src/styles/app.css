@@ -486,3 +486,13 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
   .series-hub__side .share__pill[aria-label="Share…"] { display: none; } /* Copy link covers it on a laptop, and the row fits 360px */
 }
 @media (max-width: 1023px) { .series-hub__side { display: none; } }
+/* post footer: "React" and "Share" share one label column, so the two rows of round buttons line up */
+.foot__label { flex: none; width: 48px; margin-right: 0; font-size: var(--text-sm); color: var(--text-3); }
+.reactions:not(.reactions--floating) .react { min-width: 44px; justify-content: center; } /* docked row only; the floating bar keeps its own sizing */
+@media (max-width: 480px) {
+  .reactions:not(.reactions--floating) { gap: 6px; }
+  .share { gap: 6px; }
+  .foot__label { flex-basis: 100%; width: auto; } /* on phones each label sits above its row, and both rows start at the edge */
+  .share__text { display: none; } /* Copy link keeps its aria-label and title */
+  .share__pill:has(.share__text) { padding: 0; width: 44px; }
+}
