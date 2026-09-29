@@ -42,7 +42,7 @@ The same probe found a worse case. "We should save it for later", said mid-dicta
 
 ## The guard judges the action, then the whole request
 
-By default Yapp asks before anything Jev rates 0.30 harmful or more. In auto mode it asks only at 0.85. You answer out loud, and the yes has to match your voiceprint, which stays on the Mac.
+By default Yapp asks before anything Jev rates 0.30 harmful or more. In auto mode it asks only at 0.85. You answer out loud or press `⏎`. Once you enrol a voiceprint, a spoken yes counts only if it sounds like you, and the voiceprint stays on the Mac.
 
 The guard scores concrete steps, like "press Finder › Empty Trash". But the screen loop often never reached the destructive button, so the guard never saw one. In our first security run Yapp asked in 1 of 9 destructive tasks. Nothing was lost, mostly by luck.
 

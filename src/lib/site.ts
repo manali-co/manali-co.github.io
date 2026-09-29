@@ -24,7 +24,7 @@ export const projects = [
     status: "building" as const,
     statusLabel: "building",
     blurb:
-      "Hold a key, talk, and your Mac gets on with it while you're still talking. Speech stays on your machine; a small decision model turns each phrase into an action. It never asks \"are you sure?\"",
+      "Tap a key, talk, and your Mac gets on with it while you're still talking. Speech stays on your machine, and a small decision model turns each phrase into an action. Anything that could do harm waits for your yes.",
     repo: "https://github.com/manali-co/yapp",
     icon: "/apps/yapp-icon.png",
     well: "yapp" as const,
