@@ -137,7 +137,7 @@ export function ReactionBar({ slug }: { slug: string }) {
   return (
     <div ref={anchor} className="reactions-anchor">
       <div className={`reactions ${floating ? "reactions--floating" : ""}`} role="group" aria-label="Reactions">
-        {floating && <span className="reactions__prompt">React</span>}
+        {floating ? <span className="reactions__prompt">React</span> : <span className="foot__label">React</span>}
         {ORDER.map((k) => <Chip key={k} id={k} count={data.counts[k] || 0} mine={data.mine.includes(k)} onToggle={toggle} reduced={reduced} busy={busy || !data.loaded} />)}
         {!floating && total > 0 && <span className="reactions__total">{total} {total === 1 ? "reaction" : "reactions"}</span>}
         {floating && <button type="button" className="reactions__close" aria-label="Hide reactions" onClick={dismiss}>×</button>}
