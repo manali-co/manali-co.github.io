@@ -186,7 +186,7 @@ export function ReactionBar({ slug }: { slug: string }) {
         <div role="group" aria-label="Reactions" className="reactions-pill" style={{ padding: tiny ? "6px 6px 6px 8px" : "6px 6px 6px 18px", animation: reduced ? undefined : "ma-pill-rise 420ms var(--ease-settle)" }}>
           {!tiny && <span style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-md)", fontWeight: 500, color: hint ? "var(--text)" : "var(--text-2)", marginRight: 8, whiteSpace: "nowrap", minWidth: 132, flex: "none" }}>{hint || "Leave a mark"}</span>}
           {chips}
-          <button type="button" aria-label="Hide reactions" onClick={() => setDismissed(true)} className="reactions-pill__close">×</button>
+          <button type="button" aria-label="Hide reactions" onClick={() => setDismissed(true)} className="reactions-pill__close"><span aria-hidden="true">×</span></button>
         </div>
       )}
     </div>

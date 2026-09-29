@@ -333,7 +333,9 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 @keyframes ma-pill-rise { 0% { opacity: 0; transform: translateY(24px) scale(0.96); } 70% { opacity: 1; transform: translateY(-3px) scale(1); } 100% { opacity: 1; transform: none; } }
 .react__sunrise { transition: transform 700ms var(--ease-settle); }
 .reactions-pill { position: fixed; left: 0; right: 0; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 30; width: max-content; max-width: calc(100vw - 24px); margin: 0 auto; box-sizing: border-box; display: flex; align-items: center; flex-wrap: nowrap; gap: 2px; background: var(--bg-raised); border: 1px solid var(--border-strong); border-radius: var(--radius-pill); box-shadow: var(--shadow-hover), 0 0 0 6px var(--sun-tint); }
-.reactions-pill__close { flex: none; width: 36px; height: 36px; margin-left: 2px; border-radius: 50%; border: 0; background: var(--bg-sunken); color: var(--text-3); font-size: 18px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+/* A 36px sunken circle to look at, inside a 44px target to press. */
+.reactions-pill__close { flex: none; width: 44px; height: 44px; margin-left: -2px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.reactions-pill__close span { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-sunken); color: var(--text-3); font-size: 18px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
 @media (prefers-reduced-motion: reduce) { .react__sunrise { transition: none; } }
 @keyframes ma-react-pop { 0% { transform: scale(1); } 35% { transform: scale(1.18); } 70% { transform: scale(0.96); } 100% { transform: scale(1); } }
 @keyframes ma-react-ripple { from { transform: scale(0.6); opacity: 0.55; } to { transform: scale(2.4); opacity: 0; } }
