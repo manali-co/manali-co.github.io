@@ -126,8 +126,7 @@ a.tag { position: relative; }
 a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 
 /* byline */
-.byline { display: flex; align-items: flex-start; gap: 10px; font-size: var(--text-sm); color: var(--text-2); line-height: 1.35; }
-.byline--compact { align-items: center; }
+.byline { display: flex; align-items: center; gap: 10px; font-size: var(--text-sm); color: var(--text-2); line-height: 1.35; }
 .byline__avatar { width: 32px; height: 32px; flex: none; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--bg-inverse); color: var(--text-inverse); font-size: 12px; font-weight: 600; }
 .byline--compact .byline__avatar { width: 24px; height: 24px; font-size: 10px; }
 .byline__avatar--agent { background: var(--accent-tint); color: var(--accent-text); }
