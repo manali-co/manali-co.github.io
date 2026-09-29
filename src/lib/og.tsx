@@ -13,8 +13,10 @@ async function font(file: string) {
   return readFile(path.join(process.cwd(), "src", "assets", "fonts", file));
 }
 
-export async function ogImage({ title, kicker, byline, project = "manali", dark = true }: {
-  title: string; kicker?: string; byline?: string; project?: string; dark?: boolean;
+/* series: the design system's series card (SocialCard kind="series"): a gold "Series" kicker with
+   the part count, and the progress line bottom-right, filled for parts out, dashed for coming. */
+export async function ogImage({ title, kicker, byline, project = "manali", dark = true, series }: {
+  title: string; kicker?: string; byline?: string; project?: string; dark?: boolean; series?: { soon: boolean }[];
 }) {
   const [comfortaa, inter] = await Promise.all([font("Comfortaa-Medium.ttf"), font("Inter-Regular.ttf")]);
   const ground = dark ? "#0C0C12" : "#F7F5EE";
@@ -26,10 +28,17 @@ export async function ogImage({ title, kicker, byline, project = "manali", dark 
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "64px 72px", background: ground, color: ink, fontFamily: "Inter" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 26, color: muted, letterSpacing: 1, textTransform: "uppercase" }}>
-            <div style={{ width: 16, height: 16, borderRadius: 8, background: DOTS[project] || DOTS.manali }} />
-            {kicker || projectLabel[project] || "manali apps"}
-          </div>
+          {series ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 26, color: muted, letterSpacing: 2, textTransform: "uppercase" }}>
+              <span style={{ color: dark ? "#F2B84B" : "#5B63C7" }}>Series</span>
+              <span>· {series.filter((p) => !p.soon).length} {series.filter((p) => !p.soon).length === 1 ? "part" : "parts"} so far</span>
+            </div>
+          ) : (
+            <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 26, color: muted, letterSpacing: 1, textTransform: "uppercase" }}>
+              <div style={{ width: 16, height: 16, borderRadius: 8, background: DOTS[project] || DOTS.manali }} />
+              {kicker || projectLabel[project] || "manali apps"}
+            </div>
+          )}
           <svg viewBox="0 0 100 100" width="96" height="96">
             <circle cx="68" cy="40" r="19" fill="none" stroke={dark ? "rgba(242,184,75,0.35)" : "#FBE7B8"} strokeWidth="1.5" />
             <circle cx="68" cy="40" r="13" fill="#F2B84B" />
@@ -40,8 +49,20 @@ export async function ogImage({ title, kicker, byline, project = "manali", dark 
           <div style={{ fontFamily: "Comfortaa", fontSize: size, lineHeight: 1.1, letterSpacing: -1, maxWidth: 1000, display: "flex" }}>{title}</div>
           {byline && <div style={{ fontSize: 28, color: muted, display: "flex" }}>{byline}</div>}
         </div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 10, fontFamily: "Comfortaa", fontSize: 34 }}>
-          <span>manali</span><span style={{ color: dark ? "#F2B84B" : "#5B63C7" }}>apps</span>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, fontFamily: "Comfortaa", fontSize: 34 }}>
+            <span>manali</span><span style={{ color: dark ? "#F2B84B" : "#5B63C7" }}>apps</span>
+          </div>
+          {series && series.length > 0 && (
+            <div style={{ display: "flex", alignItems: "center", width: Math.min(460, series.length * 110), marginBottom: 6 }}>
+              {series.map((p, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", flexGrow: i === 0 ? 0 : 1 }}>
+                  {i > 0 && <div style={{ flexGrow: 1, height: 0, borderTop: `3px ${p.soon ? "dashed" : "solid"} ${!p.soon && !series[i - 1].soon ? (dark ? "#9AA0EA" : "#5B63C7") : "rgba(247,245,238,0.2)"}` }} />}
+                  <div style={{ width: 16, height: 16, borderRadius: 8, ...(p.soon ? { border: `2px dashed ${muted}` } : { background: dark ? "#9AA0EA" : "#5B63C7" }) }} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     ),

@@ -3,6 +3,8 @@ import { getAllPosts } from "@/lib/posts";
 import { projects, projectLabel } from "@/lib/site";
 import { PostList } from "@/components/PostList";
 import { SubscribeForm } from "@/components/SubscribeForm";
+import { SeriesShelf } from "@/components/series/SeriesShelf";
+import { getPublicSeries, seriesView } from "@/lib/series";
 
 export const FILTERS = ["all", "yapp", "what-should-we-watch", "spark", "portfolio", "manali"] as const;
 export type Filter = (typeof FILTERS)[number];
@@ -31,6 +33,7 @@ export function NotesView({ filter }: { filter: Filter }) {
       <div className="notes__layout">
         <div className="notes__main">
           {filter !== "all" && <p className="notes__showing">Showing {projectLabel[filter]} only. <Link href="/blog/">Show everything</Link></p>}
+          {filter === "all" && <SeriesShelf series={getPublicSeries().map(seriesView)} />}
           {shown.length ? <PostList posts={shown} /> : (
             <div className="soon">
               <span className="soon__dot" aria-hidden="true" />

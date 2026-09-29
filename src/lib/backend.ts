@@ -16,8 +16,11 @@ async function call(path: string, init: RequestInit = {}, admin = false) {
   });
 }
 
-export async function subscribe(email: string, source = "site") {
-  return call("/subscribe", { method: "POST", body: JSON.stringify({ email, source }) });
+/* With a series, the address follows that one series (one email per new part) instead of every
+   post. seriesTitle comes from the site's own content, never from the visitor. */
+export async function subscribe(email: string, source = "site", series?: { slug: string; title: string }) {
+  const extra = series ? { series: series.slug, seriesTitle: series.title } : {};
+  return call("/subscribe", { method: "POST", body: JSON.stringify({ email, source, ...extra }) });
 }
 
 /* Returns true when the token was accepted, false when it was unknown, null when the API is off. */
@@ -71,7 +74,7 @@ export async function deleteReply(slug: string, id: string): Promise<boolean> {
   }
 }
 
-export type AnnouncePost = { slug: string; title: string; summary: string; url: string; cover?: string; coverText?: string; project: string; date: string; author: string; force?: boolean };
+export type AnnouncePost = { slug: string; title: string; summary: string; url: string; cover?: string; coverText?: string; project: string; date: string; author: string; series?: string; seriesTitle?: string; force?: boolean };
 export type AnnounceResult = { recipients: number; subscribers: number } | { error: "already" | "failed" };
 
 export async function sendAnnouncement(post: AnnouncePost): Promise<AnnounceResult> {

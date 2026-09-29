@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { getProjectPosts } from "@/lib/posts";
 import { projects } from "@/lib/site";
 import { PostCard } from "@/components/PostCard";
+import { SeriesShelf } from "@/components/series/SeriesShelf";
+import { getProjectSeries, seriesView } from "@/lib/series";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ project: p.slug }));
@@ -37,6 +39,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
           </p>
         </div>
       </section>
+      {getProjectSeries(slug).length > 0 && <section className="section"><SeriesShelf series={getProjectSeries(slug).map(seriesView)} /></section>}
       <section id="posts" className="section">
         <h2 className="section__title">What&apos;s new in {p.name}</h2>
         {posts.length ? (

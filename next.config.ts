@@ -39,6 +39,8 @@ const nextConfig: NextConfig = {
   /* Baked into the client so StaleTabGuard can tell when a newer deploy is live. */
   env: { NEXT_PUBLIC_BUILD: process.env.VERCEL_DEPLOYMENT_ID || "" },
   trailingSlash: true,
+  // The follow endpoint reads a series title from content/series at request time.
+  outputFileTracingIncludes: { "/api/subscribe": ["./content/series/**"] },
   // Links carry the slash; nothing redirects when a URL arrives without one. Social crawlers fetch the
   // generated card URL exactly as written in og:image, and some of them refuse a redirect.
   skipTrailingSlashRedirect: true,
