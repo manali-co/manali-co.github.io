@@ -1,26 +1,30 @@
 ---
-title: "My Mac takes orders from a model that can't write"
+title: "Use your Mac without touching the keyboard. Is this a better harness for LLMs?"
 date: 2026-09-29
 author: ayush
 project: yapp
-summary: "Yapp drives a Mac with a decision model that only picks from options it is shown. What that made easy, what it made hard, and what 32 tasks on a real Mac say so far."
+summary: "Yapp drives a Mac from your voice with a decision model that only picks from options it is shown. What that made easy, what it made hard, what 32 tasks on a real Mac say, and why an LLM might want the same loop."
+cover: /posts/use-your-mac-without-the-keyboard/cover.webp
+coverAlt: "A mock of Yapp working beside you. Your email keeps the keyboard on the left, and Yapp types in a glowing TextEdit window on the right."
 ask: "How long would you wait for the first click after a vague request like \"find my post about hiring\"? One second, three, ten?"
 draft: true
 ---
 
-Most computer-use agents write their way through a screen. They read a screenshot, then produce a plan, coordinates and the words to type. Yapp does none of that. Its model can't write a single word.
+Tap `⌥ Space`, say "open notes and then new note and then type buy milk", and keep your hands in your lap. Notes opens before you've said "milk".
 
-Yapp runs on Jev, a decision model from TypeSafe AI. You give Jev a state and some options, and it tells you which option fits and how sure it is. Code reads the Mac through Accessibility, builds the options, and Jev picks.
+That's Yapp. The unusual part is the model behind it, which can't write a single word.
+
+Most computer-use agents write their way through a screen. They read a screenshot, then produce a plan, coordinates and the words to type. Yapp runs on Jev, a decision model from TypeSafe AI. You give Jev a state and some options, and it tells you which option fits and how sure it is. Code reads the Mac through Accessibility, builds the options, and Jev picks.
 
 > A model that can only choose from what you show it can't click something that isn't there.
 
-![How Yapp turns a sentence into an action. Local Whisper produces a word stream. Jev decides what was said. A policy acts, waits or ignores. The guard scores harm. The action runs, and the workspace keeps your window yours.](/posts/yapp-model-that-cant-write/design.png)
+![How Yapp turns a sentence into an action. Local Whisper produces a word stream. Jev decides what was said. A policy acts, waits or ignores. The guard scores harm. The action runs, and the workspace keeps your window yours.](/posts/use-your-mac-without-the-keyboard/design.png)
 
 ## Yapp acts while you're still talking
 
-You hold `⌥ Space` and talk. Whisper runs on the Mac and hands over new words every 0.4 seconds. Each batch goes to Jev with a few questions. What does this ask for? Is the first instruction complete? Was it said to the computer? Does it end the text I'm typing for you?
+Whisper runs on the Mac and hands over new words every 0.4 seconds. Each batch goes to Jev with a few questions. What does this ask for? Is the first instruction complete? Was it said to the computer? Does it end the text I'm typing for you? Most calls return in 150 to 300 milliseconds.
 
-So "open notes and then new note and then type buy milk" is three actions, and Notes opens before you've said "milk". Most Jev calls return in 150 to 300 milliseconds.
+![A mock of the Yapp bar mid-sentence. The words so far read "open reminders and then new reminder", and Yapp is already opening Reminders.](/posts/use-your-mac-without-the-keyboard/talking.webp)
 
 The hard question is "is it complete?". Act early and "open" opens the wrong thing. Act late and you wait for a pause.
 
@@ -46,6 +50,8 @@ Now Jev also judges the whole instruction against the current screen before the 
 
 Computer-use demos assume the agent owns the screen. On your Mac it doesn't. You're writing an email while Yapp files a reminder.
 
+![A mock of parallel mode. Your email draft keeps the keyboard on the left half. On the right half, Yapp types into a TextEdit window it opened, marked with a glow, and the bar says it is typing beside your Mail window. All names and text are made up.](/posts/use-your-mac-without-the-keyboard/parallel.webp)
+
 Before its first action, Jev decides whether you're handing the screen over or busy. If you're busy, Yapp works on another display, or on the other half of this one, and your window keeps the keyboard. When a field won't take text any other way, Yapp waits for a pause in your typing, borrows focus for about 700 milliseconds, and hands it back. A glow marks only the windows Yapp opened, and "clean up" closes only those.
 
 > Confession: in one test run I was typing in Chrome. Yapp rightly refused to bring Finder forward, then kept acting on the app in front. It typed a folder name into my browser and pressed Enter.
@@ -53,6 +59,14 @@ Before its first action, Jev decides whether you're handing the screen over or b
 Yapp's keys and clicks now go only to the window it works in. If you take the front back, it moves aside. If you click another window of the same app, it stops.
 
 We didn't see two problems coming. macOS counts Yapp's own keystrokes as keyboard activity, so right after dictating, Yapp thought *you* were typing. And a background app reports most menu commands as disabled because it has no key window, so "new folder" couldn't find New Folder. A demo on a quiet machine shows neither.
+
+## The same loop could carry an LLM
+
+LLM computer use today mostly works from pixels. The model looks at a screenshot, writes coordinates, clicks, and looks again. Every step waits on a large model, a click can land on something that isn't there, and the safety check is the same model's judgement.
+
+Yapp splits those jobs. Code reads the real controls. Jev picks one in a few hundred milliseconds or says none fits. A separate guard judges each action, and the workspace keeps keys out of your window. An LLM on top would only need to write the plan, "open LinkedIn, open my profile, show my activity", and each line would run through the same loop and the same guard.
+
+We haven't wired an LLM in yet. It's the obvious next test, because Yapp can already take the lines of a plan one at a time.
 
 ## The benchmark runs on a real Mac
 
@@ -70,8 +84,8 @@ The harness is a computer-use agent too, with the same power to do damage. TextE
 
 ---
 
-## Next, two challengers on the same 32 tasks
+## Next, two challengers and a planner on the same 32 tasks
 
-First, the decision model Stanford released, against Jev on accuracy and latency. Then a small Qwen model fine-tuned on the decisions Yapp already makes.
+First, the decision model Stanford released, against Jev on accuracy and latency. Then a small Qwen model fine-tuned on the decisions Yapp already makes. Then an LLM that writes plans for the loop to run.
 
 "Open Notes" should stay as fast as it is today. The open question is the vague request, like "find my post about hiring and show me its activity". That needs a plan, and a plan costs time. We'll report what the numbers say, and ::loud[how long] you'll wait for it.
