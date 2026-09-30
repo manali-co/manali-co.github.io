@@ -130,6 +130,20 @@ function useFloating(anchor: React.RefObject<HTMLDivElement | null>, enabled: bo
   return enabled && floating;
 }
 
+/* Text that swaps on hover without moving anything: every possible label sits in the same grid
+   cell, only the current one is visible, so the box is always as wide as the longest. Hidden ones
+   are visibility:hidden, so screen readers only hear the current text. */
+function Steady({ text, options, style, live }: { text: string; options: string[]; style?: CSSProperties; live?: boolean }) {
+  return (
+    <span aria-live={live ? "polite" : undefined} style={{ display: "inline-grid", whiteSpace: "nowrap", ...style }}>
+      {[...new Set([text, ...options])].map((o) => (
+        <span key={o} aria-hidden={o !== text || undefined} style={{ gridArea: "1 / 1", visibility: o === text ? "visible" : "hidden" }}>{o}</span>
+      ))}
+    </span>
+  );
+}
+const LABELS = REACTIONS.map((r) => r.label);
+
 const LABEL: CSSProperties = { fontFamily: "var(--font-mono)", fontSize: "var(--text-sm)", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--text-3)" };
 
 export function ReactionBar({ slug }: { slug: string }) {
@@ -174,7 +188,8 @@ export function ReactionBar({ slug }: { slug: string }) {
   const chips = REACTIONS.map((r) => (
     <Chip key={r.id} r={r} count={data.counts[r.id] || 0} mine={data.mine.includes(r.id)} onToggle={toggle} reduced={reduced} floating={floating} tight={floating && tiny} busy={busy || !data.loaded} onHint={setHint} />
   ));
-  const caption = <span aria-live="polite" style={{ fontSize: "var(--text-sm)", color: hint ? "var(--text-2)" : "var(--text-3)", whiteSpace: "nowrap", minWidth: 0 }}>{hint || (n > 0 ? `${n} ${n === 1 ? "reaction" : "reactions"}` : "Anonymous, no account")}</span>;
+  const resting = n > 0 ? `${n} ${n === 1 ? "reaction" : "reactions"}` : "Anonymous, no account";
+  const caption = <Steady live text={hint || resting} options={[resting, "Anonymous, no account", ...LABELS]} style={{ fontSize: "var(--text-sm)", color: hint ? "var(--text-2)" : "var(--text-3)" }} />;
   return (
     <div ref={anchor} style={{ minHeight: 44 }}>
       {!floating ? (
@@ -184,7 +199,7 @@ export function ReactionBar({ slug }: { slug: string }) {
         </div>
       ) : (
         <div role="group" aria-label="Reactions" className="reactions-pill" style={{ padding: tiny ? "6px 6px 6px 8px" : "6px 6px 6px 18px", animation: reduced ? undefined : "ma-pill-rise 420ms var(--ease-settle)" }}>
-          {!tiny && <span style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-md)", fontWeight: 500, color: hint ? "var(--text)" : "var(--text-2)", marginRight: 8, whiteSpace: "nowrap", minWidth: 132, flex: "none" }}>{hint || "Leave a mark"}</span>}
+          {!tiny && <Steady text={hint || "Leave a mark"} options={["Leave a mark", ...LABELS]} style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-md)", fontWeight: 500, color: hint ? "var(--text)" : "var(--text-2)", marginRight: 8, flex: "none" }} />}
           {chips}
           <button type="button" aria-label="Hide reactions" onClick={() => setDismissed(true)} className="reactions-pill__close"><span aria-hidden="true">×</span></button>
         </div>
