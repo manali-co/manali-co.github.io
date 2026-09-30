@@ -111,6 +111,9 @@ function Row({ row, first, known }: { row: AnnounceRow; first: boolean; known: b
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [justSent, setJustSent] = useState<Send | null>(null);
+  // Once the page refreshes with the stored send, it wins over the local "just now" stand-in.
+  const [seen, setSeen] = useState(row.send);
+  if (row.send !== seen) { setSeen(row.send); setJustSent(null); }
   const [audience, setAudience] = useState<EmailPreview | null>(null);
   const [busy, start] = useTransition();
   const send = justSent || row.send;
