@@ -88,7 +88,7 @@
       <p class="kicker">What Should We Watch · iOS app</p>
       <h1>Privacy Policy</h1>
       <p class="lede">What the app keeps about you, where it lives, who helps us process it, and how to get it back or delete it.</p>
-      <p class="meta">Effective 29 September 2026</p>
+      <p class="meta">Effective 30 September 2026</p>
       <p class="meta">Contact: <a href="mailto:ayush.agrawal7661@gmail.com">ayush.agrawal7661@gmail.com</a></p>
 
       <section class="note" aria-labelledby="in-short">
@@ -96,7 +96,7 @@
         <ul>
           <li>We keep what you swipe and what you watched so the app can suggest better films. That is the whole point of the data.</li>
           <li>No ads, no ad SDKs, no selling your data, no tracking you across other apps.</li>
-          <li>Your shortlist, country, streaming services, settings, name and Disco stay on your phone.</li>
+          <li>Your shortlist, settings, name and Disco stay on your phone. So do your country and streaming services, unless you allow notifications (see <a href="#notifications">Notifications</a>).</li>
           <li>Recommendations are ranked with Azure OpenAI (Microsoft). Your name and email are never sent to it.</li>
           <li>You can reset what the app learned, export your data or delete your account from inside the app.</li>
         </ul>
@@ -128,11 +128,22 @@
         <p>These are never sent to our servers as part of your profile:</p>
         <ul>
           <li>your shortlist;</li>
-          <li>your country and the streaming services you selected (the app sends them along with each request for suggestions, so we only show films you can actually watch, but they are not stored with your profile);</li>
+          <li>your country and the streaming services you selected (the app sends them along with each request for suggestions, so we only show films you can actually watch; they are not stored with your profile, except as described under <a href="#notifications">Notifications</a> if you allow them);</li>
           <li>your settings;</li>
           <li>your display name and your Disco (avatar);</li>
           <li>reminders: the morning &ldquo;how did it go?&rdquo; follow-up is scheduled locally on your phone, not sent from a server.</li>
         </ul>
+
+        <h2 id="notifications">Notifications</h2>
+        <p>If you allow notifications, the app registers your phone so we can reach it. We store, with your account (or guest identifier):</p>
+        <ul>
+          <li>a <strong>push token</strong>, an identifier Apple or Google assigns so a message can be delivered to your phone;</li>
+          <li>your <strong>time zone</strong>, so we never message you at night;</li>
+          <li>the <strong>app version</strong>;</li>
+          <li>your <strong>country and streaming services</strong>, so a message about a film only mentions one you can actually watch.</li>
+        </ul>
+        <p>We use it to ask how last night&rsquo;s film went (the morning-after follow-up) and, <strong>only if you turn on &ldquo;Occasional picks&rdquo;</strong>, to send an occasional suggestion, at most about once a week, for example when a film you liked is about to leave one of your services. Messages are delivered through Expo&rsquo;s push service, which passes them to Apple Push Notification service or Google Firebase Cloud Messaging.</p>
+        <p>You can turn notifications off at any time in the app&rsquo;s Settings or your phone&rsquo;s settings. Logging out removes this phone&rsquo;s registration from your account, and deleting your account or your data deletes it.</p>
 
         <h2 id="ai">How recommendations are made (AI processing)</h2>
         <p>To rank films and write the short reason shown with each one, we send the following to Azure OpenAI Service, operated by Microsoft:</p>
@@ -149,6 +160,7 @@
 
         <h2 id="diagnostics">Diagnostics</h2>
         <p>Our servers record request logs and telemetry in Azure Application Insights: request metadata (such as which endpoint was called, when, the response status and how long it took) and errors. We use this to keep the app working and fast.</p>
+        <p>The app itself reports performance and error data to EAS Observe, operated by Expo: how long the app takes to start and become usable, crashes and errors (with technical details such as the device model, operating system and app version), and product events such as whether a follow-up reminder was scheduled. These reports never include your name, your email or text you type.</p>
         <p>We do not show ads, include advertising or tracking SDKs, sell your data, or track you across other companies&rsquo; apps and websites.</p>
 
         <h2 id="use">How we use your data</h2>
@@ -165,7 +177,8 @@
         <ul>
           <li><strong>Clerk</strong>: sign-in and account management.</li>
           <li><strong>Microsoft Azure</strong>: hosting, storage, diagnostics and Azure OpenAI Service.</li>
-          <li><strong>Apple and Google</strong>, if you choose to sign in with them, under their own terms.</li>
+          <li><strong>Expo</strong> (650 Industries, Inc.): delivering notifications, and app performance and error monitoring (EAS Observe).</li>
+          <li><strong>Apple and Google</strong>, if you choose to sign in with them, and to deliver notifications to your phone, under their own terms.</li>
         </ul>
         <p>We may also disclose data if the law requires it. We do not sell or rent personal data.</p>
 
