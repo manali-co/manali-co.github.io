@@ -24,7 +24,7 @@ export default function SignInPage() {
           formButtonPrimary: { borderRadius: "999px" },
         },
       }} /> : <p className="subscribe__status subscribe__status--err">Clerk isn&apos;t configured on this deployment yet.</p>}
-      <p className="signin__note"><Icon name="shield" size={14} /> Auth by Clerk. We only see your GitHub login.</p>
+      <p className="signin__note"><Icon name="shield" size={14} /> Auth by Clerk. We only see the email you sign in with.</p>
     </section>
   );
 }
