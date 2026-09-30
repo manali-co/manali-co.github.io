@@ -13,6 +13,7 @@ export type AnnounceRow = { post: AnnouncePost; send: Send | null };
 
 const DOT: Record<string, string> = { yapp: "#E8B79A", "what-should-we-watch": "var(--wswatch-coral)", spark: "#E03C7A", portfolio: "#D2491F", manali: "var(--accent)" };
 const ERR = "var(--wswatch-coral)";
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 function Status({ send, known }: { send: Send | null; known: boolean }) {
   if (!known) return <span className="ann__status ann__status--faint">Send status unknown</span>;
@@ -122,7 +123,7 @@ function Row({ row, first, known }: { row: AnnounceRow; first: boolean; known: b
     setOpen(null);
   });
   const n = audience?.audience;
-  const who = n === undefined ? "everyone it goes to" : post.seriesTitle && audience?.followers ? `${n - audience.followers} subscribers and ${audience.followers} followers of ${post.seriesTitle}` : `${n} ${n === 1 ? "subscriber" : "subscribers"}`;
+  const who = n === undefined ? "everyone it goes to" : post.seriesTitle && audience?.followers ? `${plural(n - audience.followers, "subscriber")} and ${plural(audience.followers, "follower")} of ${post.seriesTitle}` : plural(n, "subscriber");
   const previewing = open === "preview" || open === "send" || open === "confirm";
   return (
     <li className="ann__row" style={first ? { borderTop: 0 } : undefined}>

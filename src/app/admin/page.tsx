@@ -24,7 +24,12 @@ function emailPost(p: Post): AnnouncePost {
 }
 
 /* Times in the owner's zone, the same on the server and in the browser. */
-const sentAt = (iso: string) => new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/New_York" }).replace(" at", ",");
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function sentAt(iso: string) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "America/New_York" })
+    .formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
+  return `${parts.day} ${MONTHS[Number(parts.month) - 1]}, ${parts.hour}:${parts.minute}`;
+}
 
 function sendOf(all: Announcement[], slug: string): AnnounceRow["send"] {
   const a = all.find((x) => x.slug === slug); // newest first, so a re-send shows its latest copy
