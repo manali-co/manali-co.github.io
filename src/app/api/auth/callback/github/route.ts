@@ -4,7 +4,8 @@ import { githubAuthEnabled, OWNER_COOKIE, ownerEmails, SESSION_DAYS, sameState, 
 
 /* Step two: GitHub sends the visitor back with a one-time code. Check the state, trade the code for
    a token, read the verified emails, and only if one is on ADMIN_EMAILS set the owner cookie. The
-   token is dropped right here. Anyone else gets a plain "not the owner" and no session. */
+   token is dropped right here. Each GitHub call gives up after 10s, so a hung GitHub ends in the
+   error message rather than a spinner. Anyone else gets a plain "not the owner" and no session. */
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const back = (error: string) => {
@@ -23,12 +24,12 @@ export async function GET(req: Request) {
       method: "POST",
       headers: { accept: "application/json", "content-type": "application/json" },
       body: JSON.stringify({ client_id: process.env.AUTH_GITHUB_ID, client_secret: process.env.AUTH_GITHUB_SECRET, code, redirect_uri: `${url.origin}/api/auth/callback/github` }),
-      cache: "no-store",
+      cache: "no-store", signal: AbortSignal.timeout(10_000),
     });
     const { access_token: token } = (await tokenRes.json()) as { access_token?: string };
     if (!token) return back("github");
     const gh = { authorization: `Bearer ${token}`, accept: "application/vnd.github+json", "user-agent": "manali.page" };
-    const [userRes, emailRes] = await Promise.all([fetch("https://api.github.com/user", { headers: gh, cache: "no-store" }), fetch("https://api.github.com/user/emails", { headers: gh, cache: "no-store" })]);
+    const [userRes, emailRes] = await Promise.all([fetch("https://api.github.com/user", { headers: gh, cache: "no-store", signal: AbortSignal.timeout(10_000) }), fetch("https://api.github.com/user/emails", { headers: gh, cache: "no-store", signal: AbortSignal.timeout(10_000) })]);
     if (!userRes.ok || !emailRes.ok) return back("github");
     const user = (await userRes.json()) as { login: string; name?: string | null };
     const emails = (await emailRes.json()) as { email: string; verified: boolean }[];
