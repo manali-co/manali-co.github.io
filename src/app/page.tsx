@@ -3,6 +3,7 @@ import { getAllPosts, readableDate } from "@/lib/posts";
 import { projects, site } from "@/lib/site";
 import { latestRelease } from "@/lib/releases";
 import { AuthorLine } from "@/components/AuthorLine";
+import { StoreButton } from "@/components/StoreButton";
 import { ProjectTag } from "@/components/PostCard";
 
 import type { Metadata } from "next";
@@ -62,6 +63,7 @@ export default async function Home() {
                     {p.repo ? <a className="card__link" href={p.repo} target="_blank" rel="noopener">Source</a> : null}
                     <Link className="card__link" href={`/${p.slug}/#posts`}>Posts</Link>
                   </p>
+                  {"stores" in p && p.stores && <div className="stores card__stores">{p.stores.map((st) => <StoreButton key={st.store} {...st} />)}</div>}
                   <p className="card__release">
                     {"post" in p && p.post ? <Link className="button button--primary button--sm" href={p.post}>Read the post</Link> : null}
                     {"live" in p && p.live ? <a className={`button button--sm ${"post" in p && p.post ? "" : "button--primary"}`} href={p.live} target="_blank" rel="noopener">{"post" in p && p.post ? "Early preview" : "Try it"}</a> : null}

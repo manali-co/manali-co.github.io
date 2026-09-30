@@ -16,8 +16,11 @@ async function call(path: string, init: RequestInit = {}, admin = false) {
   });
 }
 
-export async function subscribe(email: string, source = "site") {
-  return call("/subscribe", { method: "POST", body: JSON.stringify({ email, source }) });
+/* With a series, the address follows that one series (one email per new part) instead of every
+   post. seriesTitle comes from the site's own content, never from the visitor. */
+export async function subscribe(email: string, source = "site", series?: { slug: string; title: string }) {
+  const extra = series ? { series: series.slug, seriesTitle: series.title } : {};
+  return call("/subscribe", { method: "POST", body: JSON.stringify({ email, source, ...extra }) });
 }
 
 /* Returns true when the token was accepted, false when it was unknown, null when the API is off. */
@@ -71,7 +74,7 @@ export async function deleteReply(slug: string, id: string): Promise<boolean> {
   }
 }
 
-export type AnnouncePost = { slug: string; title: string; summary: string; url: string; cover?: string; coverText?: string; project: string; date: string; author: string; force?: boolean };
+export type AnnouncePost = { slug: string; title: string; summary: string; url: string; cover?: string; coverText?: string; project: string; date: string; author: string; series?: string; seriesTitle?: string; force?: boolean };
 export type AnnounceResult = { recipients: number; subscribers: number } | { error: "already" | "failed" };
 
 export async function sendAnnouncement(post: AnnouncePost): Promise<AnnounceResult> {
@@ -82,5 +85,46 @@ export async function sendAnnouncement(post: AnnouncePost): Promise<AnnounceResu
     return (await res.json()) as { recipients: number; subscribers: number };
   } catch {
     return { error: "failed" };
+  }
+}
+
+/* Comments: the owner's side. Public reading and posting go through /api/comments/*. */
+export type AdminComment = { id: string; slug: string; title: string; parent: string; state: "pending" | "live" | "removed"; created: string; text: string; name: string; email: string; owner: boolean };
+
+export async function adminComments(): Promise<AdminComment[] | null> {
+  try {
+    const res = await call("/admin/comments", {}, true);
+    return res.ok ? ((await res.json()) as { comments: AdminComment[] }).comments : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function moderateComment(slug: string, id: string, action: "approve" | "remove"): Promise<boolean> {
+  try {
+    const res = await call(`/admin/comments/${encodeURIComponent(slug)}/${encodeURIComponent(id)}/${action}`, { method: "POST" }, true);
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function ownerComment(slug: string, text: string, parent: string, title: string): Promise<boolean> {
+  try {
+    const res = await call(`/admin/comments/${encodeURIComponent(slug)}`, { method: "POST", body: JSON.stringify({ text, parent, title }) }, true);
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/* From the stop link in a reply email. True when the API took the request (it never says
+   whether the token matched); false when it didn't answer or answered with an error. */
+export async function stopCommentEmails(post: string, id: string, token: string): Promise<boolean> {
+  try {
+    const res = await call("/comment-emails/stop", { method: "POST", body: JSON.stringify({ post, id, token }) });
+    return res.ok;
+  } catch {
+    return false;
   }
 }

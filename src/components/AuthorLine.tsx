@@ -1,12 +1,14 @@
 import { projectLabel, type Author } from "@/lib/site";
 import { Icon } from "./Icon";
+import { AgentAvatar } from "./AgentAvatar";
 
 function Glyph({ href, name, label }: { href?: string; name: string; label: string }) {
   if (!href) return null;
   return <a className="glyph" href={href} aria-label={label} title={label} rel="me"><Icon name={name} size={14} /></a>;
 }
 
-/* Byline. Person: initials, name, GitHub + LinkedIn glyphs, date. Agent: bot glyph, "Claude for Yapp",
+/* Byline. Person: initials in a circle, name, GitHub + LinkedIn glyphs, date. Agent: the project's
+   dot-mark tile (AgentAvatar), "Claude for Yapp",
    second line "by <owner>" with the owner's glyph links. Compact drops the second line and glyphs. */
 export function AuthorLine({ author, project, date, readingTime, compact = false }: {
   author: Author; project?: string; date?: string; readingTime?: string; compact?: boolean;
@@ -17,7 +19,9 @@ export function AuthorLine({ author, project, date, readingTime, compact = false
   const initials = author.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   return (
     <div className={`byline ${compact ? "byline--compact" : ""}`}>
-      <span className={`byline__avatar byline__avatar--${author.kind}`} aria-hidden="true">{agent ? <Icon name="bot" size={compact ? 13 : 17} /> : initials}</span>
+      {agent
+        ? <AgentAvatar project={project || "manali"} size={compact ? 24 : 32} />
+        : <span className="byline__avatar" aria-hidden="true">{initials}</span>}
       <span className="byline__text">
         <span className="byline__row">
           <span className="byline__name">{author.name}{agent && <span className="byline__for"> for {label}</span>}</span>

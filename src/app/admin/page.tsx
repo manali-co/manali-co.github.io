@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireOwner } from "@/lib/admin";
-import { adminReplies, adminStats } from "@/lib/backend";
+import { adminComments, adminReplies, adminStats } from "@/lib/backend";
 import { removeReply } from "./actions";
+import { CommentActions } from "./CommentActions";
 import { getAllPosts, readableDate } from "@/lib/posts";
 import { projectLabel, site } from "@/lib/site";
 import { AnnounceCard } from "./AnnounceCard";
+import { seriesFor } from "@/lib/series";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -20,7 +22,10 @@ export default async function Admin() {
       </section>
     );
   }
-  const [stats, replies, latest] = [await adminStats(), await adminReplies(), getAllPosts()[0]];
+  const [stats, replies, comments, latest] = [await adminStats(), await adminReplies(), await adminComments(), getAllPosts()[0]];
+  const held = (comments || []).filter((c) => c.state === "pending");
+  const recent = (comments || []).filter((c) => c.state === "live").slice(0, 20);
+  const latestSeries = latest ? seriesFor(latest)?.series : undefined; // its followers get the email too
   return (
     <section className="admin">
       <div className="section__head">
@@ -40,10 +45,27 @@ export default async function Admin() {
             </ul>
           )}
         </div>
-        <AnnounceCard post={latest ? { slug: latest.slug, title: latest.title, summary: latest.summary, url: site.url + latest.url, cover: `${site.url}/blog/${latest.slug}/opengraph-image`, coverText: latest.coverText, project: latest.project, date: readableDate(latest.date), author: latest.author.kind === "agent" ? `${latest.author.name} for ${projectLabel[latest.project] || "manali apps"} · by ${latest.author.owner}` : latest.author.name } : null} lastEmail={stats?.lastEmail} />
+        <AnnounceCard post={latest ? { slug: latest.slug, title: latest.title, summary: latest.summary, url: site.url + latest.url, cover: `${site.url}/blog/${latest.slug}/opengraph-image`, coverText: latest.coverText, project: latest.project, date: readableDate(latest.date), author: latest.author.kind === "agent" ? `${latest.author.name} for ${projectLabel[latest.project] || "manali apps"} · by ${latest.author.owner}` : latest.author.name, ...(latestSeries ? { series: latestSeries.slug, seriesTitle: latestSeries.title } : {}) } : null} lastEmail={stats?.lastEmail} />
         <div className="panel">
-          <h2 className="panel__title">Replies {replies ? <span className="muted">· {replies.length}</span> : null}</h2>
-          {!replies ? <p className="muted">Backend not reachable.</p> : replies.length === 0 ? <p className="muted">No replies yet. They land here and in your inbox.</p> : (
+          <h2 className="panel__title">Comments {comments ? <span className="muted">· {held.length} waiting</span> : null}</h2>
+          {!comments ? <p className="muted">Backend not reachable.</p> : held.length + recent.length === 0 ? <p className="muted">No comments yet. A browser&apos;s first comment waits here for you; after you approve one, that browser posts straight away.</p> : (
+            <ul className="list">
+              {[...held, ...recent].map((c) => (
+                <li key={c.id} style={{ display: "grid", gap: 6, alignItems: "start" }}>
+                  <span style={{ whiteSpace: "pre-wrap" }}>{c.text}</span>
+                  <span className="muted">
+                    {c.owner ? "You" : c.name || "A reader"}{c.email ? <> · <a href={`mailto:${c.email}`}>{c.email}</a></> : ""} · <Link href={`/blog/${c.slug}/#comments`}>{c.title || c.slug}</Link>{c.parent ? " · reply" : ""} · {readableDate(c.created.slice(0, 10))}
+                    {c.state === "pending" ? <> · <b>waiting</b></> : null}
+                  </span>
+                  <CommentActions slug={c.slug} id={c.id} title={c.title} pending={c.state === "pending"} canReply={c.state === "live" && !c.owner} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div className="panel">
+          <h2 className="panel__title">Private notes {replies ? <span className="muted">· {replies.length}</span> : null}</h2>
+          {!replies ? <p className="muted">Backend not reachable.</p> : replies.length === 0 ? <p className="muted">No private notes yet. &quot;Send privately instead&quot; lands here and in your inbox.</p> : (
             <ul className="list">
               {replies.map((r) => (
                 <li key={r.id} style={{ display: "grid", gap: 4, alignItems: "start" }}>
@@ -56,7 +78,6 @@ export default async function Admin() {
               ))}
             </ul>
           )}
-          <p className="muted">Public comments stay in <a href={`https://github.com/${site.giscus.repo}/discussions`}>GitHub Discussions</a>.</p>
         </div>
         <div className="panel">
           <h2 className="panel__title">Site health</h2>

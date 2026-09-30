@@ -18,5 +18,5 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   if (!post) return ogImage({ title: "manali apps" });
   const label = post.project === "manali" ? "manali apps" : projectLabel[post.project];
   const who = post.author.kind === "agent" ? `${post.author.name} for ${label}, by ${post.author.owner}` : post.author.name;
-  return ogImage({ title: post.title, project: post.project, byline: `${who} · ${readableDate(post.date)}` });
+  return ogImage({ title: post.title, project: post.project, byline: `${who} · ${readableDate(post.date)}`, agent: post.author.kind === "agent" ? post.project : undefined });
 }
