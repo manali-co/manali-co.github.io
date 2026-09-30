@@ -1,5 +1,5 @@
 /* The owner's session for /admin: a GitHub sign-in (see src/app/api/auth/*), kept as a signed,
-   host-only cookie. No auth vendor, no third-party script, nothing shared with the apps' Clerk.
+   host-only cookie. No auth vendor, no third-party script, nothing shared with the apps' sign-in.
    The cookie holds who signed in and until when, HMAC-signed with AUTH_SECRET; the GitHub token is
    used once to read the verified emails and never stored. Web Crypto only, so the proxy can check
    it too. */
@@ -13,8 +13,7 @@ export type OwnerSession = { login: string; name: string; email: string; exp: nu
 export const githubAuthEnabled = () =>
   !!process.env.AUTH_GITHUB_ID && !!process.env.AUTH_GITHUB_SECRET && (process.env.AUTH_SECRET || "").length >= 32;
 
-/* Owner emails, the same list the Clerk sign-in used. A GitHub email counts only when GitHub says
-   it's verified. */
+/* Owner emails. A GitHub email counts only when GitHub says it's verified. */
 export const ownerEmails = () => (process.env.ADMIN_EMAILS || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
 
 const enc = new TextEncoder();

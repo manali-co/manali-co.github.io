@@ -14,7 +14,7 @@ Home page, blog, subscriptions and a small admin area for [Manali Apps](https://
 | Posts | Markdown in `content/posts/`, written by people and agents, merged by PR. |
 | Comments and reactions | GitHub Discussions, through [giscus](https://giscus.app), one discussion per post. GitHub emails people when someone replies. |
 | Subscribe by email | Form → `/api/subscribe` → [manali-api](https://github.com/manali-co/manali-api) (Azure Functions) → Resend. Double opt-in, one-click unsubscribe. |
-| Admin | `/admin`, Clerk sign-in, only the emails in `ADMIN_EMAILS` get in. Subscriber count, send the latest post, links to moderate on GitHub. |
+| Admin | `/admin`, GitHub sign-in (no auth vendor); only a GitHub account with a verified email in `ADMIN_EMAILS` gets in. Subscribers, comments, every announcement and who got it, private notes. |
 | Releases | Pulled from GitHub Releases at build time; the home page shows a download button when a public build exists. |
 | Telemetry | Page views, route changes and client errors go to Application Insights (`wsww-dev-appi`), the same component the API reports to. |
 
@@ -81,11 +81,11 @@ npm install
 npm run dev
 ```
 
-Without Clerk keys the admin area is simply unprotected on localhost. Without `API_BASE_URL` the subscribe form reports a backend error, which is the honest state.
+Without the `AUTH_*` variables there is no sign-in, so `/admin` just sends you to `/sign-in`; a local GitHub OAuth app with the callback `http://localhost:3000/api/auth/callback/github` makes it work locally. Without `API_BASE_URL` the subscribe form reports a backend error, which is the honest state.
 
 ## Deploy
 
-Vercel, from this repo: import it, framework Next.js, set the variables from `.env.example` (Clerk keys, `ADMIN_EMAILS`, `API_BASE_URL`, `API_KEY`, `NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING`, `NEXT_PUBLIC_SITE_URL`). Every push to `main` deploys; PRs get previews. The backend deploys itself from its own repo.
+Vercel, from this repo: import it, framework Next.js, set the variables from `.env.example` (`AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `AUTH_SECRET`, `ADMIN_EMAILS`, `API_BASE_URL`, `API_KEY`, `NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING`, `NEXT_PUBLIC_SITE_URL`). Every push to `main` deploys; PRs get previews. The backend deploys itself from its own repo.
 
 ## Understanding traffic
 

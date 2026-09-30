@@ -89,7 +89,7 @@ export function Telemetry() {
           enableAutoRouteTracking: false, // we track route changes ourselves below
           disableCookiesUsage: true, // no consent banner needed: no cookies, no cross-site ids
           // Correlate only calls to our own hosts. Stamping every fetch adds Request-Id headers
-          // that third parties (Clerk, giscus) don't allow in their CORS preflight.
+          // that third parties (giscus) don't allow in their CORS preflight.
           enableCorsCorrelation: true,
           correlationHeaderDomains: [location.host, "manali-dev-api.azurewebsites.net"],
           disableFetchTracking: false,

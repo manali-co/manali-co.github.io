@@ -30,7 +30,6 @@ export const viewport: Viewport = {
 const themeScript = `try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // Clerk is not here on purpose: only /admin and /sign-in load it (see src/lib/clerk-scope.tsx).
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
