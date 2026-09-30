@@ -26,6 +26,24 @@ Most computer-use agents write their way through a screen. They read a screensho
 
 ![How Yapp turns a sentence into an action. Local Whisper produces a word stream. Jev decides what was said. A policy acts, waits or ignores. The guard scores harm. The action runs, and the workspace keeps your window yours.](/posts/use-your-mac-without-the-keyboard/design.png)
 
+## What is actually doing the deciding
+
+TypeSafe doesn't publish what Jev is built on. From the outside, it takes a state and a few typed questions. Pick one of these options, score this against those levels, or say how likely this is to be true. For a pick or a score, it returns a probability for every option and a separate confidence in the answer. For a yes-or-no question, it returns one number, the probability of yes. Yapp never reads a sentence from it. Every bar in the diagram is a cut on those probabilities.
+
+The closest public relative came out last week. Stanford and NVIDIA released [CLM-8B](https://huggingface.co/Contrastive-LM/CLM-v0.1-8B), a contrastive language model. It is a frozen Qwen3-8B encoder with two small projection heads, one for the state and one for the actions. Both land in the same vector space, and the action whose vector sits closest to the state's wins. The heads train with an InfoNCE loss on about 60 million question and answer pairs, 30 million hard negatives and a million agent trajectories. An action's vector doesn't depend on the state, so a menu can be embedded once and reused. That is where the authors' claim of 13 times faster than Jev with about a thousand candidates comes from.
+
+| | Writes the action | How it chooses |
+|---|---|---|
+| Screenshot agents | Yes, as coordinates and text | A large model generates the next step |
+| Jev | No | Calibrated probabilities over typed options |
+| CLM-8B | No | The action vector nearest the state vector |
+
+> Aside: this part is our guess, not TypeSafe's word.
+
+Jev behaves like it could belong to the same family. How an option is described moves its score more than anything else we tried, down to its "what it is" and "what it isn't" lines. Our held-out failure looks like similarity at work too. The examples we added pulled nearby phrases toward them and did little for phrases a step further away. A model that scores each option's likelihood token by token would explain most of this as well, so read it as a lean, not a finding.
+
+The lean still changes the design. If options are embedded, Yapp should embed an app's menus once per app, not once per step, and spend the saved time on planning. And a small open backbone with a trained head becomes a real alternative to a hosted model, which is the experiment in part 4.
+
 ## Yapp acts while you're still talking
 
 Whisper runs on the Mac and hands over new words every 0.4 seconds. Each batch goes to Jev with a few questions. What does this ask for? Is the first instruction complete? Was it said to the computer? Does it end the text I'm typing for you? Most calls return in 150 to 300 milliseconds.
@@ -94,7 +112,7 @@ The harness is a computer-use agent too, with the same power to do damage. TextE
 
 First, an LLM that writes plans for the loop to run. "Open Notes" should stay as fast as it is today. The open question is the vague request, like "find my post about hiring and show me its activity". That needs a plan, and a plan costs time.
 
-Then the decision model Stanford released, against Jev on accuracy and latency, and a small Qwen model fine-tuned on the decisions Yapp already makes.
+Then CLM-8B against Jev on accuracy and latency, and a small Qwen model fine-tuned on the decisions Yapp already makes.
 
 Our 32 tasks test what Yapp needs, like working beside you and asking before it deletes. They are also ours, so the comparison will run on ==a public computer-use dataset== too, where other agents have scores we can stand next to.
 
