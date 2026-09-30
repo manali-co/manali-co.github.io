@@ -555,3 +555,9 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 .store__big { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
 .stores { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center; }
 .card__stores { margin-top: var(--space-4); }
+
+/* WebKit sizes an auto grid column to the side-by-side width of a wrapping flex row inside it,
+   so on a 320px iPhone these boxes grew past the screen instead of letting the row wrap. A
+   minmax(0, 1fr) column and min-width: 0 keep them to the width they are given. */
+.series-marker, .series-next, .series-header, .series-hub__main, .series-follow { grid-template-columns: minmax(0, 1fr); }
+.series-row, .series-card__actions, .series-hub__main > *, .series-header > * { min-width: 0; }
