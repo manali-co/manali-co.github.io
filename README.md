@@ -81,7 +81,7 @@ npm install
 npm run dev
 ```
 
-Without the `AUTH_*` variables there is no sign-in, so `/admin` just sends you to `/sign-in`; a local GitHub OAuth app with a `http://localhost:3000` callback makes it work locally. Without `API_BASE_URL` the subscribe form reports a backend error, which is the honest state.
+Without the `AUTH_*` variables there is no sign-in, so `/admin` just sends you to `/sign-in`; a local GitHub OAuth app with the callback `http://localhost:3000/api/auth/callback/github` makes it work locally. Without `API_BASE_URL` the subscribe form reports a backend error, which is the honest state.
 
 ## Deploy
 
