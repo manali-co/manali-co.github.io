@@ -1,13 +1,37 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireOwner } from "@/lib/admin";
-import { adminComments, adminReplies, adminStats } from "@/lib/backend";
+import { adminAnnouncements, adminComments, adminReplies, adminStats, type AnnouncePost, type Announcement } from "@/lib/backend";
 import { removeReply } from "./actions";
 import { CommentActions } from "./CommentActions";
-import { getAllPosts, readableDate } from "@/lib/posts";
+import { getAllPosts, readableDate, type Post } from "@/lib/posts";
 import { projectLabel, site } from "@/lib/site";
-import { AnnounceCard } from "./AnnounceCard";
+import { AnnouncementsPanel, type AnnounceRow } from "./AnnouncementsPanel";
 import { seriesFor } from "@/lib/series";
+
+/* What the email needs about a post. Series followers get it too, so the series part rides along. */
+function emailPost(p: Post): AnnouncePost {
+  const inSeries = seriesFor(p);
+  const agent = p.author.kind === "agent";
+  const label = projectLabel[p.project] || "manali apps";
+  return {
+    slug: p.slug, title: p.title, summary: p.summary, url: site.url + p.url, cover: `${site.url}/blog/${p.slug}/opengraph-image`, coverText: p.coverText,
+    project: p.project, date: readableDate(p.date), readTime: p.readingTime,
+    author: agent ? `${p.author.name} for ${label} · by ${p.author.owner}` : p.author.name,
+    authorKind: agent ? "agent" : "person", authorName: p.author.name, authorOwner: agent ? p.author.owner : undefined,
+    ...(inSeries && p.part ? { series: inSeries.series.slug, seriesTitle: inSeries.series.title, seriesPart: p.part, seriesTotal: inSeries.series.total, seriesUrl: site.url + inSeries.series.url } : {}),
+  };
+}
+
+/* Times in the owner's zone, the same on the server and in the browser. */
+const sentAt = (iso: string) => new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/New_York" }).replace(" at", ",");
+
+function sendOf(all: Announcement[], slug: string): AnnounceRow["send"] {
+  const a = all.find((x) => x.slug === slug); // newest first, so a re-send shows its latest copy
+  if (!a) return null;
+  const to = a.to;
+  return to ? { at: sentAt(a.sent), total: a.subscribers ?? to.length, failed: to.filter((t) => !t.ok).length, kept: true, recipients: to } : { at: sentAt(a.sent), total: a.recipients, failed: 0, kept: false, recipients: [] };
+}
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -22,10 +46,12 @@ export default async function Admin() {
       </section>
     );
   }
-  const [stats, replies, comments, latest] = [await adminStats(), await adminReplies(), await adminComments(), getAllPosts()[0]];
+  const [stats, replies, comments, sends] = await Promise.all([adminStats(), adminReplies(), adminComments(), adminAnnouncements()]);
+  const posts = getAllPosts();
+  const latest = posts[0];
+  const rows: AnnounceRow[] = posts.map((p) => ({ post: emailPost(p), send: sends ? sendOf(sends, p.slug) : null }));
   const held = (comments || []).filter((c) => c.state === "pending");
   const recent = (comments || []).filter((c) => c.state === "live").slice(0, 20);
-  const latestSeries = latest ? seriesFor(latest)?.series : undefined; // its followers get the email too
   return (
     <section className="admin">
       <div className="section__head">
@@ -45,7 +71,6 @@ export default async function Admin() {
             </ul>
           )}
         </div>
-        <AnnounceCard post={latest ? { slug: latest.slug, title: latest.title, summary: latest.summary, url: site.url + latest.url, cover: `${site.url}/blog/${latest.slug}/opengraph-image`, coverText: latest.coverText, project: latest.project, date: readableDate(latest.date), author: latest.author.kind === "agent" ? `${latest.author.name} for ${projectLabel[latest.project] || "manali apps"} · by ${latest.author.owner}` : latest.author.name, ...(latestSeries ? { series: latestSeries.slug, seriesTitle: latestSeries.title } : {}) } : null} lastEmail={stats?.lastEmail} />
         <div className="panel">
           <h2 className="panel__title">Comments {comments ? <span className="muted">· {held.length} waiting</span> : null}</h2>
           {!comments ? <p className="muted">Backend not reachable.</p> : held.length + recent.length === 0 ? <p className="muted">No comments yet. A browser&apos;s first comment waits here for you; after you approve one, that browser posts straight away.</p> : (
@@ -63,6 +88,7 @@ export default async function Admin() {
             </ul>
           )}
         </div>
+        <AnnouncementsPanel rows={rows} subscribers={stats ? stats.subscribers : null} reachable={!!sends} />
         <div className="panel">
           <h2 className="panel__title">Private notes {replies ? <span className="muted">· {replies.length}</span> : null}</h2>
           {!replies ? <p className="muted">Backend not reachable.</p> : replies.length === 0 ? <p className="muted">No private notes yet. &quot;Send privately instead&quot; lands here and in your inbox.</p> : (

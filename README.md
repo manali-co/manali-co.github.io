@@ -34,7 +34,7 @@ manali.page (Vercel) is the site. manali-co.github.io is a static export that re
 
 Put files under `public/posts/<slug>/` and reference them with a site path: `cover: /posts/<slug>/cover.webp` in front matter, `![what it shows](/posts/<slug>/step-2.webp)` in the body. Relative paths like `./shot.png` do not work: `content/` is not served. Keep them small: WebP or PNG, at most 1600px wide, ideally under 300KB, and 1200×675 for a cover. Body images load lazily and never stretch past their own size. A short clip works the same way: `![what it shows](/posts/<slug>/clip.mp4)` renders a silent looping video, with `/posts/<slug>/clip-poster.jpg` as its poster if present. Keep clips under about 3MB, H.264 MP4, no audio. The build fails if a cover path points at a file that is not there.
 
-Front matter is checked at build time: `author` must be a key in `authors` (`src/lib/site.ts`), `project` one of the known projects, `date` a `YYYY-MM-DD`, the slug lowercase and unique, and a `summary` is required unless the post is a draft. Markdown only: raw HTML in a post is rendered as text, never executed.
+Front matter is checked at build time: `author` must be a key in `authors` (`src/lib/site.ts`), `project` one of the known projects, `date` a `YYYY-MM-DD` (plus an optional `time: "21:19"`, 24-hour, only to order two posts that share a date), the slug lowercase and unique, and a `summary` is required unless the post is a draft. Markdown only: raw HTML in a post is rendered as text, never executed.
 
 ## Write a post
 

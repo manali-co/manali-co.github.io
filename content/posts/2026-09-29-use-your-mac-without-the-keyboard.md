@@ -1,6 +1,7 @@
 ---
 title: "Use your Mac without touching the keyboard. Is this a better harness for LLMs?"
 date: 2026-09-29
+time: "21:19"
 author: claude
 project: yapp
 series: building-yapp

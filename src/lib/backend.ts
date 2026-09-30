@@ -34,12 +34,14 @@ export async function confirm(token: string): Promise<boolean | null> {
   }
 }
 
-export async function unsubscribe(token: string): Promise<boolean> {
+/* With a series, only that follow stops; "all" comes back when the address went entirely. */
+export async function unsubscribe(token: string, series?: string): Promise<{ ok: boolean; scope: "all" | "series" }> {
   try {
-    const res = await call("/unsubscribe", { method: "POST", body: JSON.stringify({ token }) });
-    return res.ok;
+    const res = await call("/unsubscribe", { method: "POST", body: JSON.stringify(series ? { token, series } : { token }) });
+    const body = res.ok ? ((await res.json()) as { scope?: "all" | "series" }) : {};
+    return { ok: res.ok, scope: body.scope === "series" ? "series" : "all" };
   } catch {
-    return false;
+    return { ok: false, scope: "all" };
   }
 }
 
@@ -74,7 +76,13 @@ export async function deleteReply(slug: string, id: string): Promise<boolean> {
   }
 }
 
-export type AnnouncePost = { slug: string; title: string; summary: string; url: string; cover?: string; coverText?: string; project: string; date: string; author: string; series?: string; seriesTitle?: string; force?: boolean };
+export type AnnouncePost = {
+  slug: string; title: string; summary: string; url: string; cover?: string; coverText?: string; project: string; date: string; readTime?: string;
+  author: string; authorKind: "person" | "agent"; authorName: string; authorOwner?: string;
+  series?: string; seriesTitle?: string; seriesPart?: number; seriesTotal?: number; seriesUrl?: string;
+  note?: string; force?: boolean;
+};
+export type EmailPreview = { from: string; subject: string; preheader: string; html: string; audience: number; followers: number };
 export type AnnounceResult = { recipients: number; subscribers: number } | { error: "already" | "failed" };
 
 export async function sendAnnouncement(post: AnnouncePost): Promise<AnnounceResult> {
@@ -85,6 +93,30 @@ export async function sendAnnouncement(post: AnnouncePost): Promise<AnnounceResu
     return (await res.json()) as { recipients: number; subscribers: number };
   } catch {
     return { error: "failed" };
+  }
+}
+
+/* Every announcement sent, with who got it. `to` is null for sends from before recipient lists were
+   kept; an entry's email is null when that person has since unsubscribed (their address is gone). */
+export type Recipient = { email: string | null; ok: boolean; follower: boolean; reason: string };
+export type Announcement = { id: string; slug: string; subject: string; sent: string; recipients: number; subscribers: number | null; to: Recipient[] | null };
+
+export async function adminAnnouncements(): Promise<Announcement[] | null> {
+  try {
+    const res = await call("/admin/announcements", {}, true);
+    return res.ok ? ((await res.json()) as { announcements: Announcement[] }).announcements : null;
+  } catch {
+    return null;
+  }
+}
+
+/* The exact email a subscriber would get. Sends nothing. */
+export async function previewAnnouncement(post: AnnouncePost, theme: "light" | "dark"): Promise<EmailPreview | null> {
+  try {
+    const res = await call(`/admin/announce/preview?theme=${theme}`, { method: "POST", body: JSON.stringify(post) }, true);
+    return res.ok ? ((await res.json()) as EmailPreview) : null;
+  } catch {
+    return null;
   }
 }
 
