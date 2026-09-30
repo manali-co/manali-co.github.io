@@ -1,7 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Fragment } from "react";
-import { ClerkProvider } from "@clerk/nextjs";
-import { clerkEnabled } from "@/lib/clerk-enabled";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { Nav } from "@/components/Nav";
@@ -32,36 +29,29 @@ export const viewport: Viewport = {
 
 const themeScript = `try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}`;
 
-// Clerk's own telemetry is off: the CSP blocks it anyway, and the site has its own.
-function ClerkQuiet({ children }: { children: React.ReactNode }) {
-  return <ClerkProvider telemetry={false}>{children}</ClerkProvider>;
-}
-const Provider = clerkEnabled ? ClerkQuiet : Fragment;
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // Clerk is not here on purpose: only /admin and /sign-in load it (see src/lib/clerk-scope.tsx).
   return (
-    <Provider>
-      <html lang="en" suppressHydrationWarning>
-        <head>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;700&family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@400;500&display=swap"
-          />
-          <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        </head>
-        <body>
-          <a className="skip" href="#main">Skip to content</a>
-          <Nav />
-          <main id="main" className="wrap">
-            {children}
-          </main>
-          <Footer />
-          <Telemetry />
-          <StaleTabGuard />
-        </body>
-      </html>
-    </Provider>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;700&family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@400;500&display=swap"
+        />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body>
+        <a className="skip" href="#main">Skip to content</a>
+        <Nav />
+        <main id="main" className="wrap">
+          {children}
+        </main>
+        <Footer />
+        <Telemetry />
+        <StaleTabGuard />
+      </body>
+    </html>
   );
 }
