@@ -103,12 +103,21 @@ function check(file: string, data: Record<string, unknown>, slug: string, date: 
   if ((data.series === undefined) !== (data.part === undefined)) fail("series and part go together: set both (series: <slug>, part: <number>) or neither");
   if (data.series !== undefined && !SLUG.test(String(data.series))) fail(`series "${String(data.series)}" must be a series slug from content/series/`);
   if (data.part !== undefined && !(Number.isInteger(data.part) && Number(data.part) >= 1)) fail(`part "${String(data.part)}" must be a whole number from 1`);
+  if (data.time !== undefined && !timeOf(data.time)) fail(`time "${String(data.time)}" must be 24-hour HH:MM, such as "21:19"`);
+}
+
+/* Optional `time: "21:19"`, only for ordering two posts that share a date. YAML reads an unquoted
+   21:19 as the base-60 number 1279, so both forms are accepted. */
+function timeOf(v: unknown): string | null {
+  const t = typeof v === "number" && Number.isInteger(v) ? `${String(Math.floor(v / 60)).padStart(2, "0")}:${String(v % 60).padStart(2, "0")}` : String(v);
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(t) ? t : null;
 }
 
 export type Post = {
   slug: string;
   title: string;
   date: string; // ISO yyyy-mm-dd
+  publishedAt: string; // yyyy-mm-ddTHH:MM, the date plus the optional time; posts sort by it
   author: Author;
   project: "yapp" | "what-should-we-watch" | "spark" | "portfolio" | "manali";
   summary: string;
@@ -150,6 +159,7 @@ export function getAllPosts({ includeDrafts = false } = {}): Post[] {
       slug,
       title: String(data.title || slug),
       date,
+      publishedAt: `${date}T${timeOf(data.time) || "00:00"}`,
       author: authors[String(data.author || "ayush")],
       project: (data.project || "manali") as Post["project"],
       summary: String(data.summary || ""),
@@ -169,7 +179,7 @@ export function getAllPosts({ includeDrafts = false } = {}): Post[] {
   });
   return posts
     .filter((p) => includeDrafts || !p.draft)
-    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+    .sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : a.publishedAt > b.publishedAt ? -1 : 0));
 }
 
 export function getPost(slug: string) {

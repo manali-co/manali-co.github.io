@@ -1,12 +1,20 @@
 "use server";
 import { requireOwner } from "@/lib/admin";
-import { deleteReply, moderateComment, ownerComment, sendAnnouncement, type AnnouncePost } from "@/lib/backend";
+import { deleteReply, moderateComment, ownerComment, previewAnnouncement, sendAnnouncement, type AnnouncePost } from "@/lib/backend";
 import { revalidatePath } from "next/cache";
 
 export async function announce(post: AnnouncePost) {
   const { ok } = await requireOwner();
   if (!ok) return { error: "failed" as const };
-  return sendAnnouncement(post);
+  const r = await sendAnnouncement(post);
+  revalidatePath("/admin/");
+  return r;
+}
+
+export async function previewEmail(post: AnnouncePost, theme: "light" | "dark") {
+  const { ok } = await requireOwner();
+  if (!ok) return null;
+  return previewAnnouncement(post, theme);
 }
 
 export async function removeReply(form: FormData) {
