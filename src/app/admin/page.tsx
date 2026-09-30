@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { requireOwner } from "@/lib/admin";
 import { adminAnnouncements, adminComments, adminReplies, adminStats, type AnnouncePost, type Announcement } from "@/lib/backend";
 import { removeReply } from "./actions";
@@ -43,11 +44,12 @@ export const dynamic = "force-dynamic";
 
 export default async function Admin() {
   const { ok, user } = await requireOwner();
+  if (!user) redirect("/sign-in/");
   if (!ok) {
     return (
       <section className="signin">
         <h1 className="page-head__title">Not this account.</h1>
-        <p className="muted">You&apos;re signed in as {user?.emailAddresses?.[0]?.emailAddress || "someone"}, which isn&apos;t on the owner list. Nothing here for you, sorry.</p>
+        <p className="muted">You&apos;re signed in as {user.email || "someone"}, which isn&apos;t on the owner list. Nothing here for you, sorry.</p>
       </section>
     );
   }
@@ -61,7 +63,8 @@ export default async function Admin() {
     <section className="admin">
       <div className="section__head">
         <h1 className="page-head__title">Admin</h1>
-        <span className="muted">Hi {user?.firstName || "there"}. Plain and calm, as promised.</span>
+        <span className="muted">Hi {user.name.split(" ")[0] || "there"}. Plain and calm, as promised.</span>
+        <form action="/api/auth/signout/" method="post"><button className="button button--sm button--ghost" type="submit">Sign out</button></form>
       </div>
       <div className="admin__grid">
         <div className="panel">

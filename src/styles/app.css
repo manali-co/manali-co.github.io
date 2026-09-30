@@ -609,3 +609,6 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
   .ann__buttons .button--sm { height: 44px; }
   .ann__buttons .button--ghost { padding: 0 10px; }
 }
+.signin__github { width: 100%; }
+.signin__old summary { cursor: pointer; font-size: var(--text-sm); color: var(--text-3); }
+.signin__old[open] summary { margin-bottom: var(--space-3); }
