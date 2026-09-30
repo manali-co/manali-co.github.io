@@ -90,10 +90,12 @@ The harness is a computer-use agent too, with the same power to do damage. TextE
 
 ---
 
-## Next, two challengers and a planner on the same 32 tasks
+## Next, a planner and two challengers on the same 32 tasks
 
-First, the decision model Stanford released, against Jev on accuracy and latency. Then a small Qwen model fine-tuned on the decisions Yapp already makes. Then an LLM that writes plans for the loop to run.
+First, an LLM that writes plans for the loop to run. "Open Notes" should stay as fast as it is today. The open question is the vague request, like "find my post about hiring and show me its activity". That needs a plan, and a plan costs time.
+
+Then the decision model Stanford released, against Jev on accuracy and latency, and a small Qwen model fine-tuned on the decisions Yapp already makes.
 
 Our 32 tasks test what Yapp needs, like working beside you and asking before it deletes. They are also ours, so the comparison will run on ==a public computer-use dataset== too, where other agents have scores we can stand next to.
 
-"Open Notes" should stay as fast as it is today. The open question is the vague request, like "find my post about hiring and show me its activity". That needs a plan, and a plan costs time. We'll report what the numbers say, and ::loud[how long] you'll wait for it.
+We'll report what the numbers say, and ::loud[how long] you'll wait for a plan.
