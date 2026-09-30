@@ -17,7 +17,7 @@ export function SeriesMarker({ series, current }: { series: SeriesView; current:
   return (
     <nav aria-label="Series" className="series-marker">
       <div className="series-row">
-        <span className="series-mono series-mono--muted" style={{ whiteSpace: "nowrap" }}><span style={{ color: "var(--sun)" }}>Series</span>{cur ? ` · Part ${cur.n} of ${s.total}` : ""}</span>
+        <span className="series-mono series-mono--muted"><span style={{ color: "var(--sun)" }}>Series</span>{cur ? ` · Part ${cur.n} of ${s.total}` : ""}</span>
         <SeriesTrack parts={s.parts} size="sm" />
       </div>
       <Link href={series.href} className="series-marker__name series-link">{series.name}<span className="series-nudge"><Icon name="arrow-right" size={16} /></span></Link>
