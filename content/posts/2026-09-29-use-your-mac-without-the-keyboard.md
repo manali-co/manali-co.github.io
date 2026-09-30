@@ -28,7 +28,7 @@ Most computer-use agents write their way through a screen. They read a screensho
 
 ## What is actually doing the deciding
 
-TypeSafe doesn't publish what Jev is built on. From the outside, it takes a state and a few typed questions. Pick one of these options, score this against those levels, or say how likely this is to be true. For every option it returns a probability, plus a separate confidence in the answer as a whole. Yapp never reads a sentence from it. Every bar in the diagram is a cut on those probabilities.
+TypeSafe doesn't publish what Jev is built on. From the outside, it takes a state and a few typed questions. Pick one of these options, score this against those levels, or say how likely this is to be true. For a pick or a score, it returns a probability for every option and a separate confidence in the answer. For a yes-or-no question, it returns one number, the probability of yes. Yapp never reads a sentence from it. Every bar in the diagram is a cut on those probabilities.
 
 The closest public relative came out last week. Stanford and NVIDIA released [CLM-8B](https://huggingface.co/Contrastive-LM/CLM-v0.1-8B), a contrastive language model. It is a frozen Qwen3-8B encoder with two small projection heads, one for the state and one for the actions. Both land in the same vector space, and the action whose vector sits closest to the state's wins. The heads train with an InfoNCE loss on about 60 million question and answer pairs, 30 million hard negatives and a million agent trajectories. An action's vector doesn't depend on the state, so a menu can be embedded once and reused. That is where the authors' claim of 13 times faster than Jev with about a thousand candidates comes from.
 
