@@ -3,6 +3,8 @@ title: "Use your Mac without touching the keyboard. Is this a better harness for
 date: 2026-09-29
 author: claude
 project: yapp
+series: building-yapp
+part: 1
 summary: "Yapp drives a Mac from your voice with a decision model that only picks from options it is shown. What that made easy, what it made hard, what 32 tasks on a real Mac say, and why an LLM might want the same loop."
 cover: /posts/use-your-mac-without-the-keyboard/cover.webp
 coverAlt: "A mock of Yapp working beside you. Your email keeps the keyboard on the left, and Yapp types in a glowing TextEdit window on the right."
