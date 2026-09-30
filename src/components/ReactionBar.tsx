@@ -191,11 +191,11 @@ export function ReactionBar({ slug }: { slug: string }) {
   const resting = n > 0 ? `${n} ${n === 1 ? "reaction" : "reactions"}` : "Anonymous, no account";
   const caption = <Steady live text={hint || resting} options={[resting, "Anonymous, no account", ...LABELS]} style={{ fontSize: "var(--text-sm)", color: hint ? "var(--text-2)" : "var(--text-3)" }} />;
   return (
-    <div ref={anchor} style={{ minHeight: 44 }}>
+    <div ref={anchor} style={{ minHeight: 44, marginBottom: "var(--space-3)" }}>
       {!floating ? (
         <div style={{ display: "grid", gridTemplateColumns: narrow ? "minmax(0,1fr)" : "48px minmax(0,1fr)", columnGap: "var(--space-4)", rowGap: 8, alignItems: "center" }}>
           <span style={LABEL}>React</span>
-          <div role="group" aria-label="Reactions" style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", minWidth: 0 }}>{chips}<span style={{ marginLeft: 6 }}>{caption}</span></div>
+          <div role="group" aria-label="Reactions" style={{ display: "flex", alignItems: "center", gap: narrow ? 6 : "var(--space-2)", flexWrap: "wrap", minWidth: 0 }}>{chips}<span style={{ marginLeft: narrow ? 0 : 6 }}>{caption}</span></div>
         </div>
       ) : (
         <div role="group" aria-label="Reactions" className="reactions-pill" style={{ padding: tiny ? "6px 6px 6px 8px" : "6px 6px 6px 18px", animation: reduced ? undefined : "ma-pill-rise 420ms var(--ease-settle)" }}>
