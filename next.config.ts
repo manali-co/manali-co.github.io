@@ -8,31 +8,36 @@ import type { NextConfig } from "next";
 const isStatic = process.env.STATIC_EXPORT === "1";
 const stub = "./src/lib/clerk-stub.tsx";
 
-const securityHeaders = [
+/* Auth hosts appear only in the owner routes' policy. clerk.manali.page is the production Clerk
+   instance's own domain; *.clerk.accounts.dev is the development instance, until it's retired. */
+const CLERK = ["https://clerk.manali.page", "https://*.clerk.accounts.dev"];
+
+function csp(owner: boolean) {
+  const auth = owner ? CLERK : [];
+  return [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    ["form-action 'self'", ...auth, ...(owner ? ["https://clerk.com"] : [])].join(" "),
+    // Next's own inline bootstrap needs 'unsafe-inline' here; the real script guard is that
+    // post Markdown renders with html: false, so no author-supplied script ever reaches a page.
+    ["script-src 'self' 'unsafe-inline' https://giscus.app https://js.monitor.azure.com", ...auth, ...(owner ? ["https://challenges.cloudflare.com"] : [])].join(" "),
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://giscus.app",
+    "font-src 'self' https://fonts.gstatic.com data:",
+    "img-src 'self' data: blob: https:",
+    ["frame-src https://giscus.app", ...auth, ...(owner ? ["https://challenges.cloudflare.com"] : [])].join(" "),
+    ["connect-src 'self' https://giscus.app https://api.github.com https://*.in.applicationinsights.azure.com https://*.applicationinsights.azure.com https://dc.services.visualstudio.com https://js.monitor.azure.com", ...auth, ...(owner ? ["https://clerk.com"] : [])].join(" "),
+    "worker-src 'self' blob:",
+    "upgrade-insecure-requests",
+  ].join("; ");
+}
+
+const baseHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
-  {
-    key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      "base-uri 'self'",
-      "object-src 'none'",
-      "frame-ancestors 'none'",
-      "form-action 'self' https://*.clerk.accounts.dev https://clerk.com",
-      // Next's own inline bootstrap needs 'unsafe-inline' here; the real script guard is that
-      // post Markdown renders with html: false, so no author-supplied script ever reaches a page.
-      "script-src 'self' 'unsafe-inline' https://giscus.app https://*.clerk.accounts.dev https://challenges.cloudflare.com https://js.monitor.azure.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://giscus.app",
-      "font-src 'self' https://fonts.gstatic.com data:",
-      "img-src 'self' data: blob: https:",
-      "frame-src https://giscus.app https://*.clerk.accounts.dev https://challenges.cloudflare.com",
-      "connect-src 'self' https://giscus.app https://api.github.com https://*.clerk.accounts.dev https://clerk.com https://*.in.applicationinsights.azure.com https://*.applicationinsights.azure.com https://dc.services.visualstudio.com https://js.monitor.azure.com",
-      "worker-src 'self' blob:",
-      "upgrade-insecure-requests",
-    ].join("; "),
-  },
 ];
 
 const nextConfig: NextConfig = {
@@ -56,7 +61,11 @@ const nextConfig: NextConfig = {
           return [{ source: "/:path*", has: [{ type: "host", value: "manali-web.vercel.app" }], destination: "https://manali.page/:path*", permanent: true }];
         },
         async headers() {
-          return [{ source: "/(.*)", headers: securityHeaders }];
+          // Readers' pages get a policy with no auth hosts at all; only the owner's routes allow Clerk.
+          return [
+            { source: "/((?!(?:admin|sign-in|__clerk)(?:/|$)).*)", headers: [...baseHeaders, { key: "Content-Security-Policy", value: csp(false) }] },
+            { source: "/:owner(admin|sign-in|__clerk)/:path*", headers: [...baseHeaders, { key: "Content-Security-Policy", value: csp(true) }] },
+          ];
         },
       }),
 };
