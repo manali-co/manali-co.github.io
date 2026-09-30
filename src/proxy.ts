@@ -1,25 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { clerkEnabled } from "@/lib/clerk-enabled";
 import { OWNER_COOKIE, readSession } from "@/lib/owner-session";
 
-/* Everything is public except the owner's admin area. The owner's GitHub sign-in (a signed cookie)
-   lets /admin through directly; without it, Clerk still guards /admin while it's being retired, and
-   with no Clerk either, the visitor goes to /sign-in. */
-const isAdmin = createRouteMatcher(["/admin(.*)"]);
-const ownerSignedIn = async (req: NextRequest) => !!(await readSession(req.cookies.get(OWNER_COOKIE)?.value));
-
-const withClerk = clerkMiddleware(async (auth, req) => {
-  if (isAdmin(req) && !(await ownerSignedIn(req))) await auth.protect();
-});
-async function withoutClerk(req: NextRequest) {
-  if (isAdmin(req) && !(await ownerSignedIn(req))) return NextResponse.redirect(new URL("/sign-in/", req.url));
+/* Everything is public except the owner's admin area, which needs the owner's GitHub sign-in (a
+   signed cookie, see src/lib/owner-session.ts). Without it, /admin sends the visitor to /sign-in. */
+export default async function proxy(req: NextRequest) {
+  if (!(await readSession(req.cookies.get(OWNER_COOKIE)?.value))) return NextResponse.redirect(new URL("/sign-in/", req.url));
 }
-export default clerkEnabled ? withClerk : withoutClerk;
 
-/* Only the owner's routes go through here. Readers never do: no redirects for crawlers and curl, no
-   auth cookies on the blog, and a smaller surface. The announce server action posts to /admin/,
-   which is covered. */
-export const config = {
-  matcher: ["/admin(.*)", "/sign-in(.*)", "/__clerk/(.*)"],
-};
+/* Only the admin area runs through here: readers never do, so no redirects for crawlers and curl and
+   no auth cookies on the blog. The announce server action posts to /admin/, which is covered. */
+export const config = { matcher: ["/admin(.*)"] };
