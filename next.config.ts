@@ -63,7 +63,7 @@ const nextConfig: NextConfig = {
         async headers() {
           // Readers' pages get a policy with no auth hosts at all; only the owner's routes allow Clerk.
           return [
-            { source: "/((?!admin|sign-in|__clerk).*)", headers: [...baseHeaders, { key: "Content-Security-Policy", value: csp(false) }] },
+            { source: "/((?!(?:admin|sign-in|__clerk)(?:/|$)).*)", headers: [...baseHeaders, { key: "Content-Security-Policy", value: csp(false) }] },
             { source: "/:owner(admin|sign-in|__clerk)/:path*", headers: [...baseHeaders, { key: "Content-Security-Policy", value: csp(true) }] },
           ];
         },
