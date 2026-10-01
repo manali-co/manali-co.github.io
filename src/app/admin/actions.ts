@@ -1,6 +1,6 @@
 "use server";
 import { requireOwner } from "@/lib/admin";
-import { deleteReply, moderateComment, ownerComment, previewAnnouncement, sendAnnouncement, type AnnouncePost } from "@/lib/backend";
+import { adminDataTable, adminTelemetry, adminTelemetryNow, deleteReply, moderateComment, ownerComment, previewAnnouncement, sendAnnouncement, type AnnouncePost, type TelemetryRange } from "@/lib/backend";
 import { revalidatePath } from "next/cache";
 
 export async function announce(post: AnnouncePost) {
@@ -50,4 +50,23 @@ export async function replyAsOwner(_prev: ActionResult, form: FormData): Promise
   }
   revalidatePath("/admin/");
   return { ok: true };
+}
+
+/* Read-only, polled by the Traffic panel. */
+export async function telemetry(range: TelemetryRange) {
+  const { ok } = await requireOwner();
+  if (!ok) return { ok: false as const, reason: "Not signed in as the owner." };
+  return adminTelemetry(range === "7d" ? "7d" : "24h");
+}
+
+export async function telemetryNow() {
+  const { ok } = await requireOwner();
+  if (!ok) return { ok: false as const, reason: "Not signed in as the owner." };
+  return adminTelemetryNow();
+}
+
+export async function storedRows(table: string, offset: number) {
+  const { ok } = await requireOwner();
+  if (!ok) return null;
+  return adminDataTable(table, offset);
 }

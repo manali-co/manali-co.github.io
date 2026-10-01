@@ -160,3 +160,60 @@ export async function stopCommentEmails(post: string, id: string, token: string)
     return false;
   }
 }
+
+/* Telemetry, read by the API from Application Insights. A failed read keeps its reason, so the
+   panel can say what went wrong instead of showing zeros. */
+export type TelemetryRange = "24h" | "7d";
+export type TelemetryNow = { people: number; pages: { page: string; people: number; pageviews: number }[]; window: string };
+export type Telemetry = {
+  configured: true; range: TelemetryRange; step: string; now: TelemetryNow;
+  totals: { pageviews: number; people: number; sessions: number; seconds: number; depth: number; errors: number; calls: number; failed: number };
+  series: { t: string; pageviews: number; people: number; errors: number }[];
+  pages: { page: string; pageviews: number; people: number; seconds: number; depth: number }[];
+  referrers: { host: string; pageviews: number; people: number }[];
+  events: { name: string; count: number; people: number }[];
+  outbound: { host: string; count: number }[];
+  devices: { device: string; pageviews: number }[];
+  browsers: { browser: string; people: number }[];
+  countries: { country: string; people: number }[];
+  errors: { problemId: string; count: number; people: number; latest: string; message: string }[];
+  api: { route: string; calls: number; failed: number; p95: number }[];
+};
+export type Read<T> = { ok: true; data: T | { configured: false } } | { ok: false; reason: string };
+
+async function read<T>(path: string): Promise<Read<T>> {
+  try {
+    const res = await call(path, {}, true);
+    if (res.ok) return { ok: true, data: (await res.json()) as T };
+    const detail = ((await res.json().catch(() => ({}))) as { detail?: string }).detail;
+    return { ok: false, reason: detail || `the API answered ${res.status}` };
+  } catch (e) {
+    return { ok: false, reason: e instanceof Error ? e.message : "the API didn't answer" };
+  }
+}
+
+export const adminTelemetry = (range: TelemetryRange) => read<Telemetry>(`/admin/telemetry?range=${range}`);
+export const adminTelemetryNow = () => read<{ configured: true } & TelemetryNow>("/admin/telemetry/now");
+
+/* Every table the API keeps. Client ids and confirmation tokens arrive already shortened. */
+export type StoredTable = { name: string; purpose: string; count: number; capped: boolean; updated: string | null };
+export type TablePage = { name: string; purpose: string; columns: string[]; masked: string[]; rows: Record<string, unknown>[]; total: number; offset: number; limit: number };
+
+/* `at` is when the answer came back, so "updated 3 min ago" reads the same on the server and in the browser. */
+export async function adminData(): Promise<{ tables: StoredTable[] | null; at: number }> {
+  try {
+    const res = await call("/admin/data", {}, true);
+    return { tables: res.ok ? ((await res.json()) as { tables: StoredTable[] }).tables : null, at: Date.now() };
+  } catch {
+    return { tables: null, at: Date.now() };
+  }
+}
+
+export async function adminDataTable(table: string, offset: number): Promise<TablePage | null> {
+  try {
+    const res = await call(`/admin/data/${encodeURIComponent(table)}?offset=${Math.max(0, offset)}&limit=50`, {}, true);
+    return res.ok ? ((await res.json()) as TablePage) : null;
+  } catch {
+    return null;
+  }
+}

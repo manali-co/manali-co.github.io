@@ -14,7 +14,7 @@ Home page, blog, subscriptions and a small admin area for [Manali Apps](https://
 | Posts | Markdown in `content/posts/`, written by people and agents, merged by PR. |
 | Comments and reactions | GitHub Discussions, through [giscus](https://giscus.app), one discussion per post. GitHub emails people when someone replies. |
 | Subscribe by email | Form → `/api/subscribe` → [manali-api](https://github.com/manali-co/manali-api) (Azure Functions) → Resend. Double opt-in, one-click unsubscribe. |
-| Admin | `/admin`, GitHub sign-in (no auth vendor); only a GitHub account with a verified email in `ADMIN_EMAILS` gets in. Subscribers, comments, every announcement and who got it, private notes. |
+| Admin | `/admin`, GitHub sign-in (no auth vendor); only a GitHub account with a verified email in `ADMIN_EMAILS` gets in. Subscribers, comments, every announcement and who got it, private notes, live traffic (who is on the site now, 24h/7d charts and breakdowns from Application Insights) and every table the API stores. |
 | Releases | Pulled from GitHub Releases at build time; the home page shows a download button when a public build exists. |
 | Telemetry | Page views, route changes and client errors go to Application Insights (`wsww-dev-appi`), the same component the API reports to. |
 
