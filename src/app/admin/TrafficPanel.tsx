@@ -276,7 +276,8 @@ function usePoll(fn: () => void, ms: number, deps: unknown[]) {
   }, deps);
 }
 
-type State = { s: "loading" } | { s: "ready"; r: Telemetry; at: string } | { s: "unconfigured" } | { s: "error"; why: string };
+type State = { s: "loading" } | { s: "ready"; r: Telemetry; at: string; stale?: string } | { s: "unconfigured" } | { s: "error"; why: string };
+const NOT_OWNER = "Not signed in as the owner.";
 
 export function TrafficPanel() {
   const [range, setRange] = useState<TelemetryRange>("24h");
@@ -289,7 +290,8 @@ export function TrafficPanel() {
     const mine = ++seq.current; // a slow 24h answer must not land after the 7d one asked for later
     const res = await telemetry(r).catch(() => ({ ok: false as const, reason: "the site didn't answer" }));
     if (mine !== seq.current) return;
-    if (!res.ok) setState({ s: "error", why: res.reason });
+    // a failed refresh keeps the report on screen, marked stale; a lost sign-in never hides behind it
+    if (!res.ok) setState((p) => (p.s === "ready" && res.reason !== NOT_OWNER ? { ...p, stale: res.reason } : { s: "error", why: res.reason }));
     else if (!res.data.configured) setState({ s: "unconfigured" });
     else setState({ s: "ready", r: res.data, at: new Date().toISOString() });
   }, []);
@@ -314,7 +316,7 @@ export function TrafficPanel() {
         <Live live={live} />
         <div className="traffic__controls">
           <div className="seg" role="group" aria-label="Range">{(["24h", "7d"] as const).map((k) => <button key={k} type="button" aria-pressed={range === k} onClick={() => pickRange(k)}>{k}</button>)}</div>
-          <span className="traffic__updated">{state.s === "ready" ? `Last updated ${hm(state.at)}` : "Loading…"}</span>
+          <span className="traffic__updated">{state.s === "ready" ? <>Last updated {hm(state.at)}{state.stale && <span className="is-bad"> · couldn&apos;t refresh: {state.stale}</span>}</> : "Loading…"}</span>
         </div>
         {state.s === "ready" ? <Report r={state.r} /> : <Loading />}
       </>}
