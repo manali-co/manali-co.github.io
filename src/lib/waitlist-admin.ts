@@ -37,12 +37,15 @@ export async function waitlistSummary(now = new Date()): Promise<WaitlistSummary
   if (!BASE || !TOKEN) return null;
   try {
     const all: Entry[] = [];
-    for (let after = 0, guard = 0; guard < 100; guard++) {
+    // At most 100 pages (100,000 people); past that, partial numbers would be wrong numbers.
+    let done = false;
+    for (let after = 0, pages = 0; pages < 100; pages++) {
       const { entries, next } = await page(after);
       all.push(...entries);
-      if (next === null) break;
+      if (next === null) { done = true; break; }
       after = next;
     }
+    if (!done) throw new Error("waitlist larger than the page guard");
     const people: WaitlistPerson[] = all.map((e) => ({
       position: Number(e.position) || 0,
       email: String(e.email || ""),
