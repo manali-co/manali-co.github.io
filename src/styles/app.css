@@ -847,3 +847,18 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
   .wq__person .wq__email { grid-area: email; }
   .wq__person .wq__meta { display: block; grid-area: meta; }
 }
+
+/* Traffic engagement: the comments funnel and other actions (design system: TrafficPanel.jsx, admin-data.css). */
+.traffic__engage { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--space-5) var(--space-7); }
+.traffic__sub { margin: 0; font-size: var(--text-sm); font-weight: 500; line-height: 1.4; color: var(--text-3); }
+.traffic__note { margin: 0; font-size: var(--text-sm); color: var(--text-3); line-height: 1.5; }
+.funnel { list-style: none; margin: 0; padding: 0; display: grid; }
+.funnel__step { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--space-3); row-gap: 5px; font-size: var(--text-sm); line-height: 1.4; }
+.funnel__label { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.funnel__value { color: var(--text-3); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.funnel__value b { color: var(--text); font-weight: 500; }
+.funnel__track { grid-column: 1 / -1; height: 8px; border-radius: 2px; background: var(--bg-sunken); overflow: hidden; }
+.funnel__fill { display: block; height: 100%; border-radius: 2px; background: var(--accent); }
+.funnel__step.is-zero .funnel__label, .funnel__step.is-zero .funnel__value b { color: var(--text-3); }
+.funnel__rate { padding: 6px 0 6px 12px; margin-left: 3px; border-left: 1px dashed var(--border-strong); font-size: var(--text-sm); line-height: 1.4; color: var(--text-3); font-variant-numeric: tabular-nums; }
+@container admin-panel (max-width: 600px) { .traffic__engage { grid-template-columns: minmax(0, 1fr); } }
