@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "../Icon";
 import { SunGlyph } from "../ReactionBar";
 import { track } from "../Telemetry";
@@ -105,6 +105,24 @@ export function Comments({ slug, title, ask }: { slug: string; title: string; as
     if (action === "love") track("comment_love", { post: slug, on: !!r.loved });
   };
 
+  // The middle of the comments funnel, once per post per page view: the section came into view,
+  // then the first keystroke in any comment box. Labels only, never what was typed.
+  const section = useRef<HTMLElement>(null);
+  const started = useRef(false);
+  useEffect(() => {
+    started.current = false; // a client-side move to another post starts its own count
+    const el = section.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { track("comments_seen", { post: slug }); io.disconnect(); } });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [slug, off]);
+  const onInput = (e: React.FormEvent<HTMLElement>) => {
+    if (started.current || !(e.target instanceof HTMLTextAreaElement)) return;
+    started.current = true;
+    track("comment_start", { post: slug, reply: !!e.target.closest(".comments__replies") });
+  };
+
   const h: Handlers = { replying, setReplying, act };
   if (off) return null; // no backend on this host (the static mirror): nothing to post to
   const all = rows || [];
@@ -114,7 +132,7 @@ export function Comments({ slug, title, ask }: { slug: string; title: string; as
   const sorted = [...top].sort((a, b) => (a.state === "pending" ? -1 : b.state === "pending" ? 1 : 0) || (sort === "best" ? score(b) - score(a) || (b.id < a.id ? -1 : 1) : b.id < a.id ? -1 : 1));
 
   return (
-    <section id="comments" aria-label="Comments" className="comments">
+    <section ref={section} id="comments" aria-label="Comments" className="comments" onInput={onInput}>
       <CommentComposer ask={ask} seed={me.seed} onSubmit={(v) => post(v)} />
       <div>
         <div className="comments__head">

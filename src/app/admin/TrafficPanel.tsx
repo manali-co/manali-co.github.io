@@ -1,12 +1,13 @@
 "use client";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import type { Telemetry, TelemetryRange } from "@/lib/backend";
 import { telemetry, telemetryNow } from "./actions";
 
 /* Ported from the design system (components/admin/TrafficPanel.jsx). Live telemetry from Application
    Insights, read by the API: who is on the site now (last 5 minutes, every 15s), then a 24h | 7d
-   report every 2 minutes: tiles, views per bucket with people and error buckets, top pages,
+   report every 2 minutes: tiles, views per bucket with people and error buckets, engagement
+   (the comments funnel and other actions), top pages,
    breakdowns, browser errors, API routes. Polling pauses while the tab is hidden. */
 const TZ = "America/New_York";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -183,6 +184,36 @@ function BarList({ items, mono }: { items: { label: string; v: number; extra?: s
   );
 }
 
+/* Comments funnel: four steps, bars sized against step 1, the step-to-step rate between them. */
+type Step = { people: number; count: number };
+type Engagement = NonNullable<Telemetry["engagement"]>;
+function Funnel({ e, countedFrom }: { e: Engagement; countedFrom: string | null }) {
+  const read = e.read.people, reached = e.reached.people, started = e.started.people, posted = e.posted.people;
+  if (!read) return <p className="traffic__none">No one has read a post in this range yet.</p>;
+  const steps: [string, number, string][] = [["Read a post", read, "Opened any blog post"], ["Reached the comments", reached, "The comment section came into view"], ["Started a comment", started, "Typed in the composer"], ["Posted", posted, "Public comment or private note sent"]];
+  const rates: [number, number, string][] = [[read, reached, "reached the comments"], [reached, started, "started a comment"], [started, posted, "posted"]];
+  const rate = ([a, b, l]: [number, number, string]) => (a ? `${Math.round((b / a) * 100)}% ${l}` : "—");
+  return (
+    <>
+      <ol className="funnel">
+        {steps.map(([l, v, hint], i) => (
+          <Fragment key={l}>
+            <li className={`funnel__step${v ? "" : " is-zero"}`}>
+              <span className="funnel__label" title={hint}>{l}</span>
+              <span className="funnel__value"><b>{num(v)}</b>{i > 0 && <span className="funnel__share"> · {Math.round((v / read) * 100)}%</span>}</span>
+              <span className="funnel__track" aria-hidden="true"><span className="funnel__fill" style={{ width: `${v ? Math.max(1.5, (v / read) * 100) : 0}%` }} /></span>
+            </li>
+            {i < 3 && <li className="funnel__rate" aria-label={`Step to step: ${rate(rates[i])}`}>{rate(rates[i])}</li>}
+          </Fragment>
+        ))}
+      </ol>
+      {countedFrom && <p className="traffic__note">Reaching and starting a comment are counted from {countedFrom}.</p>}
+    </>
+  );
+}
+
+const ACTIONS: [keyof Engagement, string][] = [["reacted", "Reacted"], ["subscribed", "Subscribed"], ["followed", "Followed a series"], ["loved", "Loved a comment"], ["waitlist", "Joined the waitlist"]];
+
 function Devices({ devices }: { devices: Telemetry["devices"] }) {
   const count = (k: string) => devices.find((d) => d.device === k)?.pageviews || 0;
   const a = count("phone"), b = count("laptop"), t = a + b;
@@ -202,7 +233,16 @@ function Devices({ devices }: { devices: Telemetry["devices"] }) {
   );
 }
 
+/* The reach/start events began on a known day; say so only while the range reaches back before it. */
+function countedFrom(e: Engagement, r: Telemetry) {
+  const from = e.countedFrom;
+  if (!from) return null; // unknown: say nothing rather than guess a date
+  const rangeStart = new Date(r.series[0]?.t || from).getTime();
+  return new Date(from).getTime() > rangeStart ? dayMonth(from) : null;
+}
+
 function Report({ r }: { r: Telemetry }) {
+  const e = r.engagement; // absent from an API older than the funnel: the block just stays out
   const hours = r.step === "1h" ? 1 : 6;
   const buckets: Bucket[] = r.series.map((s) => ({ start: s.t, views: s.pageviews, people: s.people, errors: s.errors }));
   return (
@@ -215,6 +255,13 @@ function Report({ r }: { r: Telemetry }) {
         </div>
         <Chart key={r.range} buckets={buckets} bucketHours={hours} />
       </section>
+      {e && <section className="traffic__block">
+        <h3 className="traffic__h">Engagement</h3>
+        <div className="traffic__engage">
+          <div className="traffic__group"><h4 className="traffic__sub">Comments</h4><Funnel e={e} countedFrom={countedFrom(e, r)} /></div>
+          <div className="traffic__group"><h4 className="traffic__sub">Other actions</h4><BarList items={ACTIONS.map(([k, label]) => { const a = e[k] as Step; return { label, v: a.people, extra: a.count !== a.people ? plural(a.count, "time", "times") : "" }; })} /></div>
+        </div>
+      </section>}
       <section className="traffic__block"><h3 className="traffic__h">Top pages</h3><Pages pages={r.pages} /></section>
       <section className="traffic__block traffic__breakdowns">
         <div className="traffic__group"><h3 className="traffic__h">Referrers</h3><BarList items={r.referrers.map((x) => ({ label: x.host, v: x.pageviews }))} /></div>
@@ -308,7 +355,7 @@ export function TrafficPanel() {
     <div className="panel traffic" style={{ gap: "var(--space-5)" }}>
       <div className="ann__top">
         <h2 className="panel__title">Traffic</h2>
-        <span style={{ fontSize: "var(--text-sm)", color: "var(--text-3)" }}>From Application Insights</span>
+        <span style={{ fontSize: "var(--text-sm)", color: "var(--text-3)" }}>Visitors only, from Application Insights</span>
       </div>
       {s === "unconfigured" && <PanelState title="Telemetry isn't connected" text="Connect Application Insights to the API and page views, people and errors show up here." />}
       {state.s === "error" && <PanelState bad icon="alert" title={`Couldn't read telemetry: ${state.why}`} action={<button className="button button--sm" type="button" onClick={() => { setState({ s: "loading" }); setNonce((n) => n + 1); }}>Try again</button>} />}
@@ -316,7 +363,7 @@ export function TrafficPanel() {
         <Live live={live} />
         <div className="traffic__controls">
           <div className="seg" role="group" aria-label="Range">{(["24h", "7d"] as const).map((k) => <button key={k} type="button" aria-pressed={range === k} onClick={() => pickRange(k)}>{k}</button>)}</div>
-          <span className="traffic__updated">{state.s === "ready" ? <>Last updated {hm(state.at)}{state.stale && <span className="is-bad"> · couldn&apos;t refresh: {state.stale}</span>}</> : "Loading…"}</span>
+          <span className={`traffic__updated${state.s === "ready" && state.stale ? " is-bad" : ""}`} role={state.s === "ready" && state.stale ? "status" : undefined}>{state.s === "ready" ? `Last updated ${hm(state.at)}${state.stale ? ` · couldn't refresh: ${state.stale}` : ""}` : "Loading…"}</span>
         </div>
         {state.s === "ready" ? <Report r={state.r} /> : <Loading />}
       </>}

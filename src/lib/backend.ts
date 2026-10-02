@@ -178,6 +178,9 @@ export type Telemetry = {
   countries: { country: string; people: number }[];
   errors: { problemId: string; count: number; people: number; latest: string; message: string }[];
   api: { route: string; calls: number; failed: number; p95: number }[];
+  // people (and times) at each step; countedFrom is when the reach/start events began. Missing
+  // from an API deployed before the funnel existed.
+  engagement?: Record<"read" | "reached" | "started" | "posted" | "reacted" | "subscribed" | "followed" | "loved" | "waitlist", { people: number; count: number }> & { countedFrom: string | null };
 };
 export type Read<T> = { ok: true; data: T | { configured: false } } | { ok: false; reason: string };
 
