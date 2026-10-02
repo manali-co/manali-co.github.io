@@ -110,6 +110,7 @@ export function Comments({ slug, title, ask }: { slug: string; title: string; as
   const section = useRef<HTMLElement>(null);
   const started = useRef(false);
   useEffect(() => {
+    started.current = false; // a client-side move to another post starts its own count
     const el = section.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
     const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { track("comments_seen", { post: slug }); io.disconnect(); } });

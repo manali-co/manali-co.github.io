@@ -235,7 +235,7 @@ function Devices({ devices }: { devices: Telemetry["devices"] }) {
 /* The reach/start events began on a known day; say so only while the range reaches back before it. */
 function countedFrom(r: Telemetry) {
   const from = r.engagement.countedFrom;
-  if (!from) return dayMonth(new Date().toISOString());
+  if (!from) return null; // unknown: say nothing rather than guess a date
   const rangeStart = new Date(r.series[0]?.t || from).getTime();
   return new Date(from).getTime() > rangeStart ? dayMonth(from) : null;
 }
