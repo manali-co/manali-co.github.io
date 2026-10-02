@@ -186,7 +186,8 @@ function BarList({ items, mono }: { items: { label: string; v: number; extra?: s
 
 /* Comments funnel: four steps, bars sized against step 1, the step-to-step rate between them. */
 type Step = { people: number; count: number };
-function Funnel({ e, countedFrom }: { e: Telemetry["engagement"]; countedFrom: string | null }) {
+type Engagement = NonNullable<Telemetry["engagement"]>;
+function Funnel({ e, countedFrom }: { e: Engagement; countedFrom: string | null }) {
   const read = e.read.people, reached = e.reached.people, started = e.started.people, posted = e.posted.people;
   if (!read) return <p className="traffic__none">No one has read a post in this range yet.</p>;
   const steps: [string, number, string][] = [["Read a post", read, "Opened any blog post"], ["Reached the comments", reached, "The comment section came into view"], ["Started a comment", started, "Typed in the composer"], ["Posted", posted, "Public comment or private note sent"]];
@@ -211,7 +212,7 @@ function Funnel({ e, countedFrom }: { e: Telemetry["engagement"]; countedFrom: s
   );
 }
 
-const ACTIONS: [keyof Telemetry["engagement"], string][] = [["reacted", "Reacted"], ["subscribed", "Subscribed"], ["followed", "Followed a series"], ["loved", "Loved a comment"], ["waitlist", "Joined the waitlist"]];
+const ACTIONS: [keyof Engagement, string][] = [["reacted", "Reacted"], ["subscribed", "Subscribed"], ["followed", "Followed a series"], ["loved", "Loved a comment"], ["waitlist", "Joined the waitlist"]];
 
 function Devices({ devices }: { devices: Telemetry["devices"] }) {
   const count = (k: string) => devices.find((d) => d.device === k)?.pageviews || 0;
@@ -233,14 +234,15 @@ function Devices({ devices }: { devices: Telemetry["devices"] }) {
 }
 
 /* The reach/start events began on a known day; say so only while the range reaches back before it. */
-function countedFrom(r: Telemetry) {
-  const from = r.engagement.countedFrom;
+function countedFrom(e: Engagement, r: Telemetry) {
+  const from = e.countedFrom;
   if (!from) return null; // unknown: say nothing rather than guess a date
   const rangeStart = new Date(r.series[0]?.t || from).getTime();
   return new Date(from).getTime() > rangeStart ? dayMonth(from) : null;
 }
 
 function Report({ r }: { r: Telemetry }) {
+  const e = r.engagement; // absent from an API older than the funnel: the block just stays out
   const hours = r.step === "1h" ? 1 : 6;
   const buckets: Bucket[] = r.series.map((s) => ({ start: s.t, views: s.pageviews, people: s.people, errors: s.errors }));
   return (
@@ -253,13 +255,13 @@ function Report({ r }: { r: Telemetry }) {
         </div>
         <Chart key={r.range} buckets={buckets} bucketHours={hours} />
       </section>
-      <section className="traffic__block">
+      {e && <section className="traffic__block">
         <h3 className="traffic__h">Engagement</h3>
         <div className="traffic__engage">
-          <div className="traffic__group"><h4 className="traffic__sub">Comments</h4><Funnel e={r.engagement} countedFrom={countedFrom(r)} /></div>
-          <div className="traffic__group"><h4 className="traffic__sub">Other actions</h4><BarList items={ACTIONS.map(([k, label]) => { const a = r.engagement[k] as Step; return { label, v: a.people, extra: a.count !== a.people ? plural(a.count, "time", "times") : "" }; })} /></div>
+          <div className="traffic__group"><h4 className="traffic__sub">Comments</h4><Funnel e={e} countedFrom={countedFrom(e, r)} /></div>
+          <div className="traffic__group"><h4 className="traffic__sub">Other actions</h4><BarList items={ACTIONS.map(([k, label]) => { const a = e[k] as Step; return { label, v: a.people, extra: a.count !== a.people ? plural(a.count, "time", "times") : "" }; })} /></div>
         </div>
-      </section>
+      </section>}
       <section className="traffic__block"><h3 className="traffic__h">Top pages</h3><Pages pages={r.pages} /></section>
       <section className="traffic__block traffic__breakdowns">
         <div className="traffic__group"><h3 className="traffic__h">Referrers</h3><BarList items={r.referrers.map((x) => ({ label: x.host, v: x.pageviews }))} /></div>
