@@ -221,7 +221,9 @@ export function WsswWaitlist() {
   const deviceKey = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "].includes(e.key)) return;
     e.preventDefault();
-    const next: Device = e.key === " " ? (device || "ios") : device === "ios" ? "android" : "ios";
+    // Work from the focused option, not the stored choice, so the first arrow on an unset group moves.
+    const focused: Device = e.currentTarget.id === "wl-dev-android" ? "android" : "ios";
+    const next: Device = e.key === " " ? focused : focused === "ios" ? "android" : "ios";
     setDevice(next);
     e.currentTarget.parentElement?.querySelector<HTMLButtonElement>(`#wl-dev-${next}`)?.focus();
   };
