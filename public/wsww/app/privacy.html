@@ -142,7 +142,7 @@
           <li>the <strong>app version</strong>;</li>
           <li>your <strong>country and streaming services</strong>, so a message about a film only mentions one you can actually watch.</li>
         </ul>
-        <p>We use it to ask how last night&rsquo;s film went (the morning-after follow-up) and, <strong>only if you turn on &ldquo;Occasional picks&rdquo;</strong>, to send an occasional suggestion, at most about once a week, for example when a film you liked is about to leave one of your services. Messages are delivered through Expo&rsquo;s push service, which passes them to Apple Push Notification service or Google Firebase Cloud Messaging.</p>
+        <p>The morning-after follow-up doesn&rsquo;t use this: it&rsquo;s scheduled on your phone and never sent from a server. We use the registration <strong>only if you turn on &ldquo;Occasional picks&rdquo;</strong>, to send an occasional suggestion, at most about once a week and never at night in your time zone, for example when a film you liked is about to leave one of your services, or when you haven&rsquo;t been back in a while. Messages are delivered through Expo&rsquo;s push service, which passes them to Apple Push Notification service or Google Firebase Cloud Messaging.</p>
         <p>You can turn notifications off at any time in the app&rsquo;s Settings or your phone&rsquo;s settings. Logging out removes this phone&rsquo;s registration from your account, and deleting your account or your data deletes it.</p>
 
         <h2 id="ai">How recommendations are made (AI processing)</h2>
