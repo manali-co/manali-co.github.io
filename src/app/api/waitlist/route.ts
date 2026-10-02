@@ -41,5 +41,7 @@ export async function POST(req: Request) {
   const a = b.avatar as Record<string, unknown> | undefined;
   const avatar = a && [a.hue, a.shape, a.face].every((v) => typeof v === "string" && WORD.test(v)) ? { hue: a.hue, shape: a.shape, face: a.face } : undefined;
   const placed = (r: Record<string, unknown>) => Number.isInteger(r.position) && Number.isInteger(r.count) && (r.position as number) > 0;
-  return forward("/v1/waitlist", { method: "POST", body: JSON.stringify({ email, avatar, source: "manali.page" }) }, placed);
+  // The person's main phone, if they picked one; anything else is dropped rather than refused.
+  const platform = b.platform === "ios" || b.platform === "android" ? b.platform : undefined;
+  return forward("/v1/waitlist", { method: "POST", body: JSON.stringify({ email, avatar, platform, source: "manali.page" }) }, placed);
 }
