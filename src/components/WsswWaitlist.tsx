@@ -44,7 +44,8 @@ const QUEUE: (Mark & { say?: string; react?: string; size: number })[] = [
 const TRAVEL = 640, EASE = "cubic-bezier(.2,1,.3,1)";
 const SHARE_URL = `${site.url}/what-should-we-watch/`;
 const ERR_EMAIL = "That email doesn’t look right. Have another go.";
-const ERR_DOWN = "That didn’t go through. Nothing was saved. Try again in a minute.";
+// We can't know whether a failed request was saved, and joining twice is harmless, so say that.
+const ERR_DOWN = "I couldn’t confirm that. Try again in a minute; joining twice is fine.";
 const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
 const randomMe = (prev?: Mark): Mark => {
   let m: Mark;
