@@ -18,7 +18,7 @@ export default function Privacy() {
       </header>
       <div className="prose">
         <h2>Reading</h2>
-        <p>Pages you view, what you click, how long a page stays in front and how far you scroll go to Microsoft Application Insights, so we can see what works. Your browser keeps a random id for this in local storage (not a cookie) so a return visit counts as one reader. It is not tied to your name, email or account, and query strings are stripped before anything is sent. Clearing site data resets it.</p>
+        <p>Pages you view, what you click, how long a page stays in front, how far you scroll, and whether you reached the comments or started typing one (never what you typed) go to Microsoft Application Insights, so we can see what works. Your browser keeps a random id for this in local storage (not a cookie) so a return visit counts as one reader. It is not tied to your name, email or account, and query strings are stripped before anything is sent. Clearing site data resets it.</p>
         <h2>Reactions and replies</h2>
         <p>Reactions and replies use a second random id, also in local storage, so a second tap removes your reaction and so replies can be rate-limited. It is a different value from the reading id, and the two are never stored together. The reading data does note that a reply was sent from a page and when, but never what it said, a name or an email. A reply is sent privately to Ayush and is never published. If you leave a name or email with it, they are used only to answer you.</p>
         <h2>Email</h2>
