@@ -124,3 +124,43 @@ body:has(.wl) main#main { max-width: none; padding: 0; margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   .wl *, .wl *::before, .wl *::after { animation: none !important; transition: none !important; }
 }
+
+/* Phones: one screen, no scroll. The queue shrinks to a small row of marks at the bottom, under
+   the form, so the ask leads. Bubbles hide (they don't fit at this size); the count stays.
+   Shorter phones (iPhone SE) tighten type and spacing and put the field and button on one row. */
+@media (max-width: 699px) {
+  .wl { height: 100vh; height: 100dvh; min-height: 0; }
+  .wl-head { padding: 14px 20px; }
+  .wl-main { flex: 1; min-height: 0; gap: 18px; padding: 4px 20px 8px; align-content: space-between; }
+  .wl-stack { gap: 18px; }
+  .wl h1 { font-size: 36px; }
+  .wl-lede { font-size: 15px; line-height: 1.4; }
+  .wl-copy { gap: 10px; }
+  .wl-queue-col { gap: 8px; }
+  .wl-queue { flex-wrap: nowrap; gap: 8px; padding: 0; align-items: flex-end; }
+  .wl-name { white-space: nowrap; }
+  .wl-person { zoom: 0.34; gap: 0; }
+  /* after joining, your mark makes nine: a touch smaller so the row still fits */
+  .wl-queue:has([data-wl="slot"]) { gap: 6px; }
+  .wl-queue:has([data-wl="slot"]) .wl-person { zoom: 0.29; }
+  .wl-pill { display: none; }
+  .wl-count { font-size: 13px; }
+  .wl-foot { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  .wl-waves { height: 36px; }
+  .wl-links { padding-top: 10px; }
+}
+@media (max-width: 699px) and (max-height: 760px) {
+  .wl-head { padding: 10px 20px; }
+  .wl-name { font-size: 15px; }
+  .wl-soon { font-size: 11px; }
+  .wl-stack { gap: 12px; }
+  .wl-disco { zoom: 0.72; }
+  .wl h1 { font-size: 30px; }
+  .wl-lede { font-size: 14px; }
+  .wl-me-btn { zoom: 0.72; }
+  .wl-row { flex-wrap: nowrap; }
+  .wl-input { flex: 1 1 auto; padding: 0 16px; }
+  .wl-submit { flex: 0 0 auto; padding: 0 18px; }
+  .wl-fine, .wl-err { padding-left: 16px; }
+  .wl-waves { height: 24px; }
+}

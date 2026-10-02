@@ -53,6 +53,8 @@ const randomMe = (prev?: Mark): Mark => {
   return m;
 };
 const fmt = (n: number) => n.toLocaleString("en-GB");
+// Real numbers only once the line is long enough to be worth saying out loud; until then, "several".
+const SHOW_NUMBERS_FROM = 50;
 
 function Avatar({ mark, size, anim, react }: { mark: Mark; size: number; anim?: string; react?: boolean }) {
   const { hue, shape, face } = mark;
@@ -239,7 +241,7 @@ export function WsswWaitlist() {
               <div className="wl-copy">
                 <h1>You’re in.</h1>
                 <p className="wl-lede">
-                  {position ? <>You’re number {fmt(position)} in line. </> : null}
+                  {position && (count ?? 0) >= SHOW_NUMBERS_FROM ? <>You’re number {fmt(position)} in line. </> : <>You’re in line. </>}
                   I’ll email you the day it lands, and maybe once before. Until then, the remote is still your problem.
                 </p>
               </div>
@@ -298,9 +300,7 @@ export function WsswWaitlist() {
               );
             })}
           </div>
-          {count !== null && count > 0 && (
-            <p className="wl-count"><b>{fmt(count)} {count === 1 ? "person" : "people"}</b> {count === 1 ? "is" : "are"} already in line. Most of them said “I don’t mind.” I mind.</p>
-          )}
+          <p className="wl-count"><b>{count !== null && count >= SHOW_NUMBERS_FROM ? `${fmt(count)} people` : "Several people"}</b> are already in line. Most of them said “I don’t mind.” I mind.</p>
         </section>
       </div>
 
