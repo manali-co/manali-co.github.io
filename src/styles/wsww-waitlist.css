@@ -82,6 +82,16 @@ body:has(.wl) main#main { max-width: none; padding: 0; margin: 0; }
 .wl-me-link { all: unset; cursor: pointer; font: 400 14px/1.3 var(--font-body); color: var(--color-ink-secondary); text-decoration: underline; text-underline-offset: 3px; }
 .wl-me-link:hover { color: var(--color-ink); }
 
+/* Main phone: a two-option segmented radio group. Chrome only: ink on raised surface, no mood hues. */
+.wl-device { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.wl-device-lead { font: 500 15px/1.3 var(--font-body); }
+.wl-seg { display: inline-flex; height: 44px; padding: 3px; border-radius: 999px; background: var(--color-surface-raised); }
+.wl-seg-opt { appearance: none; border: 0; margin: -3px 0; padding: 0; height: 44px; background: transparent; cursor: pointer; border-radius: 999px; outline: none; -webkit-tap-highlight-color: transparent; color: inherit; font: inherit; }
+.wl-seg-opt:focus-visible { box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-ink); outline: none; }
+.wl-seg-opt span { display: inline-flex; align-items: center; justify-content: center; height: 38px; min-width: 104px; padding: 0 18px; border-radius: 999px; background: transparent; color: var(--color-ink-secondary); font: 500 15px/1 var(--font-body); white-space: nowrap; transition: background 180ms cubic-bezier(.2,1,.3,1), color 180ms cubic-bezier(.2,1,.3,1); }
+.wl-seg-opt[aria-checked="true"] span { background: var(--color-ink); color: var(--color-bg); }
+.wl-seg-opt:disabled { cursor: default; }
+
 .wl-form { display: flex; flex-direction: column; gap: 10px; }
 .wl-row { display: flex; flex-wrap: wrap; gap: 10px; }
 .wl-input { flex: 1 1 220px; min-width: 0; height: 48px; padding: 0 20px; border-radius: 999px; border: 1.5px solid var(--color-hairline-strong); background: var(--color-surface); color: var(--color-ink); font: 400 16px/1 var(--font-body); outline: none; }
@@ -127,7 +137,8 @@ body:has(.wl) main#main { max-width: none; padding: 0; margin: 0; }
 
 /* Phones: one screen, no scroll. The queue shrinks to a small row of marks at the bottom, under
    the form, so the ask leads. Bubbles hide (they don't fit at this size); the count stays.
-   Shorter phones (iPhone SE) tighten type and spacing and put the field and button on one row. */
+   Phones up to 880px tall (iPhone SE to 15) tighten type and spacing, put the field and button
+   on one row, and let Disco step aside for the device picker. */
 @media (max-width: 699px) {
   .wl { height: 100vh; height: 100dvh; min-height: 0; }
   .wl-head { padding: 14px 20px; }
@@ -149,12 +160,14 @@ body:has(.wl) main#main { max-width: none; padding: 0; margin: 0; }
   .wl-waves { height: 36px; }
   .wl-links { padding-top: 10px; }
 }
-@media (max-width: 699px) and (max-height: 760px) {
+@media (max-width: 699px) and (max-height: 880px) {
   .wl-head { padding: 10px 20px; }
   .wl-name { font-size: 15px; }
   .wl-soon { font-size: 11px; }
   .wl-stack { gap: 12px; }
-  .wl-disco { zoom: 0.72; }
+  /* the device picker needs the room: Disco steps aside here (your own mark stays, just below) */
+  .wl-stack--form .wl-disco { display: none; }
+  .wl-stack--in .wl-disco { zoom: 0.72; }
   .wl h1 { font-size: 30px; }
   .wl-lede { font-size: 14px; }
   .wl-me-btn { zoom: 0.72; }
@@ -163,4 +176,10 @@ body:has(.wl) main#main { max-width: none; padding: 0; margin: 0; }
   .wl-submit { flex: 0 0 auto; padding: 0 18px; }
   .wl-fine, .wl-err { padding-left: 16px; }
   .wl-waves { height: 24px; }
+}
+@media (max-width: 699px) and (max-height: 660px) {
+  .wl-main { gap: 12px; }
+  .wl-stack { gap: 10px; }
+  .wl-copy { gap: 6px; }
+  .wl-lede { font-size: 13.5px; line-height: 1.35; }
 }

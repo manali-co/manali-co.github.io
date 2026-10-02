@@ -135,6 +135,7 @@ function Disco({ happy }: { happy: boolean }) {
 }
 
 type Phase = "form" | "travel" | "joined";
+type Device = "ios" | "android" | null;
 
 export function WsswWaitlist() {
   const [me, setMe] = useState<Mark>(() => QUEUE[0]); // a fixed first render, randomised after mount (no hydration mismatch)
@@ -146,11 +147,18 @@ export function WsswWaitlist() {
   const [count, setCount] = useState<number | null>(null);
   const [position, setPosition] = useState<number | null>(null);
   const [toast, setToast] = useState("");
+  // Main phone: pre-selected from the user agent after mount (iOS / Android), empty on desktop. Optional.
+  const [device, setDevice] = useState<Device>(null);
   const timers = useRef<number[]>([]);
   const later = useCallback((fn: () => void, ms: number) => { timers.current.push(window.setTimeout(fn, ms)); }, []);
 
   useEffect(() => {
-    const raf = requestAnimationFrame(() => setMe(randomMe()));
+    const raf = requestAnimationFrame(() => {
+      setMe(randomMe());
+      const ua = navigator.userAgent || "";
+      const guess: Device = /iPhone|iPad|iPod/i.test(ua) ? "ios" : /Android/i.test(ua) ? "android" : null;
+      if (guess) setDevice((d) => d ?? guess);
+    });
     fetch("/api/waitlist/").then((r) => (r.ok ? r.json() : null)).then((b) => { if (b && typeof b.count === "number") setCount(b.count); }).catch(() => {});
     const t = timers.current;
     return () => { cancelAnimationFrame(raf); t.forEach(clearTimeout); };
@@ -183,7 +191,7 @@ export function WsswWaitlist() {
     setBusy(true);
     let body: { position: number; count: number };
     try {
-      const res = await fetch("/api/waitlist/", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: v, avatar: { hue: me.hue, shape: me.shape, face: me.face } }) });
+      const res = await fetch("/api/waitlist/", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: v, avatar: { hue: me.hue, shape: me.shape, face: me.face }, platform: device ?? undefined }) });
       if (!res.ok) {
         track("waitlist", { result: `http_${res.status}` });
         return setError(res.status === 400 ? ERR_EMAIL : ERR_DOWN);
@@ -207,6 +215,17 @@ export function WsswWaitlist() {
     setPhase("travel");
     later(() => fly({ x: r.left, y: r.top, w: r.width }, clone), 16);
     later(land, TRAVEL + 600); // safety net if the flight never finishes
+  };
+
+  // Radio group keys: arrows move (and choose), Space chooses; focus follows the choice.
+  const deviceKey = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "].includes(e.key)) return;
+    e.preventDefault();
+    // Work from the focused option, not the stored choice, so the first arrow on an unset group moves.
+    const focused: Device = e.currentTarget.id === "wl-dev-android" ? "android" : "ios";
+    const next: Device = e.key === " " ? focused : focused === "ios" ? "android" : "ios";
+    setDevice(next);
+    e.currentTarget.parentElement?.querySelector<HTMLButtonElement>(`#wl-dev-${next}`)?.focus();
   };
 
   const share = async () => {
@@ -243,7 +262,7 @@ export function WsswWaitlist() {
                 <h1>You’re in.</h1>
                 <p className="wl-lede">
                   {position && (count ?? 0) >= SHOW_NUMBERS_FROM ? <>You’re number {fmt(position)} in line. </> : <>You’re in line. </>}
-                  I’ll email you the day it lands, and maybe once before. Until then, the remote is still your problem.
+                  {device === "android" ? "iPhone goes first; I’ll tell you the day Android lands." : "I’ll email you the day it lands, and maybe once before."} Until then, the remote is still your problem.
                 </p>
               </div>
               <div className="wl-actions">
@@ -266,6 +285,18 @@ export function WsswWaitlist() {
                 <div className="wl-me-text">
                   <div className="wl-me-title">This is you in line.</div>
                   <button type="button" className="wl-me-link" onClick={shuffle}>Not you? Tap for another.</button>
+                </div>
+              </div>
+
+              <div className="wl-device">
+                <span id="wl-dev-lead" className="wl-device-lead">What do you watch on?</span>
+                <div role="radiogroup" aria-labelledby="wl-dev-lead" className="wl-seg">
+                  {(["ios", "android"] as const).map((d) => (
+                    <button key={d} type="button" role="radio" id={`wl-dev-${d}`} className="wl-seg-opt" aria-checked={device === d}
+                      tabIndex={(device ?? "ios") === d ? 0 : -1} onClick={() => setDevice(d)} onKeyDown={deviceKey} disabled={busy}>
+                      <span>{d === "ios" ? "iPhone" : "Android"}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
