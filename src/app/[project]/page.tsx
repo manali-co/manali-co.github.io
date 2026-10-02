@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProjectPosts } from "@/lib/posts";
@@ -8,6 +8,7 @@ import { StoreButton } from "@/components/StoreButton";
 import { SeriesShelf } from "@/components/series/SeriesShelf";
 import { getProjectSeries, seriesView } from "@/lib/series";
 import { WsswWaitlist } from "@/components/WsswWaitlist";
+import { isWaitlist, waitlistJsonLd, waitlistMetadata, waitlistViewport } from "@/lib/waitlist";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ project: p.slug }));
@@ -17,7 +18,14 @@ export const dynamicParams = false;
 export async function generateMetadata({ params }: { params: Promise<{ project: string }> }): Promise<Metadata> {
   const slug = (await params).project;
   const p = projects.find((x) => x.slug === slug);
+  if (p && isWaitlist(p)) return waitlistMetadata;
   return p ? { title: p.name, description: p.blurb, alternates: { canonical: `/${p.slug}/` }, openGraph: { url: `/${p.slug}/` } } : {};
+}
+
+export async function generateViewport({ params }: { params: Promise<{ project: string }> }): Promise<Viewport> {
+  const slug = (await params).project;
+  const p = projects.find((x) => x.slug === slug);
+  return p && isWaitlist(p) ? waitlistViewport : {};
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ project: string }> }) {
@@ -26,7 +34,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
   if (!p) notFound();
   // While the app waits on App Store review its page is the waitlist. Once a store goes live
   // (stores[].state "live"), the regular project page comes back.
-  if ("stores" in p && p.stores?.every((st) => st.state === "soon") && p.slug === "what-should-we-watch") return <WsswWaitlist icon={p.icon} stores={p.stores} />;
+  if (isWaitlist(p))
+    return (
+      <>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(waitlistJsonLd) }} />
+        <WsswWaitlist />
+      </>
+    );
   const posts = getProjectPosts(slug);
   return (
     <>
