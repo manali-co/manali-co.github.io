@@ -11,6 +11,8 @@ import { AnnouncementsPanel, type AnnounceRow } from "./AnnouncementsPanel";
 import { seriesFor } from "@/lib/series";
 import { StoredDataPanel } from "./StoredDataPanel";
 import { TrafficPanel } from "./TrafficPanel";
+import { WaitlistPanel } from "./WaitlistPanel";
+import { waitlistSummary } from "@/lib/waitlist-admin";
 
 /* What the email needs about a post. Series followers get it too, so the series part rides along. */
 function emailPost(p: Post): AnnouncePost {
@@ -55,7 +57,7 @@ export default async function Admin() {
       </section>
     );
   }
-  const [stats, replies, comments, sends, stored] = await Promise.all([adminStats(), adminReplies(), adminComments(), adminAnnouncements(), adminData()]);
+  const [stats, replies, comments, sends, stored, waitlist] = await Promise.all([adminStats(), adminReplies(), adminComments(), adminAnnouncements(), adminData(), waitlistSummary()]);
   const posts = getAllPosts();
   const latest = posts[0];
   const rows: AnnounceRow[] = posts.map((p) => ({ post: emailPost(p), send: sends ? sendOf(sends, p.slug) : null }));
@@ -69,6 +71,7 @@ export default async function Admin() {
         <form action="/api/auth/signout/" method="post"><button className="button button--sm button--ghost" type="submit">Sign out</button></form>
       </div>
       <div className="admin__grid">
+        <WaitlistPanel data={waitlist} now={stored.at} />
         <div className="panel">
           <h2 className="panel__title">Subscribers</h2>
           <p className="stat">{stats ? stats.subscribers : "—"}</p>
