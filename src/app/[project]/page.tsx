@@ -7,6 +7,7 @@ import { PostCard } from "@/components/PostCard";
 import { StoreButton } from "@/components/StoreButton";
 import { SeriesShelf } from "@/components/series/SeriesShelf";
 import { getProjectSeries, seriesView } from "@/lib/series";
+import { WsswWaitlist } from "@/components/WsswWaitlist";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ project: p.slug }));
@@ -23,6 +24,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
   const slug = (await params).project;
   const p = projects.find((x) => x.slug === slug);
   if (!p) notFound();
+  // While the app waits on App Store review its page is the waitlist. Once a store goes live
+  // (stores[].state "live"), the regular project page comes back.
+  if ("stores" in p && p.stores?.every((st) => st.state === "soon") && p.slug === "what-should-we-watch") return <WsswWaitlist icon={p.icon} stores={p.stores} />;
   const posts = getProjectPosts(slug);
   return (
     <>

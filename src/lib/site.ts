@@ -14,6 +14,10 @@ export const site = {
   },
 };
 
+/* Apps people can wait for. The key is the app's page slug; the API sends one launch email to
+   whoever joined, from the admin's announcements like a series part. */
+export const launchLists = { "what-should-we-watch": "What Should We Watch" } as const;
+
 export type ProjectSlug = "yapp" | "what-should-we-watch" | "spark" | "portfolio" | "manali";
 
 export const projects = [
