@@ -301,7 +301,10 @@ export function WsswWaitlist() {
               );
             })}
           </div>
-          <p className="wl-count"><b>{count !== null && count >= SHOW_NUMBERS_FROM ? `${fmt(count)} people` : "Several people"}</b> are already in line. Most of them said “I don’t mind.” I mind.</p>
+          {/* Only once a real count has loaded: "several" under the threshold, the number from it up. */}
+          {count !== null && count > 0 && (
+            <p className="wl-count"><b>{count >= SHOW_NUMBERS_FROM ? `${fmt(count)} people` : "Several people"}</b> are already in line. Most of them said “I don’t mind.” I mind.</p>
+          )}
         </section>
       </div>
 
