@@ -1,0 +1,185 @@
+/* What Should We Watch waitlist: a 1:1 port of Claude Design's marketing/web/Waitlist.dc.html
+   (the app's design project, 38096b66). Tokens are the app's tokens/colors.css + fonts.css,
+   scoped to .wl so the blog's own tokens never mix in. Classes carry wl- for the same reason. */
+
+.wl {
+  --graphite-950: #101114; --graphite-900: #17181B; --graphite-800: #212227; --graphite-700: #2B2C32;
+  --paper-100: #F5F4F1; --paper-200: #ECEBE7; --paper-300: #EAE9E5; --paper-600: #9D9D9B; --paper-700: #8A8A8E;
+  --coralred-500: #E0626C; --coralred-700: #C0393F;
+  --coral: #E8796F; --lilac: #AE9BE0; --lagoon: #4DBFB0; --butter: #E6C76E; --moss: #8FBF8A; --sky: #6FA8DC;
+  --color-bg: var(--graphite-900);
+  --color-surface: var(--graphite-800);
+  --color-surface-raised: var(--graphite-700);
+  --color-hairline-strong: rgba(242, 241, 238, 0.22);
+  --color-ink: #F2F1EE;
+  --color-ink-secondary: var(--paper-600);
+  --color-ink-tertiary: var(--paper-700);
+  --color-accent: #F2F1EE;
+  --color-accent-strong: #FFFFFF;
+  --color-on-accent: var(--graphite-900);
+  --color-danger: var(--coralred-500);
+  --color-focus: #F2F1EE;
+  --mood-coral: var(--coral); --mood-lilac: var(--lilac); --mood-lagoon: var(--lagoon);
+  --mood-butter: var(--butter); --mood-moss: var(--moss); --mood-sky: var(--sky);
+  --mood-on-fill: var(--graphite-900);
+  --mood-blend-mode: screen;
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", Helvetica, sans-serif;
+  --font-body: "Figtree", -apple-system, "SF Pro Text", Roboto, system-ui, sans-serif;
+  color-scheme: dark;
+}
+:root[data-theme="light"] .wl {
+  --color-bg: var(--paper-100); --color-surface: #FFFFFF; --color-surface-raised: var(--paper-300);
+  --color-hairline-strong: rgba(23, 24, 27, 0.22);
+  --color-ink: var(--graphite-900); --color-ink-secondary: #5F6064; --color-ink-tertiary: #6E6F73;
+  --color-accent: var(--graphite-900); --color-accent-strong: #000000; --color-on-accent: var(--paper-100);
+  --color-danger: var(--coralred-700); --color-focus: var(--graphite-900);
+  --mood-on-fill: var(--paper-100); --mood-blend-mode: multiply;
+  color-scheme: light;
+}
+/* Follow the system when the visitor hasn't picked a theme, like the rest of the site. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .wl {
+    --color-bg: var(--paper-100); --color-surface: #FFFFFF; --color-surface-raised: var(--paper-300);
+    --color-hairline-strong: rgba(23, 24, 27, 0.22);
+    --color-ink: var(--graphite-900); --color-ink-secondary: #5F6064; --color-ink-tertiary: #6E6F73;
+    --color-accent: var(--graphite-900); --color-accent-strong: #000000; --color-on-accent: var(--paper-100);
+    --color-danger: var(--coralred-700); --color-focus: var(--graphite-900);
+    --mood-on-fill: var(--paper-100); --mood-blend-mode: multiply;
+    color-scheme: light;
+  }
+}
+
+/* The page owns the viewport: the site's nav and footer step aside. */
+body:has(.wl) > .nav, body:has(.wl) > .footer, body:has(.wl) > .skip { display: none; }
+body:has(.wl) main#main { max-width: none; padding: 0; margin: 0; }
+
+.wl { min-height: 100vh; min-height: 100dvh; background: var(--color-bg); color: var(--color-ink); font-family: var(--font-body); display: flex; flex-direction: column; position: relative; overflow: hidden; -webkit-font-smoothing: antialiased; }
+.wl * { box-sizing: border-box; }
+:where(.wl) a { color: inherit; text-decoration: none; }
+:where(.wl) a:hover { color: inherit; opacity: .8; }
+.wl input::placeholder { color: var(--color-ink-tertiary); }
+.wl :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+
+.wl-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px; max-width: 1160px; width: 100%; margin: 0 auto; }
+.wl-name { font: 600 17px/1 var(--font-display); letter-spacing: -0.01em; }
+.wl-soon { font: 500 12px/1 var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-ink-tertiary); white-space: nowrap; }
+
+.wl-main { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 56px 72px; align-items: center; align-content: center; max-width: 1160px; width: 100%; margin: 0 auto; padding: 24px 20px 56px; }
+.wl-col { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+.wl-stack { display: flex; flex-direction: column; gap: 28px; }
+.wl-stack--in { animation: wl-fadein 400ms cubic-bezier(.2,1,.3,1) both; }
+.wl-stack--form { transition: opacity 280ms ease; }
+.wl-disco { width: 72px; height: 72px; position: relative; }
+.wl-copy { display: flex; flex-direction: column; gap: 16px; }
+.wl h1 { margin: 0; font: 600 clamp(40px, 7vw, 64px)/0.98 var(--font-display); letter-spacing: -0.03em; text-wrap: balance; color: var(--color-ink); }
+.wl-lede { margin: 0; font: 400 17px/1.45 var(--font-body); color: var(--color-ink-secondary); max-width: 46ch; text-wrap: pretty; }
+
+.wl-me { display: flex; align-items: center; gap: 16px; }
+.wl-me-btn { all: unset; cursor: pointer; display: inline-flex; border-radius: 999px; transition: transform 140ms, filter 140ms; }
+.wl-me-btn:active { transform: scale(.97); filter: brightness(.92); }
+.wl-me-text { display: flex; flex-direction: column; gap: 4px; }
+.wl-me-title { font: 500 15px/1.3 var(--font-body); }
+.wl-me-link { all: unset; cursor: pointer; font: 400 14px/1.3 var(--font-body); color: var(--color-ink-secondary); text-decoration: underline; text-underline-offset: 3px; }
+.wl-me-link:hover { color: var(--color-ink); }
+
+/* Main phone: a two-option segmented radio group. Chrome only: ink on raised surface, no mood hues. */
+.wl-device { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.wl-device-lead { font: 500 15px/1.3 var(--font-body); }
+.wl-seg { display: inline-flex; height: 44px; padding: 3px; border-radius: 999px; background: var(--color-surface-raised); }
+.wl-seg-opt { appearance: none; border: 0; margin: -3px 0; padding: 0; height: 44px; background: transparent; cursor: pointer; border-radius: 999px; outline: none; -webkit-tap-highlight-color: transparent; color: inherit; font: inherit; }
+.wl-seg-opt:focus-visible { box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-ink); outline: none; }
+.wl-seg-opt span { display: inline-flex; align-items: center; justify-content: center; height: 38px; min-width: 104px; padding: 0 18px; border-radius: 999px; background: transparent; color: var(--color-ink-secondary); font: 500 15px/1 var(--font-body); white-space: nowrap; transition: background 180ms cubic-bezier(.2,1,.3,1), color 180ms cubic-bezier(.2,1,.3,1); }
+.wl-seg-opt[aria-checked="true"] span { background: var(--color-ink); color: var(--color-bg); }
+.wl-seg-opt:disabled { cursor: default; }
+
+.wl-form { display: flex; flex-direction: column; gap: 10px; }
+.wl-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.wl-input { flex: 1 1 220px; min-width: 0; height: 48px; padding: 0 20px; border-radius: 999px; border: 1.5px solid var(--color-hairline-strong); background: var(--color-surface); color: var(--color-ink); font: 400 16px/1 var(--font-body); outline: none; }
+.wl-input:focus { border-color: var(--color-focus); }
+.wl-input[aria-invalid="true"] { border-color: var(--color-danger); }
+.wl-input:disabled { opacity: .6; }
+.wl-submit { flex: 1 1 180px; height: 48px; padding: 0 24px; border-radius: 999px; border: none; background: var(--color-accent); color: var(--color-on-accent); font: 600 15px/1 var(--font-body); cursor: pointer; white-space: nowrap; transition: transform 140ms, filter 140ms; }
+.wl-submit:hover { background: var(--color-accent-strong); }
+.wl-submit:active { transform: scale(.97); filter: brightness(.92); }
+.wl-submit:disabled { cursor: default; opacity: .8; }
+.wl-err { font: 400 14px/1.3 var(--font-body); color: var(--color-danger); padding-left: 20px; }
+.wl-fine { font: 400 13px/1.4 var(--font-body); color: var(--color-ink-tertiary); padding-left: 20px; }
+
+.wl-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.wl-share { display: inline-flex; align-items: center; justify-content: center; height: 48px; padding: 0 22px; border-radius: 999px; border: 1.5px solid var(--color-hairline-strong); background: transparent; color: var(--color-ink); font: 500 15px/1 var(--font-body); cursor: pointer; transition: transform 140ms, filter 140ms; }
+.wl-share:hover { background: var(--color-surface); }
+.wl-share:active { transform: scale(.97); filter: brightness(.92); }
+.wl-toast { font: 400 14px/1 var(--font-body); color: var(--color-ink-secondary); }
+
+.wl-queue-col { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.wl-queue { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 36px 28px; padding: 8px 0; }
+.wl-person { display: flex; flex-direction: column; align-items: center; gap: 14px; animation: wl-breathe 4s ease-in-out infinite; }
+.wl-pill { display: inline-flex; align-items: center; height: 40px; padding: 0 18px; border-radius: 999px; background: var(--color-surface-raised); color: var(--color-ink); font: 500 16px/1 var(--font-body); white-space: nowrap; }
+.wl-pill--me { background: var(--color-accent); color: var(--color-on-accent); transition: opacity 240ms ease 120ms; }
+.wl-count { margin: 0 auto; text-align: center; font: 400 15px/1.45 var(--font-body); color: var(--color-ink-secondary); max-width: 40ch; text-wrap: pretty; }
+.wl-count b { font-weight: 400; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+
+.wl-foot { position: relative; padding: 0 20px 24px; max-width: 1160px; width: 100%; margin: 0 auto; }
+.wl-waves { display: block; width: 100%; height: 120px; overflow: visible; }
+.wl-waves path { stroke-width: 36; stroke-linecap: round; fill: none; mix-blend-mode: var(--mood-blend-mode); }
+.wl-links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px; padding-top: 20px; font: 500 12px/1 var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-ink-tertiary); }
+
+@keyframes wl-breathe { 0% { transform: translateY(0); } 50% { transform: translateY(-4px); } 100% { transform: translateY(0); } }
+@keyframes wl-pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes wl-pulse { 0% { transform: scale(1); } 35% { transform: scale(1.07, .95); } 65% { transform: scale(.97, 1.03); } 100% { transform: scale(1); } }
+@keyframes wl-blink { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+@keyframes wl-hop { 0% { transform: translateY(0) scale(1); } 30% { transform: translateY(-12px) scale(.96, 1.06); } 60% { transform: translateY(0) scale(1.05, .94); } 100% { transform: translateY(0) scale(1); } }
+@keyframes wl-fadein { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .wl *, .wl *::before, .wl *::after { animation: none !important; transition: none !important; }
+}
+
+/* Phones: one screen, no scroll. The queue shrinks to a small row of marks at the bottom, under
+   the form, so the ask leads. Bubbles hide (they don't fit at this size); the count stays.
+   Phones up to 880px tall (iPhone SE to 15) tighten type and spacing, put the field and button
+   on one row, and let Disco step aside for the device picker. */
+@media (max-width: 699px) {
+  .wl { height: 100vh; height: 100dvh; min-height: 0; }
+  .wl-head { padding: 14px 20px; }
+  .wl-main { flex: 1; min-height: 0; gap: 18px; padding: 4px 20px 8px; align-content: space-between; }
+  .wl-stack { gap: 18px; }
+  .wl h1 { font-size: 36px; }
+  .wl-lede { font-size: 15px; line-height: 1.4; }
+  .wl-copy { gap: 10px; }
+  .wl-queue-col { gap: 8px; }
+  .wl-queue { flex-wrap: nowrap; gap: 8px; padding: 0; align-items: flex-end; }
+  .wl-name { white-space: nowrap; }
+  .wl-person { zoom: 0.34; gap: 0; }
+  /* after joining, your mark makes nine: a touch smaller so the row still fits */
+  .wl-queue:has([data-wl="slot"]) { gap: 6px; }
+  .wl-queue:has([data-wl="slot"]) .wl-person { zoom: 0.29; }
+  .wl-pill { display: none; }
+  .wl-count { font-size: 13px; }
+  .wl-foot { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  .wl-waves { height: 36px; }
+  .wl-links { padding-top: 10px; }
+}
+@media (max-width: 699px) and (max-height: 880px) {
+  .wl-head { padding: 10px 20px; }
+  .wl-name { font-size: 15px; }
+  .wl-soon { font-size: 11px; }
+  .wl-stack { gap: 12px; }
+  /* the device picker needs the room: Disco steps aside here (your own mark stays, just below) */
+  .wl-stack--form .wl-disco { display: none; }
+  .wl-stack--in .wl-disco { zoom: 0.72; }
+  .wl h1 { font-size: 30px; }
+  .wl-lede { font-size: 14px; }
+  .wl-me-btn { zoom: 0.72; }
+  .wl-row { flex-wrap: nowrap; }
+  .wl-input { flex: 1 1 auto; padding: 0 16px; }
+  .wl-submit { flex: 0 0 auto; padding: 0 18px; }
+  .wl-fine, .wl-err { padding-left: 16px; }
+  .wl-waves { height: 24px; }
+}
+@media (max-width: 699px) and (max-height: 660px) {
+  .wl-main { gap: 12px; }
+  .wl-stack { gap: 10px; }
+  .wl-copy { gap: 6px; }
+  .wl-lede { font-size: 13.5px; line-height: 1.35; }
+}
