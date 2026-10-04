@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "new": "node scripts/new-post.mjs",
-    "build:static": "node scripts/static-export.mjs"
+    "build:static": "node scripts/static-export.mjs",
+    "test": "tsx --test src/lib/email-suggest.test.ts"
   },
   "dependencies": {
     "@microsoft/applicationinsights-web": "^3.4.4",
@@ -27,6 +28,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
