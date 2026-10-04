@@ -163,7 +163,7 @@ export function WaitlistPanel({ data, now }: { data: WaitlistSummary | null; now
             <div className="wq__pie-row"><PhonePie phones={data.platforms} /><Legend phones={data.platforms} /></div>
             <div className="wq__group"><h3 className="wq__h">Joins per day · 14 days</h3><Days days={data.perDay} /></div>
           </div>
-          <WaitlistWelcome counts={data.welcome.counts} sample={data.welcome.sample} ready={data.welcome.ready} total={data.total} />
+          <WaitlistWelcome counts={data.welcome.counts} sample={data.welcome.sample} ready={data.welcome.ready} preview={data.welcome.preview} total={data.total} />
           <section className="wq__block">
             <h3 className="wq__h">{data.total ? `Latest ${data.latest.length} of ${num(data.total)}` : "Latest"}</h3>
             <People latest={data.latest} now={now} />

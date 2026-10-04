@@ -25,7 +25,7 @@ const sampleText = (list: string[], n: number) => {
 type Step = "idle" | "confirm" | "sending" | "done";
 type Result = { sent: number; failed: number; reason?: string; at: string };
 
-export function WaitlistWelcome({ counts, sample, ready, total }: { counts: WelcomeCounts; sample: string[]; ready: boolean; total: number }) {
+export function WaitlistWelcome({ counts, sample, ready, preview, total }: { counts: WelcomeCounts; sample: string[]; ready: boolean; preview: "ok" | "failed"; total: number }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("idle");
   const [error, setError] = useState("");
@@ -35,7 +35,12 @@ export function WaitlistWelcome({ counts, sample, ready, total }: { counts: Welc
   const send = async () => {
     setStep("sending"); setError("");
     const r = await sendWelcome();
-    if ("error" in r) { setError(r.error === "Email isn't set up." ? r.error : "Couldn't send. Nothing went out; try again."); setStep("confirm"); return; }
+    if ("error" in r) {
+      setError(r.error === "Email isn't set up." ? r.error
+        : r.error === "unknown" ? "No answer in time, so some may have gone out. Refresh the counts before trying again; nobody gets it twice."
+        : "Couldn't send. Nothing went out; try again.");
+      setStep("confirm"); return;
+    }
     setResult(r); setStep("done");
     router.refresh(); // pull the new statuses and counts from the API
   };
@@ -46,11 +51,14 @@ export function WaitlistWelcome({ counts, sample, ready, total }: { counts: Welc
       <dl className="wq__mail-counts">
         {COUNTS.map(([k, l, bad]) => { const v = counts[k] || 0; return <div key={k} className={`wq__mail-count${bad && v ? " is-bad" : ""}${v ? "" : " is-zero"}`}><dt>{l}</dt><dd>{num(v)}</dd></div>; })}
       </dl>
-      {!ready && <p className="wq__mail-warn" role="alert"><Icon name="alert" size={14} />Email isn&apos;t set up: add <code className="wq__code">RESEND_API_KEY</code> on the API{pending ? `, then ${plural(pending, "person gets", "people get")} theirs` : ""}.</p>}
-      {ready && step === "idle" && (pending
+      {preview === "failed" && (
+        <div className="wq__mail-action"><p className="wq__mail-warn" role="alert"><Icon name="alert" size={14} />Couldn&apos;t check who&apos;s waiting for it just now.</p><button type="button" className="button button--sm" onClick={() => router.refresh()}>Try again</button></div>
+      )}
+      {preview === "ok" && !ready && <p className="wq__mail-warn" role="alert"><Icon name="alert" size={14} />Email isn&apos;t set up: add <code className="wq__code">RESEND_API_KEY</code> on the API{pending ? `, then ${plural(pending, "person gets", "people get")} theirs` : ""}.</p>}
+      {preview === "ok" && ready && step === "idle" && (pending
         ? <div className="wq__mail-action"><button type="button" className="button button--primary button--sm" onClick={() => { setStep("confirm"); setError(""); }}><Icon name="send" size={15} />Send the welcome email to {plural(pending, "person", "people")} who {pending === 1 ? "hasn't" : "haven't"} had it</button><span className="wq__mail-note">Skips anyone who already had it, bounced, complained or left.</span></div>
-        : <p className="wq__mail-ok"><Icon name="check" size={14} />{total ? "Everyone in line has had it." : "No one in line yet."}</p>)}
-      {ready && step === "confirm" && (
+        : <p className="wq__mail-ok"><Icon name="check" size={14} />{total ? "No one is waiting for it." : "No one in line yet."}</p>)}
+      {preview === "ok" && ready && step === "confirm" && (
         <div className="wq__confirm" role="alertdialog" aria-label="Confirm send">
           <p className="wq__confirm-text">Send to {plural(pending, "person", "people")}? This can&apos;t be undone.</p>
           <p className="wq__confirm-sample">{sampleText(sample, pending)}</p>

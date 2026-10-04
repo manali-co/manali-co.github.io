@@ -27,7 +27,9 @@ export type WaitlistSummary = {
   latest: WaitlistPerson[]; // newest first
   /* The welcome email: delivery counts, who the next send would reach (a sample), and whether
      sending is set up on the API at all. */
-  welcome: { counts: WelcomeCounts; sample: string[]; ready: boolean };
+  /* preview: "ok" when the dry run answered; "failed" when it didn't (that says nothing about
+     whether email is set up, so the strip offers a reload instead of a send). */
+  welcome: { counts: WelcomeCounts; sample: string[]; ready: boolean; preview: "ok" | "failed" };
 };
 
 type Entry = { position?: number; email?: string; platform?: string | null; at?: number; avatar?: WaitlistPerson["mark"]; source?: string | null; welcomeStatus?: string | null; doNotEmail?: boolean };
@@ -84,7 +86,7 @@ export async function waitlistSummary(now = new Date()): Promise<WaitlistSummary
       sent: summary.sent ?? 0, delivered: summary.delivered ?? 0, bounced: summary.bounced ?? 0,
       spam: summary.complained ?? 0, left: summary.left ?? 0, pending: dry?.count ?? summary.pending ?? 0,
     };
-    return { total: people.length, platforms, perDay, latest, welcome: { counts, sample: dry?.sample ?? [], ready: !!dry?.ready } };
+    return { total: people.length, platforms, perDay, latest, welcome: { counts, sample: dry?.sample ?? [], ready: !!dry?.ready, preview: dry ? "ok" : "failed" } };
   } catch {
     return null;
   }
@@ -102,6 +104,7 @@ export async function sendWaitlistWelcome(): Promise<{ sent: number; failed: num
     const failed = b.failed || [];
     return { sent: b.sent ?? 0, failed: failed.length, reason: failed[0]?.reason, at: new Date((b.at ?? Date.now() / 1000) * 1000).toISOString() };
   } catch {
-    return { error: "Couldn't reach the API. Nothing new was sent." };
+    // A timeout can land after the API started sending: we can't know how many went out.
+    return { error: "unknown" };
   }
 }
