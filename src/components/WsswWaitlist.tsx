@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { site } from "@/lib/site";
 import { track } from "./Telemetry";
+import { suggestEmail } from "@/lib/email-suggest";
 import { DiscoMark as Avatar, FACES, HUES, SHAPES, type Mark } from "./DiscoMark";
 import "@/styles/wsww-waitlist.css";
 
@@ -25,6 +26,10 @@ const SHARE_URL = `${site.url}/what-should-we-watch/`;
 const ERR_EMAIL = "That email doesn’t look right. Have another go.";
 // We can't know whether a failed request was saved, and joining twice is harmless, so say that.
 const ERR_DOWN = "I couldn’t confirm that. Try again in a minute; joining twice is fine.";
+// The API's address checks (no confirmation email), in Disco's voice, from the design.
+const ERR_UNREACHABLE = (domain: string) => `Nothing at ${domain} takes email. Typo?`;
+const ERR_THROWAWAY = "I need an inbox that’ll still be there on launch day.";
+const ERR_SLOW_DOWN = "Easy. Give it a minute and try again.";
 const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
 const randomMe = (prev?: Mark): Mark => {
   let m: Mark;
@@ -89,6 +94,10 @@ export function WsswWaitlist() {
   const [pulse, setPulse] = useState(0);
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  // "Did you mean …?": shown on blur and on the first submit of a likely typo; never blocks
+  const [suggestion, setSuggestion] = useState("");
+  const [passed, setPassed] = useState(""); // the address already shown a suggestion: a 2nd submit goes as typed
+  const [honeypot, setHoneypot] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
   const [busy, setBusy] = useState(false);
   const [count, setCount] = useState<number | null>(null);
@@ -97,6 +106,7 @@ export function WsswWaitlist() {
   // Main phone: pre-selected from the user agent after mount (iOS / Android), empty on desktop. Optional.
   const [device, setDevice] = useState<Device>(null);
   const timers = useRef<number[]>([]);
+  const emailRef = useRef<HTMLInputElement>(null);
   const later = useCallback((fn: () => void, ms: number) => { timers.current.push(window.setTimeout(fn, ms)); }, []);
 
   useEffect(() => {
@@ -133,15 +143,26 @@ export function WsswWaitlist() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (busy) return;
     const v = email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return setError(ERR_EMAIL);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) { setSuggestion(""); return setError(ERR_EMAIL); }
+    const fix = suggestEmail(v);
+    if (fix && passed !== v) { setError(""); setPassed(v); return setSuggestion(fix.email); }
+    setSuggestion("");
     setBusy(true);
     let body: { position: number; count: number };
     try {
-      const res = await fetch("/api/waitlist/", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: v, avatar: { hue: me.hue, shape: me.shape, face: me.face }, platform: device ?? undefined }) });
+      const res = await fetch("/api/waitlist/", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: v, avatar: { hue: me.hue, shape: me.shape, face: me.face }, platform: device ?? undefined, website: honeypot }) });
       if (!res.ok) {
-        track("waitlist", { result: `http_${res.status}` });
-        return setError(res.status === 400 ? ERR_EMAIL : ERR_DOWN);
+        const code = res.status === 400 ? ((await res.json().catch(() => ({}))) as { code?: string }).code : undefined;
+        track("waitlist", { result: code || `http_${res.status}` });
+        const domain = v.slice(v.lastIndexOf("@") + 1).toLowerCase();
+        setError(res.status === 429 ? ERR_SLOW_DOWN
+          : code === "undeliverable_email" ? ERR_UNREACHABLE(domain)
+          : code === "disposable_email" ? ERR_THROWAWAY
+          : res.status === 400 ? ERR_EMAIL : ERR_DOWN);
+        if (res.status !== 429) emailRef.current?.focus();
+        return;
       }
       body = (await res.json()) as { position: number; count: number };
     } catch {
@@ -249,12 +270,29 @@ export function WsswWaitlist() {
 
               <form className="wl-form" onSubmit={submit} noValidate>
                 <div className="wl-row">
-                  <input className="wl-input" type="email" name="email" autoComplete="email" inputMode="email" autoCapitalize="off" spellCheck={false} placeholder="you@somewhere.com" value={email}
-                    onChange={(e) => { setEmail(e.target.value); setError(""); }} aria-label="Email" aria-invalid={!!error} aria-describedby="wl-note" disabled={busy} />
-                  <button type="submit" className="wl-submit" disabled={busy}>{busy ? "Joining…" : "Join the waitlist"}</button>
+                  <input ref={emailRef} className="wl-input" type="email" name="email" autoComplete="email" inputMode="email" autoCapitalize="off" spellCheck={false} placeholder="you@somewhere.com" value={email}
+                    onChange={(e) => { setEmail(e.target.value); setError(""); setSuggestion(""); }}
+                    onBlur={() => { const v = email.trim(); if (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) && !error) setSuggestion(suggestEmail(v)?.email ?? ""); }}
+                    aria-label="Email" aria-invalid={!!error} aria-describedby="wl-note" disabled={busy} />
+                  <button type="submit" className="wl-submit" disabled={busy} aria-busy={busy}>{busy ? "Checking…" : "Join the waitlist"}</button>
                 </div>
-                <div id="wl-note" role="status" aria-live="polite">
-                  {error ? <div className="wl-err">{error}</div> : <div className="wl-fine">One email the day it lands, maybe one before. Nothing else.</div>}
+                {/* Honeypot: hidden from people and screen readers; bots fill every field. */}
+                <input className="wl-hp" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+                <div id="wl-note" role="status" aria-live="polite" aria-atomic="true">
+                  {error ? <div className="wl-err">{error}</div>
+                    : suggestion ? (
+                      <div className="wl-sug">
+                        <span>Did you mean</span>
+                        <button type="button" className="wl-sug-btn" onClick={() => {
+                          setEmail(suggestion); setSuggestion(""); setError(""); setPassed("");
+                          const el = emailRef.current; if (el) { el.focus(); requestAnimationFrame(() => { try { el.setSelectionRange(suggestion.length, suggestion.length); } catch {} }); }
+                        }}>
+                          <span className="wl-sug-local">{suggestion.slice(0, suggestion.lastIndexOf("@"))}</span><span>@</span><b>{suggestion.slice(suggestion.lastIndexOf("@") + 1)}</b>
+                        </button>
+                        <span>?</span>
+                      </div>
+                    )
+                    : <div className="wl-fine">One email the day it lands, maybe one before. Nothing else.</div>}
                 </div>
               </form>
             </div>
