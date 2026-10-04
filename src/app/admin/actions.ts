@@ -70,3 +70,10 @@ export async function storedRows(table: string, offset: number) {
   if (!ok) return null;
   return adminDataTable(table, offset);
 }
+
+export async function sendWelcome() {
+  const { ok } = await requireOwner();
+  if (!ok) return { error: "Not allowed." } as const;
+  const { sendWaitlistWelcome } = await import("@/lib/waitlist-admin");
+  return sendWaitlistWelcome();
+}

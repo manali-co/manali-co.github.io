@@ -1,6 +1,7 @@
 import { DiscoMark, type Mark } from "@/components/DiscoMark";
 import { Icon } from "@/components/Icon";
-import type { WaitlistPlatform, WaitlistSummary } from "@/lib/waitlist-admin";
+import type { WaitlistPlatform, WaitlistSummary, WelcomeStatus } from "@/lib/waitlist-admin";
+import { WaitlistWelcome } from "./WaitlistWelcome";
 
 /* What Should We Watch · Waitlist: people in line, iPhone | Android | not picked, joins per day
    over 14 days, the latest ten. A 1:1 port of Claude Design's components/admin/WaitlistPanel
@@ -29,6 +30,12 @@ function relativeTime(iso: string, now: number) {
   if (s < 604800) return `${Math.round(s / 86400)} days ago`;
   const p = parts(iso, { day: "numeric", month: "numeric" });
   return `on ${p.day} ${MONTHS[Number(p.month) - 1]}`;
+}
+/* Welcome-email status: icon + word, never colour alone. */
+const MAIL: Record<WelcomeStatus, ["check" | "send" | "alert" | null, string]> = { delivered: ["check", "Delivered"], sent: ["send", "Sent"], bounced: ["alert", "Bounced"], spam: ["alert", "Spam"], left: [null, "Left"], pending: [null, "Not sent"] };
+function MailStatus({ s }: { s: WelcomeStatus }) {
+  const [icon, word] = MAIL[s];
+  return <span className={`wq__status wq__status--${s}`}>{icon && <Icon name={icon} size={13} />}{word}</span>;
 }
 const phoneLabel = (p: WaitlistPlatform) => (p === "ios" ? "iPhone" : p === "android" ? "Android" : "not picked");
 
@@ -114,15 +121,16 @@ function People({ latest, now }: { latest: WaitlistSummary["latest"]; now: numbe
   if (!latest.length) return <p className="wq__none">Nobody yet. The page is live at manali.page/what-should-we-watch.</p>;
   return (
     <ol className="wq__people">
-      <li className="wq__person wq__person--head" aria-hidden="true"><span>#</span><span /><span>Email</span><span>Phone</span><span className="wq__when">Joined</span></li>
+      <li className="wq__person wq__person--head" aria-hidden="true"><span>#</span><span /><span>Email</span><span>Phone</span><span>Welcome email</span><span className="wq__when">Joined</span></li>
       {latest.map((p) => (
         <li key={p.position} className="wq__person">
           <span className="wq__place">{num(p.position)}</span>
           <span className="wq__mark">{p.mark ? <DiscoMark mark={p.mark as Mark} size={20} /> : <span className="wq__mark-none" />}</span>
           <span className="wq__email" title={p.email}>{p.email}</span>
           <span className={`wq__phone${p.platform === "none" ? " is-none" : ""}`}>{phoneLabel(p.platform)}</span>
+          <span className="wq__welcome"><MailStatus s={p.welcome} /></span>
           <time className="wq__when" dateTime={p.joined} title={exactTime(p.joined)}>{relativeTime(p.joined, now)}</time>
-          <span className="wq__meta">{phoneLabel(p.platform)} · <time dateTime={p.joined} title={exactTime(p.joined)}>{relativeTime(p.joined, now)}</time></span>
+          <span className="wq__meta">{phoneLabel(p.platform)} · <MailStatus s={p.welcome} /> · <time dateTime={p.joined} title={exactTime(p.joined)}>{relativeTime(p.joined, now)}</time></span>
         </li>
       ))}
     </ol>
@@ -150,11 +158,12 @@ export function WaitlistPanel({ data, now }: { data: WaitlistSummary | null; now
           <div className="wq__top">
             <div>
               <p className="stat">{num(data.total)}</p>
-              <p className="stat__label">in line · {data.total ? (week ? `+${num(week)} this week` : "none this week") : "nobody yet"}</p>
+              <p className="stat__label">in line · {data.total ? (week ? `+${num(week)} this week` : "none this week") + (data.welcome.counts.left ? ` · ${num(data.welcome.counts.left)} left` : "") : "nobody yet"}</p>
             </div>
             <div className="wq__pie-row"><PhonePie phones={data.platforms} /><Legend phones={data.platforms} /></div>
             <div className="wq__group"><h3 className="wq__h">Joins per day · 14 days</h3><Days days={data.perDay} /></div>
           </div>
+          <WaitlistWelcome counts={data.welcome.counts} sample={data.welcome.sample} ready={data.welcome.ready} total={data.total} />
           <section className="wq__block">
             <h3 className="wq__h">{data.total ? `Latest ${data.latest.length} of ${num(data.total)}` : "Latest"}</h3>
             <People latest={data.latest} now={now} />

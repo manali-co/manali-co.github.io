@@ -826,7 +826,7 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 .wq__days-axis { display: flex; justify-content: space-between; font-size: var(--text-sm); color: var(--text-3); font-variant-numeric: tabular-nums; }
 .wq__days-note { margin: 0; font-size: var(--text-sm); color: var(--text-2); font-variant-numeric: tabular-nums; }
 .wq__people { list-style: none; margin: 0; padding: 0; display: grid; }
-.wq__person { display: grid; grid-template-columns: 44px 20px minmax(0, 1fr) 88px 128px; gap: var(--space-4); align-items: center; padding: 10px 0; border-top: 1px solid var(--border); font-size: var(--text-sm); }
+.wq__person { display: grid; grid-template-columns: 44px 20px minmax(0, 1fr) 88px 104px 128px; gap: var(--space-4); align-items: center; padding: 10px 0; border-top: 1px solid var(--border); font-size: var(--text-sm); }
 .wq__person--head { border-top: 0; padding-top: 0; color: var(--text-3); font-weight: 500; }
 .wq__person--head .wq__when { text-align: right; }
 .wq__place { font-family: var(--font-mono); color: var(--text-3); font-variant-numeric: tabular-nums; }
@@ -838,14 +838,57 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 .wq__when { color: var(--text-2); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; cursor: help; text-decoration: underline dotted var(--border-strong); text-underline-offset: 3px; }
 .wq__meta { display: none; color: var(--text-2); font-variant-numeric: tabular-nums; }
 .wq__meta time { cursor: help; text-decoration: underline dotted var(--border-strong); text-underline-offset: 3px; }
+/* welcome email: per-person status (icon + word, never colour alone) */
+.wq__status { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; color: var(--text-2); }
+.wq__status--delivered svg { color: var(--status-live); }
+.wq__status--sent svg { color: var(--text-3); }
+.wq__status--bounced, .wq__status--spam { color: var(--wswatch-coral); font-weight: 500; }
+.wq__status--left, .wq__status--pending { color: var(--text-3); }
+.wq__meta .wq__status { display: inline-flex; vertical-align: -2px; }
+/* welcome email: strip */
+.wq__mail { display: grid; gap: var(--space-4); padding: var(--space-4); border-radius: var(--radius-md); background: var(--bg-sunken); min-width: 0; }
+.wq__mail-head { display: flex; align-items: baseline; justify-content: space-between; gap: 4px var(--space-4); flex-wrap: wrap; }
+.wq__mail-from { font-size: var(--text-sm); color: var(--text-3); }
+.wq__mail-counts { margin: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px var(--space-4); }
+.wq__mail-count { display: grid; gap: 2px; min-width: 0; }
+.wq__mail-count dt { font-size: var(--text-sm); color: var(--text-3); line-height: 1.3; }
+.wq__mail-count dd { margin: 0; font-size: var(--text-lg); font-weight: 500; line-height: 1.2; color: var(--text); font-variant-numeric: tabular-nums; }
+.wq__mail-count.is-zero dd { color: var(--text-3); font-weight: 400; }
+.wq__mail-count.is-bad dd { color: var(--wswatch-coral); }
+.wq__mail-action { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.wq__mail-action .button { display: inline-flex; align-items: center; gap: 6px; }
+.wq__mail-note { font-size: var(--text-sm); color: var(--text-3); line-height: 1.45; }
+.wq__mail-note.is-bad, .wq__mail-warn { color: var(--wswatch-coral); }
+.wq__mail-ok { margin: 0; display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-sm); color: var(--text-2); }
+.wq__mail-ok svg { color: var(--status-live); }
+.wq__mail-warn { margin: 0; font-size: var(--text-sm); line-height: 1.45; }
+.wq__mail-warn svg { vertical-align: -2px; margin-right: 6px; }
+.wq__mail-warn .wq__code { color: var(--text); }
+.wq__confirm { display: grid; gap: 12px; padding: var(--space-4); border: 1px solid var(--sun); border-radius: var(--radius-md); background: var(--sun-tint); }
+.wq__confirm-text { margin: 0; font-size: var(--text-md); line-height: var(--lh-body); color: var(--text); }
+.wq__confirm-sample { margin: 0; font-size: var(--text-sm); line-height: 1.5; color: var(--text-2); overflow-wrap: anywhere; }
+.wq__progress { display: grid; gap: 8px; }
+.wq__progress-text { font-size: var(--text-sm); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.wq__progress-track { display: block; height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+.wq__progress-fill { display: block; height: 100%; border-radius: 3px; background: var(--accent); transition: width var(--dur-base) var(--ease-out); }
+/* one call sends the whole batch, so the bar moves rather than counting */
+.wq__progress-fill--busy { width: 35%; animation: wq-busy 1.2s ease-in-out infinite; }
+@keyframes wq-busy { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+@media (prefers-reduced-motion: reduce) { .wq__progress-fill--busy { animation: none; width: 100%; opacity: .5; } }
+.wq__result { margin: 0; display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-sm); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.wq__result svg { color: var(--status-live); }
+.wq__result.is-bad, .wq__result.is-bad svg { color: var(--wswatch-coral); }
+
 @container admin-panel (max-width: 600px) {
   .wq__top { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
   .wq__person { grid-template-columns: 32px 20px minmax(0, 1fr); grid-template-areas: "place mark email" ". . meta"; row-gap: 2px; padding: 12px 0; }
-  .wq__person--head, .wq__person .wq__phone, .wq__person > .wq__when { display: none; }
+  .wq__person--head, .wq__person .wq__phone, .wq__person .wq__welcome, .wq__person > .wq__when { display: none; }
   .wq__person .wq__place { grid-area: place; }
   .wq__person .wq__mark { grid-area: mark; }
   .wq__person .wq__email { grid-area: email; }
   .wq__person .wq__meta { display: block; grid-area: meta; }
+  .wq__mail-counts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .wq__mail-action > button:first-child { flex: 1 1 100%; min-height: 44px; }
 }
 
 /* Traffic engagement: the comments funnel and other actions (design system: TrafficPanel.jsx, admin-data.css). */
