@@ -271,7 +271,7 @@ export function WsswWaitlist() {
               <form className="wl-form" onSubmit={submit} noValidate>
                 <div className="wl-row">
                   <input ref={emailRef} className="wl-input" type="email" name="email" autoComplete="email" inputMode="email" autoCapitalize="off" spellCheck={false} placeholder="you@somewhere.com" value={email}
-                    onChange={(e) => { setEmail(e.target.value); setError(""); setSuggestion(""); }}
+                    onChange={(e) => { setEmail(e.target.value); setError(""); setSuggestion(""); setPassed(""); }}
                     onBlur={() => { const v = email.trim(); if (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) && !error) setSuggestion(suggestEmail(v)?.email ?? ""); }}
                     aria-label="Email" aria-invalid={!!error} aria-describedby="wl-note" disabled={busy} />
                   <button type="submit" className="wl-submit" disabled={busy} aria-busy={busy}>{busy ? "Checking…" : "Join the waitlist"}</button>
