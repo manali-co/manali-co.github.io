@@ -34,7 +34,13 @@ export function WaitlistWelcome({ counts, sample, ready, preview, total }: { cou
 
   const send = async () => {
     setStep("sending"); setError("");
-    const r = await sendWelcome();
+    let r: Awaited<ReturnType<typeof sendWelcome>>;
+    try {
+      r = await sendWelcome();
+    } catch {
+      // the action itself failed (network, deploy mid-flight): we can't know what went out
+      r = { error: "unknown" };
+    }
     if ("error" in r) {
       setError(r.error === "Email isn't set up." ? r.error
         : r.error === "unknown" ? "No answer in time, so some may have gone out. Refresh the counts before trying again; nobody gets it twice."
