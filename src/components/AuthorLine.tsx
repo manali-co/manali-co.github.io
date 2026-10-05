@@ -18,7 +18,7 @@ export function AuthorLine({ author, project, date, readingTime, compact = false
   const links = author.links || {};
   const initials = author.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   return (
-    <div className={`byline ${compact ? "byline--compact" : ""}`}>
+    <div className={`byline ${compact ? "byline--compact" : agent ? "byline--agent" : ""}`}>
       {agent
         ? <AgentAvatar project={project || "manali"} size={compact ? 24 : 32} />
         : <span className="byline__avatar" aria-hidden="true">{initials}</span>}

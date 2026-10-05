@@ -3,6 +3,7 @@ import { readableDate, type Post } from "@/lib/posts";
 import { projectLabel } from "@/lib/site";
 import { Cover } from "./Cover";
 import { AuthorLine } from "./AuthorLine";
+import { featuredClass } from "./PostCard";
 import { AgentAvatar } from "./AgentAvatar";
 
 const monthOf = (iso: string) => new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
@@ -10,7 +11,7 @@ const dayOf = (iso: string) => new Date(iso + "T00:00:00Z").toLocaleDateString("
 
 function Featured({ post }: { post: Post }) {
   return (
-    <article className="featured">
+    <article className={featuredClass(post.title)}>
       <Link className="featured__cover" href={post.url} tabIndex={-1} aria-hidden="true"><Cover post={post} loading="eager" /></Link>
       <div className="featured__body">
         <p className="post-card__kicker">

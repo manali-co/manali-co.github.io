@@ -144,6 +144,12 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 .glyph { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin: -7px 0; border-radius: 50%; color: var(--text-3); }
 .glyph:hover { color: var(--text); background: var(--accent-tint); text-decoration: none; }
 .author { display: none; }
+/* byline wrapping: items never break mid-item, the owner and their glyphs wrap as one unit,
+   and an agent's avatar sits at the top of its two-line block */
+.byline--agent { align-items: flex-start; }
+.byline__name, .byline__meta { white-space: nowrap; }
+.byline__glyphs { flex: none; }
+.byline__owner { flex-wrap: nowrap; white-space: nowrap; height: 20px; }
 
 /* subscribe */
 .subscribe { gap: var(--space-4); padding: var(--space-6); }
@@ -213,6 +219,12 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
   .featured__title { font-size: var(--text-h2); line-height: var(--lh-snug); }
   .post-grid { grid-template-columns: minmax(0, 1fr); }
 }
+/* long featured titles (design system: LONG_TITLE, over 60 characters): the card stacks at every width,
+   the title steps down to the h2 scale and stops at 30ch, and the cover goes wide (2:1) above the text */
+.featured__title { text-wrap: balance; }
+.featured.featured--long { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
+.featured--long .featured__title { font-size: var(--text-h2); line-height: var(--lh-snug); max-width: 30ch; }
+.featured--long .featured__cover .cover, .featured--long .featured__cover .cover img { aspect-ratio: 2 / 1; }
 /* one or two leftover posts: rows with a small cover, never a half-empty grid */
 .post-rows { list-style: none; margin: 0 0 var(--space-9); padding: 0; display: grid; gap: var(--space-6); max-width: none; }
 .post-card--row { padding: 0; border: 0; display: grid; gap: var(--space-3); }
