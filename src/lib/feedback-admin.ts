@@ -33,7 +33,10 @@ export async function adminFeedback(): Promise<FeedbackData> {
     const res = await fetch(`${BASE}/v1/feedback?limit=${FEEDBACK_LIMIT}`, { headers: { "x-admin-token": TOKEN }, cache: "no-store", signal: AbortSignal.timeout(8000) });
     if (res.status === 503) return { state: "unconfigured" };
     if (!res.ok) return { state: "unreachable", error: `HTTP ${res.status}` };
-    const rows = ((await res.json()) as { feedback?: Row[] }).feedback || [];
+    const body = (await res.json()) as { feedback?: unknown };
+    // A changed or broken response must not read as "no feedback yet".
+    if (!Array.isArray(body.feedback)) return { state: "unreachable", error: "unexpected response" };
+    const rows = body.feedback as Row[];
     const items = rows.map((r, i): FeedbackItem => ({
       id: String(r.id || `row-${i}`),
       type: r.type === "bug" || r.type === "idea" ? r.type : "other",
