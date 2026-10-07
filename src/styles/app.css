@@ -627,8 +627,8 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 
 /* Admin Traffic and Stored data (design system: components/admin/TrafficPanel.jsx, StoredDataPanel.jsx,
    admin-data.css, ported as is). Narrow layout follows the panel's own width (container query). */
-.traffic, .stored, .wq { grid-column: 1 / -1; min-width: 0; container: admin-panel / inline-size; }
-.traffic > *, .stored > * { min-width: 0; }
+.traffic, .stored, .wq, .fb { grid-column: 1 / -1; min-width: 0; container: admin-panel / inline-size; }
+.traffic > *, .stored > *, .fb > * { min-width: 0; }
 
 /* shared: segmented toggle, skeleton, data table, state message */
 .seg { display: inline-flex; width: fit-content; padding: 3px; gap: 2px; border-radius: var(--radius-pill); background: var(--bg-sunken); border: 1px solid var(--border); }
@@ -917,3 +917,58 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 .funnel__step.is-zero .funnel__label, .funnel__step.is-zero .funnel__value b { color: var(--text-3); }
 .funnel__rate { padding: 6px 0 6px 12px; margin-left: 3px; border-left: 1px dashed var(--border-strong); font-size: var(--text-sm); line-height: 1.4; color: var(--text-3); font-variant-numeric: tabular-nums; }
 @container admin-panel (max-width: 600px) { .traffic__engage { grid-template-columns: minmax(0, 1fr); } }
+
+/* feedback (What Should We Watch): counts and type split, type filter, latest reports. Read-only. */
+.fb__top { display: grid; grid-template-columns: minmax(120px, auto) minmax(120px, auto) minmax(0, 1fr); gap: var(--space-5) var(--space-7); align-items: start; }
+.fb__h { margin: 0; font-family: var(--font-body); font-size: var(--text-sm); font-weight: 600; line-height: 1.4; color: var(--text); }
+.fb__group { display: grid; gap: var(--space-3); align-content: start; min-width: 0; }
+.fb__part--bug { background: var(--wswatch-coral); }
+.fb__part--idea { background: var(--sun); }
+.fb__part--other { background: var(--border-strong); }
+.fb__part--none { box-sizing: border-box; background: transparent; border: 1px dashed var(--border-strong); border-radius: 5px; }
+.fb__legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: var(--text-sm); min-width: 0; }
+.fb__legend li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.fb__legend li.is-zero .fb__type, .fb__legend li.is-zero .fb__type svg { color: var(--text-3); }
+.fb__legend-val { color: var(--text-3); white-space: nowrap; font-variant-numeric: tabular-nums; text-align: right; }
+.fb__legend-val b { color: var(--text); font-weight: 500; }
+.fb__legend li.is-zero .fb__legend-val b { color: var(--text-3); }
+/* type: icon + word, never colour alone */
+.fb__type { display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); font-size: var(--text-sm); font-weight: 500; line-height: 20px; white-space: nowrap; }
+.fb__type--bug svg { color: var(--wswatch-coral); }
+.fb__type--idea svg { color: var(--sun); }
+.fb__type--other svg { color: var(--text-3); }
+.fb__filter { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3); flex-wrap: wrap; }
+.fb__seg { flex-wrap: wrap; }
+.fb__seg button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 0; white-space: nowrap; }
+.fb__seg button:disabled { cursor: default; opacity: 0.5; }
+.fb__n { color: var(--text-3); font-weight: 400; font-variant-numeric: tabular-nums; }
+.fb__seg button[aria-pressed="true"] .fb__n { color: var(--text-2); }
+.fb__count { font-size: var(--text-sm); color: var(--text-3); font-variant-numeric: tabular-nums; }
+.fb__block { display: grid; gap: var(--space-4); padding-top: var(--space-5); border-top: 1px solid var(--border); min-width: 0; }
+.fb__list { list-style: none; margin: 0; padding: 0; display: grid; }
+.fb__item { display: grid; grid-template-columns: 96px minmax(0, 1fr) 128px; grid-template-areas: "type body when"; gap: var(--space-4); align-items: start; padding: 16px 0; border-top: 1px solid var(--border); font-size: var(--text-sm); }
+.fb__item:first-child { border-top: 0; padding-top: 0; }
+.fb__item .fb__type { grid-area: type; }
+.fb__body { grid-area: body; display: grid; gap: 8px; justify-items: start; min-width: 0; }
+.fb__msg { margin: 0; font-size: var(--text-md); line-height: 1.55; color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; max-width: 68ch; }
+.fb__msg.is-clamped { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
+.fb__more { padding: 0; border: 0; background: none; font: inherit; font-size: var(--text-sm); font-weight: 500; line-height: 1; color: var(--accent-text); cursor: pointer; min-height: 32px; }
+.fb__more:hover { text-decoration: underline; text-underline-offset: 3px; }
+.fb__more:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-radius: 2px; }
+.fb__meta { margin: 0; display: flex; flex-wrap: wrap; gap: 2px 6px; color: var(--text-3); line-height: 1.5; font-variant-numeric: tabular-nums; }
+.fb__id { font-family: var(--font-mono); cursor: help; }
+.fb__code { font-family: var(--font-mono); font-size: 0.92em; color: var(--text); }
+.fb__when { grid-area: when; color: var(--text-2); text-align: right; white-space: nowrap; line-height: 20px; font-variant-numeric: tabular-nums; cursor: help; text-decoration: underline dotted var(--border-strong); text-underline-offset: 3px; }
+.fb__none { margin: 0; font-size: var(--text-sm); color: var(--text-3); line-height: 1.5; }
+.fb__foot { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; padding-top: var(--space-2); }
+@container admin-panel (max-width: 600px) {
+  .fb__top { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5) var(--space-4); }
+  .fb__group { grid-column: 1 / -1; }
+  .fb__item { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "type when" "body body"; row-gap: 10px; }
+  .fb__msg { max-width: none; }
+  .fb__foot > button { flex: 1 1 100%; min-height: 44px; }
+  /* filter: 2×2 grid of equal cells, so four labels with two-digit counts never wrap inside a pill */
+  .fb__filter { display: grid; grid-template-columns: minmax(0, 1fr); justify-content: stretch; gap: var(--space-2); }
+  .fb__seg { display: grid; grid-template-columns: 1fr 1fr; box-sizing: border-box; width: 100%; }
+  .fb__seg button { min-height: 40px; }
+}

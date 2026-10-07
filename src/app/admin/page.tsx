@@ -13,6 +13,8 @@ import { StoredDataPanel } from "./StoredDataPanel";
 import { TrafficPanel } from "./TrafficPanel";
 import { WaitlistPanel } from "./WaitlistPanel";
 import { waitlistSummary } from "@/lib/waitlist-admin";
+import { FeedbackPanel } from "./FeedbackPanel";
+import { adminFeedback, FEEDBACK_LIMIT } from "@/lib/feedback-admin";
 
 /* What the email needs about a post. Series followers get it too, so the series part rides along. */
 function emailPost(p: Post): AnnouncePost {
@@ -57,7 +59,7 @@ export default async function Admin() {
       </section>
     );
   }
-  const [stats, replies, comments, sends, stored, waitlist] = await Promise.all([adminStats(), adminReplies(), adminComments(), adminAnnouncements(), adminData(), waitlistSummary()]);
+  const [stats, replies, comments, sends, stored, waitlist, feedback] = await Promise.all([adminStats(), adminReplies(), adminComments(), adminAnnouncements(), adminData(), waitlistSummary(), adminFeedback()]);
   const posts = getAllPosts();
   const latest = posts[0];
   const rows: AnnounceRow[] = posts.map((p) => ({ post: emailPost(p), send: sends ? sendOf(sends, p.slug) : null }));
@@ -72,6 +74,7 @@ export default async function Admin() {
       </div>
       <div className="admin__grid">
         <WaitlistPanel data={waitlist} now={stored.at} />
+        <FeedbackPanel data={feedback} now={stored.at} limit={FEEDBACK_LIMIT} />
         <div className="panel">
           <h2 className="panel__title">Subscribers</h2>
           <p className="stat">{stats ? stats.subscribers : "—"}</p>
