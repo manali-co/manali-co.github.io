@@ -46,3 +46,7 @@ next-env.d.ts
 
 # static export
 out/
+
+# playwright
+/test-results/
+/playwright-report/
