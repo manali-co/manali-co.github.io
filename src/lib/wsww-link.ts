@@ -12,6 +12,10 @@ export const CODE = /^[23456789ABCDEFGHJKMNPQRSTUVWXYZ]{6}$/;
 
 export const APP_STORE_URL = "https://apps.apple.com/app/id6814684533";
 
+/** wsww.app's link pages (/f/ a sent film; /g/ and /j/ for later phases) carry a secret in the
+    path: no site chrome, no telemetry. */
+export const isPrivateLinkPath = (p: string) => /^\/(f|g|j)\//.test(p);
+
 export const HUES = ["coral", "lilac", "lagoon", "butter", "moss", "sky"] as const;
 export const SHAPES = ["round", "pebble", "drop", "bean", "tall", "squish"] as const;
 export const FACES = ["smile", "grin", "calm", "wink", "curious", "thinking", "sleepy", "cheeky", "deadpan", "starry"] as const;

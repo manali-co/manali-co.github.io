@@ -65,8 +65,7 @@
   }
 }
 
-/* The page owns the viewport: the site's nav and footer step aside (as on the waitlist). */
-body:has(.wsl) > .nav, body:has(.wsl) > .footer, body:has(.wsl) > .skip { display: none; }
+/* The page owns the viewport (SiteChrome leaves the site's header and footer out on /f/). */
 body:has(.wsl) main#main { max-width: none; padding: 0; margin: 0; }
 
 .wsl { min-height: 100vh; min-height: 100dvh; background: var(--color-bg); color: var(--color-ink); font-family: var(--font-body); -webkit-font-smoothing: antialiased; display: flex; justify-content: center; }

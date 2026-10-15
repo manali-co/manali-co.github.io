@@ -69,15 +69,21 @@ test.describe("server-rendered page", () => {
   test("the page stands alone: no manali.page header, nav, skip link or footer in the HTML", async ({ page, request }) => {
     for (const t of [TOKEN, "Unknown000000000000000"]) {
       const html = await (await request.get(`/f/${t}`)).text();
-      const body = html.split("<body")[1] ?? "";
-      for (const marker of ['class="nav"', 'class="footer"', 'class="skip"', "Skip to content", "Buy us a coffee", "manali apps by"]) {
-        expect(body, `${t}: ${marker}`).not.toContain(marker);
+      // Rendered markup only: the RSC flight data (inline <script>s) still names the chrome the root
+      // layout passes to SiteChrome, but none of it is rendered.
+      const markup = (html.split("<body")[1] ?? "").replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "");
+      for (const marker of ['class="nav"', "<footer", 'class="skip"', "Skip to content", "Buy us a coffee", "manali apps by"]) {
+        expect(markup, `${t}: ${marker}`).not.toContain(marker);
       }
       await page.goto(`/f/${t}`);
       await expect(page.locator("header.nav, footer, nav, a.skip")).toHaveCount(0);
       await expect(page.locator("main")).toHaveCount(1);
       await expect(page.getByText("What Should We Watch · wsww.app")).toBeVisible();
     }
+    // Every other page keeps the site's header and footer.
+    await page.goto("/what-should-we-watch/");
+    await expect(page.locator("header.nav")).toHaveCount(1);
+    await expect(page.locator("footer.footer")).toHaveCount(1);
   });
 
   test("user text stays text: the name and the note are escaped and never linked", async ({ page, request }) => {

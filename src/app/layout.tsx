@@ -5,6 +5,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { Telemetry } from "@/components/Telemetry";
 import { StaleTabGuard } from "@/components/StaleTabGuard";
+import { SiteChrome } from "@/components/SiteChrome";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -42,12 +43,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
-        <a className="skip" href="#main">Skip to content</a>
-        <Nav />
+        <SiteChrome>
+          <a className="skip" href="#main">Skip to content</a>
+          <Nav />
+        </SiteChrome>
         <main id="main" className="wrap">
           {children}
         </main>
-        <Footer />
+        <SiteChrome>
+          <Footer />
+        </SiteChrome>
         <Telemetry />
         <StaleTabGuard />
       </body>
