@@ -84,6 +84,11 @@ export function Telemetry() {
     if (!cs || ai || loading || isPrivateLinkPath(location.pathname)) return;
     loading = true;
     import("@microsoft/applicationinsights-web").then(({ ApplicationInsights }) => {
+      // The visitor may have reached a link page while the import was loading.
+      if (isPrivateLinkPath(location.pathname)) {
+        loading = false;
+        return;
+      }
       const inst = new ApplicationInsights({
         config: {
           connectionString: cs,
@@ -100,6 +105,8 @@ export function Telemetry() {
       inst.loadAppInsights();
       const clean = (u: unknown) => (typeof u === "string" ? u.split("?")[0].split("#")[0] : u);
       inst.addTelemetryInitializer((item) => {
+        // Nothing at all leaves while a link page is open (its path holds the link's secret).
+        if (isPrivateLinkPath(location.pathname)) return false;
         item.tags = item.tags || {};
         item.tags["ai.cloud.role"] = "manali-web";
         // Query strings carry confirm/unsubscribe tokens; they stay out of telemetry entirely.
