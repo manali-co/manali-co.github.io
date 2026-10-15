@@ -33,6 +33,10 @@ jobs:
       - run: npm run build
         env:
           NEXT_PUBLIC_SITE_URL: https://manali.page
+      # The wsww.app film link pages, end to end against a mocked app API (e2e/mock-api.mjs), on
+      # the build above. Before the static export, which replaces .next.
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
       - run: node scripts/static-export.mjs
         env:
           NEXT_PUBLIC_SITE_URL: https://manali.page

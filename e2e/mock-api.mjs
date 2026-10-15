@@ -1,4 +1,5 @@
-// A stand-in for the What Should We Watch API's public link routes (/v1/links/...), for the
+// A stand-in for the What Should We Watch API's public link routes (POST /v1/links/read, react
+// and keep, each with the token in the body), for the
 // Playwright tests. The page calls the API from the server, so the browser can't intercept it;
 // this tiny server answers instead and records what it was sent (GET /__log, POST /__reset).
 import { createServer } from "node:http";
@@ -54,19 +55,20 @@ createServer(async (req, res) => {
     log = [];
     return send(res, 200, { ok: true });
   }
-  const m = url.pathname.match(/^\/v1\/links\/([^/]+)(?:\/(react|keep))?$/);
-  if (!m) return send(res, 404, { code: "not_found", message: "Not found." });
-  const [, token, action] = m;
-  const body = req.method === "POST" ? await readBody(req) : null;
+  // The token travels in the JSON body, never in a URL (the API's request URLs are logged).
+  const m = url.pathname.match(/^\/v1\/links\/(read|react|keep)$/);
+  if (!m || req.method !== "POST") return send(res, 404, { code: "not_found", message: "Not found." });
+  const action = m[1];
+  const body = await readBody(req);
   log.push({ method: req.method, path: url.pathname, ip: req.headers["x-wsww-client-ip"] ?? null, body });
+  const token = body && typeof body.token === "string" ? body.token : "";
   if (token === NOT_ENABLED) return send(res, 404, { code: "not_enabled", message: "Not enabled." });
   if (token === RATE_LIMITED) return send(res, 429, { code: "rate_limited", message: "Slow down." }, { "retry-after": "30" });
   const link = LINKS[token];
   // Unknown, expired, revoked and blocked links all get this one answer.
   if (!link) return send(res, 404, { code: "link_unavailable", message: "This link isn't available." });
-  if (!action && req.method === "GET") return send(res, 200, { ...link, expiresAt: now() + 90 * 24 * HOUR });
-  if (req.method !== "POST") return send(res, 405, { code: "method_not_allowed", message: "No." });
-  if (!body || typeof body.webId !== "string" || !/^[A-Za-z0-9_-]{8,64}$/.test(body.webId)) return send(res, 400, { code: "bad_request", message: "webId" });
+  if (action === "read") return send(res, 200, { ...link, expiresAt: now() + 90 * 24 * HOUR });
+  if (typeof body.webId !== "string" || !/^[A-Za-z0-9_-]{8,64}$/.test(body.webId)) return send(res, 400, { code: "bad_request", message: "webId" });
   if (action === "react") {
     if (!["liked", "okay", "not_for_me"].includes(body.reaction)) return send(res, 400, { code: "bad_request", message: "reaction" });
     return send(res, 200, { told: body.reaction !== "not_for_me", code: "KQ7W3D", codeExpiresAt: now() + 24 * HOUR });

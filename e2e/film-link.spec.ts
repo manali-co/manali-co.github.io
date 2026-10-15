@@ -40,9 +40,10 @@ test.describe("server-rendered page", () => {
     expect(res.headers()["x-robots-tag"]).toBe("noindex, nofollow");
     expect(res.headers()["cache-control"]).toContain("no-store");
     // The visitor's address reaches the API for its per-IP limits, and nothing else is sent.
-    const gets = (await apiLog(request)).filter((r) => r.method === "GET");
-    expect(gets.length).toBeGreaterThan(0);
-    expect(gets.every((g) => g.path === `/v1/links/${TOKEN}` && g.ip === "203.0.113.7")).toBe(true);
+    const reads = (await apiLog(request)).filter((r) => r.path === "/v1/links/read");
+    expect(reads.length).toBeGreaterThan(0);
+    // The token goes in the body, never in a URL the API would log.
+    expect(reads.every((g) => g.method === "POST" && g.body?.token === TOKEN && g.ip === "203.0.113.7")).toBe(true);
   });
 
   test("link-preview crawlers get the same tags in <head>", async ({ request }) => {
@@ -96,10 +97,11 @@ test.describe("answers", () => {
     await expect(page.getByRole("button", { name: "Done" })).toBeVisible();
     expect(await noSideScroll(page)).toBe(true);
     // One reaction, from a random id this browser keeps, and nothing else.
-    const posts = (await apiLog(request)).filter((r) => r.method === "POST");
+    const posts = (await apiLog(request)).filter((r) => r.path !== "/v1/links/read");
     expect(posts).toHaveLength(1);
-    expect(posts[0].path).toBe(`/v1/links/${TOKEN}/react`);
-    expect(Object.keys(posts[0].body || {}).sort()).toEqual(["reaction", "webId"]);
+    expect(posts[0].path).toBe("/v1/links/react");
+    expect(Object.keys(posts[0].body || {}).sort()).toEqual(["reaction", "token", "webId"]);
+    expect(posts[0].body?.token).toBe(TOKEN);
     expect(posts[0].body?.reaction).toBe("liked");
     const webId = posts[0].body?.webId as string;
     expect(webId).toMatch(/^[A-Za-z0-9_-]{8,64}$/);
@@ -114,7 +116,7 @@ test.describe("answers", () => {
     await expect(page.getByRole("heading", { name: "Kept to you." })).toBeVisible();
     await expect(page.getByText("Manali only hears about the films you liked.")).toBeVisible();
     await expect(page.getByText("Told Manali", { exact: false })).toHaveCount(0);
-    const posts = (await apiLog(request)).filter((r) => r.method === "POST");
+    const posts = (await apiLog(request)).filter((r) => r.path !== "/v1/links/read");
     expect(posts.map((p) => p.body?.reaction)).toEqual(["not_for_me"]);
   });
 
@@ -129,9 +131,9 @@ test.describe("answers", () => {
     await expect(page.getByRole("link", { name: "Get the app" })).toHaveAttribute("href", APP_STORE);
     await expect(page.getByRole("link", { name: "Open Netflix instead" })).toHaveAttribute("href", NETFLIX);
     expect(await noSideScroll(page)).toBe(true);
-    const posts = (await apiLog(request)).filter((r) => r.method === "POST");
-    expect(posts.map((p) => p.path)).toEqual([`/v1/links/${TOKEN}/keep`]);
-    expect(Object.keys(posts[0].body || {})).toEqual(["webId"]);
+    const posts = (await apiLog(request)).filter((r) => r.path !== "/v1/links/read");
+    expect(posts.map((p) => p.path)).toEqual(["/v1/links/keep"]);
+    expect(Object.keys(posts[0].body || {}).sort()).toEqual(["token", "webId"]);
   });
 });
 
@@ -151,19 +153,20 @@ test.describe("links that don't work", () => {
   });
 
   test("the proxy routes validate before calling the API and never cache", async ({ request }) => {
-    const bad = await request.post(`/api/links/${TOKEN}/react/`, { data: { reaction: "loved", webId: "abcdefgh1234" } });
+    // The browser-to-site calls carry the token in the body too, so no request log holds it.
+    const bad = await request.post(`/api/links/react/`, { data: { token: TOKEN, reaction: "loved", webId: "abcdefgh1234" } });
     expect(bad.status()).toBe(400);
-    const badId = await request.post(`/api/links/${TOKEN}/keep/`, { data: { webId: "no spaces allowed" } });
+    const badId = await request.post(`/api/links/keep/`, { data: { token: TOKEN, webId: "no spaces allowed" } });
     expect(badId.status()).toBe(400);
-    expect((await apiLog(request)).filter((r) => r.method === "POST")).toHaveLength(0);
-    const ok = await request.post(`/api/links/${TOKEN}/keep/`, { data: { webId: "abcdefgh1234" }, headers: { "x-forwarded-for": "198.51.100.4" } });
+    expect(await apiLog(request)).toHaveLength(0);
+    const ok = await request.post(`/api/links/keep/`, { data: { token: TOKEN, webId: "abcdefgh1234" }, headers: { "x-forwarded-for": "198.51.100.4" } });
     expect(ok.status()).toBe(200);
     expect(await ok.json()).toMatchObject({ code: "KQ7W3D" });
     expect(ok.headers()["cache-control"]).toContain("no-store");
     expect(ok.headers()["referrer-policy"]).toBe("no-referrer");
     expect(ok.headers()["x-robots-tag"]).toBe("noindex, nofollow");
-    expect((await apiLog(request)).filter((r) => r.method === "POST")[0].ip).toBe("198.51.100.4");
-    const gone = await request.post(`/api/links/Unknown000000000000000/react/`, { data: { reaction: "liked", webId: "abcdefgh1234" } });
+    expect((await apiLog(request))[0]).toMatchObject({ path: "/v1/links/keep", ip: "198.51.100.4", body: { token: TOKEN, webId: "abcdefgh1234" } });
+    const gone = await request.post(`/api/links/react/`, { data: { token: "Unknown000000000000000", reaction: "liked", webId: "abcdefgh1234" } });
     expect(gone.status()).toBe(404);
     expect(await gone.json()).toEqual({ code: "link_unavailable" });
   });
@@ -217,8 +220,15 @@ test.describe("hosts", () => {
     const leaks: string[] = [];
     page.on("request", (r) => {
       const u = new URL(r.url());
-      if (u.hostname === "127.0.0.1" || u.protocol === "data:") return;
-      if (r.url().includes(TOKEN) || r.headers()["referer"]) leaks.push(r.url());
+      if (u.protocol === "data:") return;
+      // On our own host only the page itself has the token in its address (answers carry it in the body).
+      if (u.hostname === "127.0.0.1") {
+        if (r.url().includes(TOKEN) && r.resourceType() !== "document") leaks.push(r.url());
+        return;
+      }
+      // Font files carry the Google stylesheet's own address as their referrer; never this page's.
+      const referer = r.headers()["referer"] || "";
+      if (r.url().includes(TOKEN) || referer.includes(TOKEN) || referer.includes("127.0.0.1")) leaks.push(`${r.url()} ← ${referer}`);
     });
     await page.goto(`/f/${TOKEN}`);
     await page.getByRole("button", { name: "Seen it" }).click();

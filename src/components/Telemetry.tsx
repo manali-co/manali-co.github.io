@@ -10,6 +10,9 @@ type AI = { trackPageView: (pv?: { name?: string; uri?: string }) => void; track
 let ai: AI | null = null;
 const queue: [string, Props | undefined][] = [];
 let loading = false; // one initialisation per page load, even across remounts
+/* What Should We Watch's link pages (wsww.app/f/<token>, later /g/ and /j/) carry a secret in the
+   path: they never load telemetry at all. */
+const isPrivatePath = (p: string) => /^\/(f|g|j)\//.test(p);
 
 /* Custom events: labels, sections, counts. Never an email address or anything a visitor typed. */
 export function track(name: string, props?: Props) {
@@ -80,7 +83,7 @@ export function Telemetry() {
   const pathname = usePathname();
   useEffect(() => {
     const cs = process.env.NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING;
-    if (!cs || ai || loading) return;
+    if (!cs || ai || loading || isPrivatePath(location.pathname)) return;
     loading = true;
     import("@microsoft/applicationinsights-web").then(({ ApplicationInsights }) => {
       const inst = new ApplicationInsights({
@@ -132,7 +135,7 @@ export function Telemetry() {
   useEffect(() => {
     // A throw in this effect would take down the page on every route change. Telemetry never may,
     // and a failed page view must not stop engaged-time tracking for the new page.
-    if (!pathname) return;
+    if (!pathname || isPrivatePath(pathname)) return;
     try { if (ai) ai.trackPageView({ name: document.title, uri: location.origin + location.pathname }); } catch {}
     try { startEngaged(pathname); } catch {}
   }, [pathname]);

@@ -30,6 +30,28 @@ Meaningful or it doesn't go up. Findings, thoughts, the odd evening; never a cha
 
 manali.page (Vercel) is the site. manali-co.github.io is a static export that redirects every URL to the same path on manali.page; it exists so old links and the org profile keep working, and as a fallback if Vercel is down. Reactions, subscribe, confirm, unsubscribe and admin only work on manali.page.
 
+## wsww.app: What Should We Watch's film links
+
+wsww.app points at this same Vercel project. It serves what the app's links need, and manali.page doesn't answer for any of it:
+
+| Path | What |
+|---|---|
+| `/f/<token>` | A film someone sent, for a phone without the app (`src/app/f/[token]`). Server-rendered from the app API's `POST /v1/links/read`; Seen it and Keep it in the app go through `/api/links/react` and `/api/links/keep`, which forward to the API with the visitor's IP. The token rides in request bodies, never in a URL the site or the API would log. |
+| `/f/<token>/card` | The link's preview card, 1200 × 630, text only until the poster licence clears. |
+| `/.well-known/apple-app-site-association` | Universal links for `W6RL988KTP.co.manali.wsww` (`/f/*`, and `/g/*`, `/j/*` for later phases). |
+| `/robots.txt` | wsww.app's own (`public/wsww/robots.txt`): crawlers stay off `/f/`, `/g/`, `/j/`. |
+
+A link is a secret between two people: the pages send no referrer, are never indexed or cached, load no telemetry, and keep nothing but a random id in localStorage (no cookies). `WSWW_API_BASE_URL` picks the API, like the waitlist.
+
+Run the page against a local API (the app repo's API on 7181, with `WSWW_SOCIAL_ENABLED` on):
+
+```sh
+WSWW_API_BASE_URL=http://127.0.0.1:7181 npx next dev -p 3107
+# then open http://localhost:3107/f/<token> with a token from POST /v1/sends {asLink: true}
+```
+
+Tests: `npm run build && npx playwright test` runs `e2e/` against a mocked API (`e2e/mock-api.mjs`); CI does the same.
+
 ## Images in posts
 
 Put files under `public/posts/<slug>/` and reference them with a site path: `cover: /posts/<slug>/cover.webp` in front matter, `![what it shows](/posts/<slug>/step-2.webp)` in the body. Relative paths like `./shot.png` do not work: `content/` is not served. Keep them small: WebP or PNG, at most 1600px wide, ideally under 300KB, and 1200×675 for a cover. Body images load lazily and never stretch past their own size. A short clip works the same way: `![what it shows](/posts/<slug>/clip.mp4)` renders a silent looping video, with `/posts/<slug>/clip-poster.jpg` as its poster if present. Keep clips under about 3MB, H.264 MP4, no audio. The build fails if a cover path points at a file that is not there.
