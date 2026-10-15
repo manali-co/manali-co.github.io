@@ -66,6 +66,20 @@ test.describe("server-rendered page", () => {
     expect(await noSideScroll(page)).toBe(true);
   });
 
+  test("the page stands alone: no manali.page header, nav, skip link or footer in the HTML", async ({ page, request }) => {
+    for (const t of [TOKEN, "Unknown000000000000000"]) {
+      const html = await (await request.get(`/f/${t}`)).text();
+      const body = html.split("<body")[1] ?? "";
+      for (const marker of ['class="nav"', 'class="footer"', 'class="skip"', "Skip to content", "Buy us a coffee", "manali apps by"]) {
+        expect(body, `${t}: ${marker}`).not.toContain(marker);
+      }
+      await page.goto(`/f/${t}`);
+      await expect(page.locator("header.nav, footer, nav, a.skip")).toHaveCount(0);
+      await expect(page.locator("main")).toHaveCount(1);
+      await expect(page.getByText("What Should We Watch · wsww.app")).toBeVisible();
+    }
+  });
+
   test("user text stays text: the name and the note are escaped and never linked", async ({ page, request }) => {
     const raw = await (await request.get(`/f/${XSS}`)).text();
     expect(raw).not.toContain("<script>window.__pwned");
@@ -150,6 +164,25 @@ test.describe("links that don't work", () => {
     const html = await (await page.request.get("/f/Unknown000000000000000")).text();
     expect(html.split("</head>")[0]).toMatch(/<meta name="robots" content="noindex, nofollow"\/?>/);
     expect(html).not.toContain("og:image");
+  });
+
+  test("production serves no-store on every link page and answer, whatever the outcome", async ({ request }) => {
+    const directives = (h: Record<string, string>) => (h["cache-control"] || "").split(",").map((s) => s.trim());
+    for (const path of [`/f/${TOKEN}`, "/f/Unknown000000000000000", "/f/short"]) {
+      const res = await request.get(path);
+      expect(directives(res.headers()), path).toContain("no-store");
+      expect(res.headers()["referrer-policy"], path).toBe("no-referrer");
+      expect(res.headers()["x-robots-tag"], path).toBe("noindex, nofollow");
+    }
+    const answers = [
+      await request.post("/api/links/keep/", { data: { token: TOKEN, webId: "abcdefgh1234" } }),
+      await request.post("/api/links/react/", { data: { token: TOKEN, reaction: "loved", webId: "abcdefgh1234" } }),
+      await request.post("/api/links/keep/", { data: { token: "Unknown000000000000000", webId: "abcdefgh1234" } }),
+      await request.post("/api/links/keep/", { data: { token: "RateLimited00000000000", webId: "abcdefgh1234" } }),
+    ];
+    expect(answers.map((r) => r.status())).toEqual([200, 400, 404, 429]);
+    for (const r of answers) expect(directives(r.headers()), String(r.status())).toContain("no-store");
+    expect(directives((await request.get(`/f/${TOKEN}/card`)).headers())).toContain("no-store");
   });
 
   test("the proxy routes validate before calling the API and never cache", async ({ request }) => {
