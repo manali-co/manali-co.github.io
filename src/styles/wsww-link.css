@@ -1,0 +1,133 @@
+/* What Should We Watch film links (wsww.app/f/<token>): a port of Claude Design's Taste together
+   boards, 2 (S3 "Received without the app") and 8 (the S3 after Keep and X10 redraws). Tokens are
+   the app's tokens/colors, typography, spacing and elevation, scoped to .wsl so the blog's own
+   tokens never mix in; classes carry wsl- for the same reason. Dark is the default; light follows
+   the system, or the site's theme choice if the visitor made one. */
+
+.wsl {
+  --graphite-950: #101114; --graphite-900: #17181B; --graphite-800: #212227; --graphite-700: #2B2C32; --graphite-600: #35363D;
+  --paper-100: #F5F4F1; --paper-200: #ECEBE7; --paper-300: #EAE9E5; --paper-400: #DEDDD8; --paper-600: #9D9D9B; --paper-700: #8A8A8E;
+  --coralred-500: #E0626C; --coralred-700: #C0393F;
+  --coral: #E8796F; --lilac: #AE9BE0; --lagoon: #4DBFB0; --butter: #E6C76E; --moss: #8FBF8A; --sky: #6FA8DC;
+
+  --color-bg: var(--graphite-900);
+  --color-surface: var(--graphite-800);
+  --color-hairline-strong: rgba(242, 241, 238, 0.22);
+  --color-ink: #F2F1EE;
+  --color-ink-secondary: var(--paper-600);
+  --color-ink-tertiary: var(--paper-700);
+  --color-accent: #F2F1EE;
+  --color-on-accent: var(--graphite-900);
+  --color-danger: var(--coralred-500);
+  --color-scrim: rgba(16, 17, 20, 0.6);
+  --color-poster-scrim: linear-gradient(to top, rgba(16,17,20,0.94) 0%, rgba(16,17,20,0.6) 40%, rgba(16,17,20,0) 62%);
+  --color-focus: #F2F1EE;
+  --mood-coral: var(--coral); --mood-lilac: var(--lilac); --mood-lagoon: var(--lagoon);
+  --mood-butter: var(--butter); --mood-moss: var(--moss); --mood-sky: var(--sky);
+  --mood-on-fill: var(--graphite-900);
+  --mood-blend-mode: screen;
+  --elevation-sheet: 0 -8px 32px rgba(0, 0, 0, 0.35);
+
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", Helvetica, sans-serif;
+  --font-body: "Figtree", -apple-system, "SF Pro Text", Roboto, system-ui, sans-serif;
+  --type-display-l: 600 34px / 38px var(--font-display);
+  --type-display-m: 600 28px / 32px var(--font-display);
+  --type-body-l: 400 17px / 24px var(--font-body);
+  --type-body: 400 15px / 22px var(--font-body);
+  --type-label: 500 14px / 18px var(--font-body);
+  --type-caption: 400 12px / 16px var(--font-body);
+  --type-micro: 500 11px / 14px var(--font-body);
+  --text-display-l-tracking: -0.02em;
+  --text-display-m-tracking: -0.015em;
+  --text-micro-tracking: 0.08em;
+  color-scheme: dark;
+}
+:root[data-theme="light"] .wsl {
+  --color-bg: var(--paper-100); --color-surface: #FFFFFF;
+  --color-hairline-strong: rgba(23, 24, 27, 0.22);
+  --color-ink: var(--graphite-900); --color-ink-secondary: #5F6064; --color-ink-tertiary: #6E6F73;
+  --color-accent: var(--graphite-900); --color-on-accent: var(--paper-100);
+  --color-danger: var(--coralred-700); --color-scrim: rgba(23, 24, 27, 0.45); --color-focus: var(--graphite-900);
+  --mood-on-fill: var(--paper-100); --mood-blend-mode: multiply;
+  --elevation-sheet: 0 -8px 32px rgba(27, 29, 37, 0.14);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .wsl {
+    --color-bg: var(--paper-100); --color-surface: #FFFFFF;
+    --color-hairline-strong: rgba(23, 24, 27, 0.22);
+    --color-ink: var(--graphite-900); --color-ink-secondary: #5F6064; --color-ink-tertiary: #6E6F73;
+    --color-accent: var(--graphite-900); --color-on-accent: var(--paper-100);
+    --color-danger: var(--coralred-700); --color-scrim: rgba(23, 24, 27, 0.45); --color-focus: var(--graphite-900);
+    --mood-on-fill: var(--paper-100); --mood-blend-mode: multiply;
+    --elevation-sheet: 0 -8px 32px rgba(27, 29, 37, 0.14);
+    color-scheme: light;
+  }
+}
+
+/* The page owns the viewport (SiteChrome leaves the site's header and footer out on /f/). */
+body:has(.wsl) main#main { max-width: none; padding: 0; margin: 0; }
+
+.wsl { min-height: 100vh; min-height: 100dvh; background: var(--color-bg); color: var(--color-ink); font-family: var(--font-body); -webkit-font-smoothing: antialiased; display: flex; justify-content: center; }
+.wsl * { box-sizing: border-box; }
+.wsl :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+/* One phone-width column; on a laptop it sits in the middle. */
+.wsl-col { width: 100%; max-width: 430px; min-height: 100vh; min-height: 100dvh; padding: 24px 20px 0; display: flex; flex-direction: column; overflow-wrap: anywhere; }
+
+.wsl-head { display: flex; align-items: center; gap: 10px; }
+.wsl-head img { width: 28px; height: 28px; border-radius: 7px; flex: none; }
+.wsl-micro { font: var(--type-micro); letter-spacing: var(--text-micro-tracking); text-transform: uppercase; color: var(--color-ink-tertiary); }
+
+/* S3 · Received without the app */
+.wsl-recv { display: flex; flex-direction: column; gap: 20px; margin-top: 20px; }
+.wsl-from { display: flex; align-items: center; gap: 12px; }
+:where(.wsl) :is(h1, h2) { margin: 0; color: var(--color-ink); }
+.wsl :is(h1, h2):focus { outline: none; }
+.wsl-display-m { font: var(--type-display-m); letter-spacing: var(--text-display-m-tracking); text-wrap: balance; }
+.wsl-display-l { font: var(--type-display-l); letter-spacing: var(--text-display-l-tracking); }
+.wsl-film { display: flex; gap: 16px; }
+.wsl-facts { display: flex; flex-direction: column; gap: 8px; padding-top: 4px; min-width: 0; }
+.wsl-caption { font: var(--type-caption); color: var(--color-ink-tertiary); margin: 0; }
+.wsl-body { font: var(--type-body); color: var(--color-ink); margin: 0; }
+.wsl-note { padding: 10px 12px; border-radius: 14px; border: 1px solid var(--color-hairline-strong); font: var(--type-body); color: var(--color-ink); margin: 0; white-space: pre-line; }
+.wsl-actions { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; }
+.wsl-foot { font: var(--type-caption); color: var(--color-ink-tertiary); text-wrap: pretty; text-align: center; margin: 0; }
+
+/* Poster: the image, or the design's placeholder (stripes, the title on a scrim). */
+.wsl-poster { width: 120px; height: 180px; border-radius: 14px; flex: none; position: relative; overflow: hidden; background: repeating-linear-gradient(135deg, transparent 0 11px, rgba(242,241,238,.08) 11px 12px), #3B3550; }
+.wsl-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wsl-poster span { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 10px 10px; background: var(--color-poster-scrim); font: 600 15px/18px var(--font-display); color: #F2F1EE; }
+
+/* Buttons (the design's pill set): primary 52, secondary 48 outlined, tertiary 44 text. */
+.wsl-btn { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 999px; -webkit-tap-highlight-color: transparent; transition: transform 140ms, opacity 140ms; }
+.wsl-btn:active { transform: scale(.98); }
+.wsl-btn[aria-disabled="true"], .wsl-btn:disabled { opacity: .5; cursor: default; }
+.wsl-btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.wsl-btn--primary { height: 52px; background: var(--color-accent); color: var(--color-on-accent); font: 600 16px var(--font-body); }
+.wsl-btn--secondary { height: 48px; border: 1px solid var(--color-hairline-strong); color: var(--color-ink); font: 600 15px var(--font-body); }
+.wsl-btn--tertiary { height: 44px; font: var(--type-label); color: var(--color-ink-secondary); }
+.wsl-btn--sheet { height: 48px; font: 600 15px var(--font-body); }
+.wsl-btn--sheet.wsl-btn--primary { height: 48px; }
+
+/* Board 8 redraws: S3 after Keep, X10 after Seen it, and the code panel they share. */
+.wsl-kept { display: flex; gap: 16px; margin-top: 24px; }
+.wsl-kept-facts { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.wsl-kept-facts .wsl-micro { color: var(--color-ink-secondary); }
+.wsl-kept-meta { font: var(--type-caption); color: var(--color-ink-secondary); margin: 0; }
+.wsl-kept-note { font: var(--type-body); color: var(--color-ink); margin: 4px 0 0; white-space: pre-line; }
+.wsl-told { margin-top: 32px; }
+.wsl-told-body { font: var(--type-body-l); color: var(--color-ink-secondary); margin: 10px 0 0; text-wrap: pretty; }
+.wsl-code { margin-top: 24px; padding: 14px 16px; border-radius: 16px; background: var(--color-surface); display: flex; flex-direction: column; gap: 10px; }
+.wsl-code-value { font: 600 34px/38px var(--font-display); letter-spacing: .08em; font-variant-numeric: tabular-nums; color: var(--color-ink); }
+.wsl-code-text { font: var(--type-caption); color: var(--color-ink-secondary); text-wrap: pretty; margin: 0; }
+.wsl-bottom { margin-top: auto; padding: 24px 0 34px; display: flex; flex-direction: column; gap: 8px; }
+.wsl-error { font: var(--type-caption); color: var(--color-danger); text-align: center; margin: 0; }
+
+/* "How was it?": the app's reaction sheet (Click-through, joReact), from the bottom of the column. */
+.wsl-scrim { position: fixed; inset: 0; background: var(--color-scrim); z-index: 4; animation: wsl-fade 220ms cubic-bezier(.2,0,0,1) both; }
+.wsl-sheet { position: fixed; left: 50%; bottom: 0; width: 100%; max-width: 430px; transform: translateX(-50%); z-index: 5; background: var(--color-surface); border-radius: 28px 28px 0 0; box-shadow: var(--elevation-sheet); padding: 10px 20px calc(34px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; animation: wsl-rise 280ms cubic-bezier(.16,1,.3,1) both; }
+.wsl-grabber { align-self: center; width: 36px; height: 5px; border-radius: 99px; background: var(--color-hairline-strong); }
+.wsl-sheet .wsl-foot { color: var(--color-ink-tertiary); }
+@keyframes wsl-fade { from { opacity: 0; } }
+@keyframes wsl-rise { from { transform: translate(-50%, 100%); } }
+@media (prefers-reduced-motion: reduce) { .wsl-scrim, .wsl-sheet { animation: none; } }

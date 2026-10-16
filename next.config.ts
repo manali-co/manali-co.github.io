@@ -34,12 +34,25 @@ const securityHeaders = [
   { key: "Content-Security-Policy", value: csp },
 ];
 
+/* What Should We Watch film links (wsww.app/f/<token>) and their answer routes: a link is a secret
+   between two people. No referrer leaves the page (fonts, posters, the store, the service), it is
+   never indexed and never cached. Listed after the site-wide headers so these win. */
+const privateLinkHeaders = [
+  { key: "Referrer-Policy", value: "no-referrer" },
+  { key: "X-Robots-Tag", value: "noindex, nofollow" },
+  { key: "Cache-Control", value: "no-store" },
+];
+
 const nextConfig: NextConfig = {
   /* Baked into the client so StaleTabGuard can tell when a newer deploy is live. */
   env: { NEXT_PUBLIC_BUILD: process.env.VERCEL_DEPLOYMENT_ID || "" },
   trailingSlash: true,
   // The follow endpoint reads a series title from content/series at request time.
-  outputFileTracingIncludes: { "/api/subscribe": ["./content/series/**"] },
+  outputFileTracingIncludes: {
+    "/api/subscribe": ["./content/series/**"],
+    // The film link preview card reads its fonts and the app icon at request time.
+    "/f/[token]/card": ["./src/assets/fonts/BricolageGrotesque_600SemiBold.ttf", "./src/assets/fonts/Figtree_*.ttf", "./public/apps/what-should-we-watch/apple-touch-icon-180.png"],
+  },
   // Links carry the slash; nothing redirects when a URL arrives without one. Social crawlers fetch the
   // generated card URL exactly as written in og:image, and some of them refuse a redirect.
   skipTrailingSlashRedirect: true,
@@ -54,7 +67,15 @@ const nextConfig: NextConfig = {
           return [{ source: "/:path*", has: [{ type: "host", value: "manali-web.vercel.app" }], destination: "https://manali.page/:path*", permanent: true }];
         },
         async headers() {
-          return [{ source: "/(.*)", headers: securityHeaders }];
+          return [
+            { source: "/(.*)", headers: securityHeaders },
+            { source: "/f/:path*", headers: privateLinkHeaders },
+            { source: "/api/links/:path*", headers: privateLinkHeaders },
+          ];
+        },
+        // wsww.app is the same deployment as manali.page; its robots.txt keeps crawlers off links.
+        async rewrites() {
+          return { beforeFiles: [{ source: "/robots.txt", has: [{ type: "host", value: "wsww.app" }], destination: "/wsww/robots.txt" }], afterFiles: [], fallback: [] };
         },
       }),
 };
