@@ -29,9 +29,15 @@ export function visitorIp(h: Headers): string | null {
   const first = (h.get("x-forwarded-for") || "").split(",")[0].trim();
   return /^[0-9a-fA-F:.]{3,45}$/.test(first) ? first : null;
 }
+/* The API believes X-WSWW-Client-IP only when it comes with this site's proxy secret
+   (WSWW_WEB_PROXY_SECRET, the API's Key Vault `web-proxy-secret`), and then gives each visitor
+   their own limits; without it every visitor shares this server's egress budget. The secret only
+   ever goes to the API: never to the browser, never into a page or an answer, never logged. */
+const PROXY_SECRET = process.env.WSWW_WEB_PROXY_SECRET || "";
 export const ipHeader = (h: Headers): Record<string, string> => {
   const ip = visitorIp(h);
-  return ip ? { "x-wsww-client-ip": ip } : {};
+  if (!ip) return {};
+  return PROXY_SECRET ? { "x-wsww-client-ip": ip, "x-wsww-proxy-secret": PROXY_SECRET } : { "x-wsww-client-ip": ip };
 };
 
 /* ok: the film. unavailable: unknown, expired, revoked or blocked (one answer for all, by design),

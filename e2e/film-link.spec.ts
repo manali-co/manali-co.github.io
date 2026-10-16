@@ -10,9 +10,11 @@ const TOKEN = "Q3v9mT2xK7pLwZ4rN8bYcA";
 const XSS = "XssNote0000000000000aa";
 const APP_STORE = "https://apps.apple.com/app/id6814684533";
 const NETFLIX = "https://www.netflix.com/title/80192014";
+// The test value of WSWW_WEB_PROXY_SECRET (playwright.config.ts); never a real one.
+const PROXY_SECRET = "e2e-proxy-secret-not-a-real-one";
 
 async function apiLog(request: APIRequestContext) {
-  return (await (await request.get(`${MOCK}/__log`)).json()) as { method: string; path: string; ip: string | null; body: Record<string, unknown> | null }[];
+  return (await (await request.get(`${MOCK}/__log`)).json()) as { method: string; path: string; ip: string | null; secret: string | null; body: Record<string, unknown> | null }[];
 }
 const resetLog = (request: APIRequestContext) => request.post(`${MOCK}/__reset`);
 const noSideScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
@@ -44,6 +46,8 @@ test.describe("server-rendered page", () => {
     expect(reads.length).toBeGreaterThan(0);
     // The token goes in the body, never in a URL the API would log.
     expect(reads.every((g) => g.method === "POST" && g.body?.token === TOKEN && g.ip === "203.0.113.7")).toBe(true);
+    // B4: the API believes the visitor's IP only with the web server's proxy secret.
+    expect(reads.every((g) => g.secret === PROXY_SECRET)).toBe(true);
   });
 
   test("link-preview crawlers get the same tags in <head>", async ({ request }) => {
@@ -191,6 +195,15 @@ test.describe("links that don't work", () => {
     expect(directives((await request.get(`/f/${TOKEN}/card`)).headers())).toContain("no-store");
   });
 
+  test("the proxy secret goes only to the API: never into the page or an answer", async ({ page, request }) => {
+    const html = await (await request.get(`/f/${TOKEN}`)).text();
+    expect(html).not.toContain(PROXY_SECRET);
+    const ok = await request.post(`/api/links/keep/`, { data: { token: TOKEN, webId: "abcdefgh1234" } });
+    expect(JSON.stringify(await ok.json()) + JSON.stringify(ok.headers())).not.toContain(PROXY_SECRET);
+    await page.goto(`/f/${TOKEN}`);
+    expect(await page.content()).not.toContain(PROXY_SECRET);
+  });
+
   test("the proxy routes validate before calling the API and never cache", async ({ request }) => {
     // The browser-to-site calls carry the token in the body too, so no request log holds it.
     const bad = await request.post(`/api/links/react/`, { data: { token: TOKEN, reaction: "loved", webId: "abcdefgh1234" } });
@@ -204,7 +217,7 @@ test.describe("links that don't work", () => {
     expect(ok.headers()["cache-control"]).toContain("no-store");
     expect(ok.headers()["referrer-policy"]).toBe("no-referrer");
     expect(ok.headers()["x-robots-tag"]).toBe("noindex, nofollow");
-    expect((await apiLog(request))[0]).toMatchObject({ path: "/v1/links/keep", ip: "198.51.100.4", body: { token: TOKEN, webId: "abcdefgh1234" } });
+    expect((await apiLog(request))[0]).toMatchObject({ path: "/v1/links/keep", ip: "198.51.100.4", secret: PROXY_SECRET, body: { token: TOKEN, webId: "abcdefgh1234" } });
     const gone = await request.post(`/api/links/react/`, { data: { token: "Unknown000000000000000", reaction: "liked", webId: "abcdefgh1234" } });
     expect(gone.status()).toBe(404);
     expect(await gone.json()).toEqual({ code: "link_unavailable" });

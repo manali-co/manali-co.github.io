@@ -41,7 +41,7 @@ wsww.app points at this same Vercel project. It serves what the app's links need
 | `/.well-known/apple-app-site-association` | Universal links for `W6RL988KTP.co.manali.wsww` (`/f/*`, and `/g/*`, `/j/*` for later phases). |
 | `/robots.txt` | wsww.app's own (`public/wsww/robots.txt`): crawlers stay off `/f/`, `/g/`, `/j/`. |
 
-A link is a secret between two people: the pages send no referrer, are never indexed or cached, load no telemetry, and keep nothing but a random id in localStorage (no cookies). `WSWW_API_BASE_URL` picks the API, like the waitlist.
+A link is a secret between two people: the pages send no referrer, are never indexed or cached, load no telemetry, and keep nothing but a random id in localStorage (no cookies). `WSWW_API_BASE_URL` picks the API, like the waitlist. `WSWW_WEB_PROXY_SECRET` (Vercel, Production and Preview; the same value as the API's Key Vault `web-proxy-secret` for that environment) goes with the visitor's IP on every API call, so the API gives each visitor their own limits instead of one budget for everyone behind Vercel; without it the API ignores the visitor IP. It never reaches the browser.
 
 Run the page against a local API (the app repo's API on 7181, with `WSWW_SOCIAL_ENABLED` on):
 

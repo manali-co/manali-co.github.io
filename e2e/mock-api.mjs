@@ -60,14 +60,14 @@ createServer(async (req, res) => {
   if (!m || req.method !== "POST") return send(res, 404, { code: "not_found", message: "Not found." });
   const action = m[1];
   const body = await readBody(req);
-  log.push({ method: req.method, path: url.pathname, ip: req.headers["x-wsww-client-ip"] ?? null, body });
+  log.push({ method: req.method, path: url.pathname, ip: req.headers["x-wsww-client-ip"] ?? null, secret: req.headers["x-wsww-proxy-secret"] ?? null, body });
   const token = body && typeof body.token === "string" ? body.token : "";
   if (token === NOT_ENABLED) return send(res, 404, { code: "not_enabled", message: "Not enabled." });
   if (token === RATE_LIMITED) return send(res, 429, { code: "rate_limited", message: "Slow down." }, { "retry-after": "30" });
   const link = LINKS[token];
   // Unknown, expired, revoked and blocked links all get this one answer.
   if (!link) return send(res, 404, { code: "link_unavailable", message: "This link isn't available." });
-  if (action === "read") return send(res, 200, { ...link, expiresAt: now() + 90 * 24 * HOUR });
+  if (action === "read") return send(res, 200, { ...link, expiresAt: now() + 7 * 24 * HOUR });
   if (typeof body.webId !== "string" || !/^[A-Za-z0-9_-]{8,64}$/.test(body.webId)) return send(res, 400, { code: "bad_request", message: "webId" });
   if (action === "react") {
     if (!["liked", "okay", "not_for_me"].includes(body.reaction)) return send(res, 400, { code: "bad_request", message: "reaction" });

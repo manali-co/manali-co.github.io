@@ -30,7 +30,7 @@ export default defineConfig({
     {
       command: `npx next start -p ${PORT} -H 127.0.0.1`,
       url: `http://127.0.0.1:${PORT}/robots.txt`,
-      env: { WSWW_API_BASE_URL: `http://127.0.0.1:${MOCK_PORT}`, NEXT_PUBLIC_SITE_URL: "https://manali.page" },
+      env: { WSWW_API_BASE_URL: `http://127.0.0.1:${MOCK_PORT}`, NEXT_PUBLIC_SITE_URL: "https://manali.page", WSWW_WEB_PROXY_SECRET: "e2e-proxy-secret-not-a-real-one" },
       reuseExistingServer: false,
       timeout: 60_000,
     },
