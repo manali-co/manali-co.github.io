@@ -23,9 +23,14 @@ async function forward(path: string, init: RequestInit = {}, ok: (body: Record<s
   }
 }
 
-export async function GET() {
-  return forward("/v1/waitlist/count");
+/* ?platform=android asks for the Android line's own count too (wsww.app's "Android? Tell me when."). */
+export async function GET(req: Request) {
+  const android = new URL(req.url).searchParams.get("platform") === "android";
+  return forward(android ? "/v1/waitlist/count?platform=android" : "/v1/waitlist/count");
 }
+
+/* Which page the join came from: wsww.app (the app's home, live) or manali.page (the old waitlist). */
+const sourceOf = (req: Request) => ((req.headers.get("host") || "").split(":")[0] === "wsww.app" ? "wsww.app" : "manali.page");
 
 /* The visitor's IP as Vercel saw it (leftmost X-Forwarded-For), for the API's per-visitor rate
    limit. Only forwarded, never stored here; the API keeps a hash. */
@@ -54,5 +59,5 @@ export async function POST(req: Request) {
   // Honeypot: a hidden field real people never fill; passed through so the API can drop bots quietly.
   const website = typeof b.website === "string" ? b.website.slice(0, 200) : "";
   const ip = visitorIp(req);
-  return forward("/v1/waitlist", { method: "POST", body: JSON.stringify({ email, avatar, platform, website, source: "manali.page" }) }, placed, ip ? { "x-wsww-client-ip": ip } : {});
+  return forward("/v1/waitlist", { method: "POST", body: JSON.stringify({ email, avatar, platform, website, source: sourceOf(req) }) }, placed, ip ? { "x-wsww-client-ip": ip } : {});
 }

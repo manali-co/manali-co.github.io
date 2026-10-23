@@ -14,9 +14,10 @@ export const site = {
   },
 };
 
-/* What Should We Watch's App Store page (no storefront in the path, so Apple opens each visitor's
-   own country). */
+/* What Should We Watch's own addresses: its home on the web and its App Store page (no storefront in the
+   path, so Apple opens each visitor's own country). */
 export const WSWW = {
+  home: "https://wsww.app",
   appStore: "https://apps.apple.com/app/what-should-we-watch/id6814684533",
 };
 
@@ -49,6 +50,8 @@ export const projects = [
     icon: "/apps/what-should-we-watch-icon.png",
     well: "wsww" as const,
     license: "Proprietary",
+    // The app's own home. manali.page/what-should-we-watch/ redirects there (next.config.ts).
+    home: WSWW.home,
     noBuild: "",
     /* Apple's and Google's own badge artwork (both require it). Google Play stays "soon" until Android ships. */
     stores: [

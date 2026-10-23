@@ -24,7 +24,7 @@ export default async function Home() {
     "@graph": [
       { "@type": "Organization", "@id": `${site.url}/#org`, name: site.name, url: site.url, logo: `${site.url}/brand/apple-touch-icon-180.png`, sameAs: [site.github] },
       { "@type": "WebSite", "@id": `${site.url}/#site`, name: site.name, url: site.url, description: site.description, publisher: { "@id": `${site.url}/#org` } },
-      ...projects.map((p) => ({ "@type": "SoftwareApplication", name: p.name, operatingSystem: p.platform, applicationCategory: "Application", description: p.blurb, url: "live" in p && p.live ? p.live : `${site.url}/${p.slug}/`, publisher: { "@id": `${site.url}/#org` } })),
+      ...projects.map((p) => ({ "@type": "SoftwareApplication", name: p.name, operatingSystem: p.platform, applicationCategory: "Application", description: p.blurb, url: "home" in p && p.home ? p.home : "live" in p && p.live ? p.live : `${site.url}/${p.slug}/`, publisher: { "@id": `${site.url}/#org` } })),
     ],
   };
   return (
@@ -55,13 +55,14 @@ export default async function Home() {
               <article key={p.slug} className={`card card--project card--${p.well}`}>
                 <img className="card__icon" src={p.icon} alt="" width={72} height={72} />
                 <div className="card__body">
-                  <h3 className="card__title"><Link className="card__stretch" href={"post" in p && p.post ? p.post : `/${p.slug}/`}>{p.name}</Link> <span className="card__platform">{p.platform}</span></h3>
+                  <h3 className="card__title">{"home" in p && p.home ? <a className="card__stretch" href={p.home}>{p.name}</a> : <Link className="card__stretch" href={"post" in p && p.post ? p.post : `/${p.slug}/`}>{p.name}</Link>} <span className="card__platform">{p.platform}</span></h3>
                   <p className="card__blurb">{p.blurb}</p>
                   <p className="card__meta">
                     <span className={`badge badge--${p.status}`}>{p.statusLabel}</span>
                     <span className="badge badge--quiet">{p.license}</span>
+                    {"home" in p && p.home ? <a className="card__link" href={p.home}>{p.home.replace(/^https:\/\//, "")}</a> : null}
                     {p.repo ? <a className="card__link" href={p.repo} target="_blank" rel="noopener">Source</a> : null}
-                    <Link className="card__link" href={`/${p.slug}/#posts`}>Posts</Link>
+                    <Link className="card__link" href={"home" in p && p.home ? `/blog/project/${p.slug}/` : `/${p.slug}/#posts`}>Posts</Link>
                   </p>
                   {"stores" in p && p.stores && <div className="stores card__stores">{p.stores.map((st) => <StoreButton key={st.store} {...st} />)}</div>}
                   <p className="card__release">

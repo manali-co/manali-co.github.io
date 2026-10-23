@@ -41,7 +41,7 @@ function flushEngaged(reason: string) {
   // Each event carries the visible time since the last one, so a tab that hides and returns
   // reports two slices; the dashboard sums them per page view.
   // Sending may fail; the caller still has to move on (startEngaged must record the new page).
-  try { track("page_engaged", { page: engaged.path, seconds: Math.round(engaged.visibleMs / 100) / 10, depth: engaged.maxDepth, device, reason }); } catch {}
+  try { track("page_engaged", { site: location.host, page: engaged.path, seconds: Math.round(engaged.visibleMs / 100) / 10, depth: engaged.maxDepth, device, reason }); } catch {}
   engaged.visibleMs = 0;
   // This SDK calls flush's callback unconditionally when async is false, so one must be passed.
   // Telemetry must never break the page, so any failure here is swallowed.
@@ -73,7 +73,7 @@ function onClick(e: MouseEvent) {
   const href = el instanceof HTMLAnchorElement ? el.href : "";
   let external = false;
   try { external = !!href && /^https?:/.test(href) && new URL(href).origin !== location.origin; } catch {}
-  track(external ? "outbound_click" : "click", { label, where, page: location.pathname, host: external ? new URL(href).host : undefined });
+  track(external ? "outbound_click" : "click", { label, where, site: location.host, page: location.pathname, host: external ? new URL(href).host : undefined });
 }
 
 export function Telemetry() {
