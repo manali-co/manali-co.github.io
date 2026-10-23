@@ -562,6 +562,13 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 .store--soon:hover { background: transparent; color: var(--text-2); }
 .store--badge { padding: 0; min-width: 0; background: none; border: 0; }
 .store--badge img { height: 48px; width: auto; }
+.store__badge-dark { display: none; }
+:root[data-theme="dark"] .store__badge-light { display: none; }
+:root[data-theme="dark"] .store__badge-dark { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .store__badge-light { display: none; }
+  :root:not([data-theme="light"]) .store__badge-dark { display: block; }
+}
 .store__small { font-size: 11px; letter-spacing: 0.02em; opacity: 0.85; }
 .store--soon .store__small { opacity: 1; }
 .store__big { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
