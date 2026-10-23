@@ -3,9 +3,11 @@ import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 
 import { track } from "./Telemetry";
 import "@/styles/wsww-home.css";
 
-/* wsww.app, the app's home on the web. A 1:1 port of Claude Design's marketing/web/wsww-home v2.dc.html
-   at stage "live" (board: "wsww.app v2 - board"): the page is the app's own loop at page scale, driven
-   by scroll alone. One scroll listener and one rAF write progress (--p1…--p4), the deck's card
+/* wsww.app, the app's home on the web. A 1:1 port of Claude Design's marketing/web/wsww-home v3.dc.html
+   at stage "live" (board: "wsww.app v3 - board", phone-first): the page is the app's own loop at page
+   scale, driven by scroll alone. Under 720 wide (data-layout="phone") each composition plays while it is
+   wholly on screen, the deck plays pinned under the header for 0.9 of a viewport, and Disco docks onto
+   the header's mark and speaks in the header; above 720 it is v2. One scroll listener and one rAF write progress (--p1…--p4), the deck's card
    transforms (--c0…--c5), fades (--o*), decision pills (--s*), button swells (--b*) and the trailer
    (--open) onto the page root; the compositions are plain CSS reading them. Disco, the narrator, is a
    zero-height sticky layer drawn over the hero, the corner or the close, wherever the scroll says.
@@ -28,7 +30,8 @@ const REST = [
   { n: 3, title: "Knives Out", meta: "Max · 2 h 10 m", tint: "#5B3F3A", yes: true },
   { n: 4, title: "Moonstruck", meta: "Max · 1 h 42 m", tint: "#6C4B6E", yes: false },
 ];
-const WORDS: [string, string][] = [["slow burn", "lilac"], ["a mind-bender", "sky"], ["properly scary", "moss"], ["date night", "lagoon"], ["cry it out", "coral"], ["big laughs", "butter"], ["something true", "moss"]];
+// "#1cozy" and "#2funny" are the hidden twins: where cozy and funny sit in the field before they pour.
+const WORDS: [string, string][] = [["slow burn", "lilac"], ["a mind-bender", "sky"], ["#1cozy", "coral"], ["properly scary", "moss"], ["date night", "lagoon"], ["#2funny", "butter"], ["cry it out", "coral"], ["big laughs", "butter"], ["something true", "moss"]];
 const SERVICES = ["Netflix", "Max", "Hulu", "Disney+", "Apple TV+", "Prime Video", "Peacock"];
 
 // The deck's flings: direction (% of the card), tilt, and which button swells with it.
@@ -62,11 +65,11 @@ const easeOut = (t: number) => 1 - (1 - t) * (1 - t);
 const smooth = (t: number) => t * t * (3 - 2 * t);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-function Mark({ size }: { size: 22 | 24 | 28 }) {
-  const g = { 22: [4.6, 2.4, 1.5, 7.3, 7.7, 12.8], 24: [5, 2.6, 1.7, 7.9, 8.4, 13.9], 28: [5.9, 3.1, 2, 9.3, 9.8, 16.2] }[size];
+function Mark({ size, header }: { size: 22 | 24 | 32; header?: boolean }) {
+  const g = { 22: [4.6, 2.4, 1.5, 7.3, 7.7, 12.8], 24: [5, 2.6, 1.7, 7.9, 8.4, 13.9], 32: [6.7, 2.2, 2.2, 10.6, 11.2, 18.6] }[size];
   const d = (left: number, top: number): CSSProperties => ({ left, top, width: g[5], height: g[5] });
   return (
-    <span className="wh-mark" style={{ width: size, height: size }} aria-hidden="true">
+    <span className={header ? "wh-mark wh-mark--head" : "wh-mark"} style={{ width: size, height: size }} aria-hidden="true" data-header-mark={header ? "" : undefined}>
       <span className="wh-disc wh-coral" style={d(g[0], g[1])} />
       <span className="wh-disc wh-lilac" style={d(g[2], g[3])} />
       <span className="wh-disc wh-lagoon" style={d(g[4], g[3])} />
@@ -113,18 +116,24 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
     const el = root.current;
     if (!el) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const q = <T extends Element>(s: string) => el.querySelector<T>(s)!;
-    const px = Array.from(el.querySelectorAll<HTMLElement>("[data-px]"));
+    const q = <T extends Element>(sel: string) => el.querySelector<T>(sel)!;
+    const px = Array.from(el.querySelectorAll<HTMLElement>("[data-px], [data-px-wide]"));
     const progs = Array.from(el.querySelectorAll<HTMLElement>("[data-prog]"));
     const chapters = Array.from(el.querySelectorAll<HTMLElement>("[data-chapter]"));
     const wrap = q<HTMLElement>("[data-narr-wrap]"), n = q<HTMLElement>("[data-narr]"), say = q<HTMLElement>("[data-narr-say]");
     const hero = q<HTMLElement>("[data-hero-disco]"), close = q<HTMLElement>("[data-close-disco]");
+    const mark = q<HTMLElement>("[data-header-mark]"), word = q<HTMLElement>("[data-header-word]"), headSay = q<HTMLElement>("[data-header-say]");
+    const pin = q<HTMLElement>("[data-pin]"), stage = q<HTMLElement>("[data-stage]"), card = q<HTMLElement>("[data-card]");
     const discs = Array.from(n.querySelectorAll<HTMLElement>("[data-disc]"));
     const eyes = Array.from(n.querySelectorAll<HTMLElement>("[data-eye]"));
     const mouth = q<HTMLElement>("[data-mouth]"), face = q<HTMLElement>("[data-narr-face]"), people = q<HTMLElement>("[data-narr-people]");
     const breathe = q<HTMLElement>("[data-narr-breathe]"), group = q<HTMLElement>("[data-narr-discs]");
     const set = (k: string, v: string) => el.style.setProperty(k, v);
+    const HEAD = 60;
     let pose: Pose | "" = "";
+    let sayText = "";
+    // What layout() measured; it changes only when the viewport or the page's size does.
+    let phone = false, play = 0, stickTop = HEAD;
 
     const applyPose = (p: Pose) => {
       pose = p;
@@ -138,17 +147,63 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
       Object.assign(mouth.style, MOUTHS[P.mouth]);
       breathe.style.animation = reduced ? "none" : P.bounce ? "wsww-bounce 1.1s cubic-bezier(.3,0,.2,1) infinite" : P.breathe ? "wsww-breathe 5s ease-in-out infinite" : "none";
       group.style.animation = reduced ? "none" : P.orbit ? "wsww-orbit 7s linear infinite" : "none";
-      if (P.say) say.textContent = P.say;
+      sayText = P.say;
+      if (P.say) { say.textContent = P.say; headSay.textContent = P.say; }
+    };
+
+    // The phone/wide switch, the card size, the deck's pin and the pour's vectors. Run on resize (the
+    // Safari toolbar included), not per frame: none of it depends on the scroll position.
+    const layout = () => {
+      const vh = window.innerHeight, w = el.clientWidth;
+      phone = w < 720;
+      el.dataset.layout = phone ? "phone" : "wide";
+      let cw = 320;
+      if (phone) {
+        const chrome = stage.offsetHeight - card.offsetHeight;
+        cw = Math.max(200, Math.min(320, w - 40, Math.floor(((vh - HEAD - 32 - chrome) * 2) / 3)));
+      }
+      set("--card-w", cw + "px");
+      play = phone && !reduced ? Math.round(vh * 0.9) : 0;
+      if (phone) {
+        const sh = stage.offsetHeight;
+        stickTop = Math.round(HEAD + Math.max(0, (vh - HEAD - sh) / 2));
+        stage.style.position = "sticky";
+        stage.style.top = stickTop + "px";
+        pin.style.height = sh + play + "px";
+      } else {
+        stage.style.position = ""; stage.style.top = ""; pin.style.height = "";
+      }
+      // cozy and funny start exactly where their hidden twins sit in the word field, at field size
+      for (const i of [1, 2]) {
+        const a = q<HTMLElement>(`[data-slot="${i}"]`).getBoundingClientRect(), b = q<HTMLElement>(`[data-src="${i}"]`).getBoundingClientRect();
+        if (!a.height || !b.height) continue;
+        set(`--dx${i}`, (b.left + b.width / 2 - (a.left + a.width / 2)).toFixed(1) + "px");
+        set(`--dy${i}`, (b.top + b.height / 2 - (a.top + a.height / 2)).toFixed(1) + "px");
+        set(`--sc${i}`, (b.height / a.height).toFixed(3));
+      }
+    };
+
+    // Where a composition's top sits at p = 0 and at p = 1. Phone: wholly on screen, from its bottom just
+    // inside the viewport to its top 16 under the header (taller ones: top at 75 % → under the header);
+    // the deck: pinned, over `play` px. Wide: v2's fractions of the viewport.
+    const geom = (sec: HTMLElement, vh: number) => {
+      if (phone && sec.dataset.prog === "2") return { el: pin, startTop: stickTop, endTop: stickTop - Math.max(1, play) };
+      if (phone) {
+        const h = sec.offsetHeight;
+        return h <= vh - HEAD - 32 ? { el: sec, startTop: vh - 16 - h, endTop: HEAD + 16 } : { el: sec, startTop: vh * 0.75, endTop: HEAD + 16 };
+      }
+      return { el: sec, startTop: parseFloat(sec.dataset.start || "0.85") * vh, endTop: parseFloat(sec.dataset.end || "0.35") * vh };
     };
 
     const update = () => {
       const vh = window.innerHeight;
       if (!vh) return;
       const y = window.scrollY;
-      // depth: discs and a few compositions move at a speed of their own
+      // depth: the discs everywhere; the verdict copy and the room only when wide
       for (const p of px) {
-        if (reduced) { p.style.transform = ""; continue; }
-        const speed = parseFloat(p.dataset.px || "1");
+        const wideOnly = p.hasAttribute("data-px-wide");
+        if (reduced || (wideOnly && phone)) { p.style.transform = ""; p.dataset.ty = "0"; continue; }
+        const speed = parseFloat((wideOnly ? p.dataset.pxWide : p.dataset.px) || "1");
         if (p.dataset.pxFrom === "top") { p.style.transform = `translate3d(0, ${(y * (1 - speed)).toFixed(1)}px, 0)`; continue; }
         const r = p.getBoundingClientRect();
         const cur = parseFloat(p.dataset.ty || "0");
@@ -156,15 +211,14 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
         p.dataset.ty = String(ty);
         p.style.transform = `translate3d(0, ${ty.toFixed(1)}px, 0)`;
       }
-      // progress: 0 → 1 while a composition's top travels from data-start to data-end of the viewport
       const P: Record<string, number> = {};
-      for (const s of progs) {
-        const top = s.getBoundingClientRect().top;
-        const start = parseFloat(s.dataset.start || "0.85"), end = parseFloat(s.dataset.end || "0.35");
-        let p = clamp((start * vh - top) / ((start - end) * vh), 0, 1);
+      for (const sec of progs) {
+        const g = geom(sec, vh);
+        const top = g.el.getBoundingClientRect().top;
+        let p = clamp((g.startTop - top) / (g.startTop - g.endTop || 1), 0, 1);
         if (reduced) p = top < vh * 0.9 ? 1 : 0;
-        P[s.dataset.prog!] = p;
-        set("--p" + s.dataset.prog, p.toFixed(3));
+        P[sec.dataset.prog!] = p;
+        set("--p" + sec.dataset.prog, p.toFixed(3));
       }
       // the deck: five cards leave in turn over p2 ∈ [0, .8]; the last one opens its trailer over [.8, 1].
       // Reduced motion lands on the open Paddington 2.
@@ -182,40 +236,46 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
       set("--c5", `translate3d(0, ${(idx5 * 10).toFixed(1)}px, 0) scale(${(1 - idx5 * 0.035).toFixed(3)})`);
       set("--open", clamp((p2 - 0.8) / 0.2, 0, 1).toFixed(3));
       bump.forEach((b, j) => set("--b" + j, (1 + 0.18 * b).toFixed(3)));
-      // the narrator: hero → corner over the first 45 % of a viewport, corner → close as the close's slot
-      // passes 85 % → 45 %. A function of position, so scrolling back reverses it exactly.
-      const wr = wrap.getBoundingClientRect(), hr = hero.getBoundingClientRect(), cr = close.getBoundingClientRect();
+      // the narrator: hero → dock → close, a function of position, so scrolling back reverses it exactly.
+      // Phone: docks onto the header's mark at 32 and speaks in the header. Wide: 56 under the header, right, with the pill.
+      const wr = wrap.getBoundingClientRect(), hr = hero.getBoundingClientRect(), cr = close.getBoundingClientRect(), mr = mark.getBoundingClientRect();
       const right = el.getBoundingClientRect().right; // the page's own edge, never under a scrollbar
-      const small = el.clientWidth < 600, ds = small ? 48 : 56, s = ds / 120;
-      const dock = { x: right - 24 - ds, y: 60 + 14 };
+      const ds = phone ? 32 : 56, s = ds / 120;
+      const dock = phone ? { x: mr.left, y: mr.top } : { x: right - 24 - ds, y: HEAD + 14 };
       const dockP = reduced ? (y > 10 ? 1 : 0) : smooth(clamp(y / (vh * 0.45), 0, 1));
       const unP = reduced ? (cr.top < vh * 0.85 ? 1 : 0) : smooth(clamp((vh * 0.85 - cr.top) / (vh * 0.4), 0, 1));
       let X = lerp(hr.left, dock.x, dockP), Y = lerp(hr.top, dock.y, dockP), S = lerp(1, s, dockP);
       X = lerp(X, cr.left, unP); Y = lerp(Y, cr.top, unP); S = lerp(S, 1, unP);
       n.style.transform = `translate3d(${(X - wr.left).toFixed(1)}px, ${(Y - wr.top).toFixed(1)}px, 0) scale(${S.toFixed(4)})`;
-      // the pose follows the chapter whose top has passed 55 % of the viewport
       let chapter = 0;
       for (const c of chapters) if (c.getBoundingClientRect().top < vh * 0.55) chapter = Math.max(chapter, Number(c.dataset.chapter));
       const next: Pose = unP > 0.5 ? "celebrate" : chapter === 4 ? "split" : chapter === 3 ? "found" : chapter === 2 ? "busy" : chapter === 1 ? "thinking" : "idle";
       if (next !== pose) applyPose(next);
       const docked = dockP > 0.999 && unP < 0.001 && next !== "idle";
-      say.style.opacity = docked ? "1" : "0";
+      mark.style.opacity = phone ? (1 - dockP * (1 - unP)).toFixed(3) : "1";
+      // under 360 wide there's no room for a line beside the mark and the App Store pill: the wordmark stays
+      const headerLine = phone && el.clientWidth >= 360 && docked && !!sayText;
+      word.style.opacity = headerLine ? "0" : "1";
+      headSay.style.opacity = headerLine ? "1" : "0";
+      say.style.opacity = !phone && docked ? "1" : "0";
       const shift = next === "split" ? -22 : 0;
       say.style.transform = `translate3d(${(dock.x - 10 + shift - wr.left).toFixed(1)}px, ${(dock.y + ds / 2 - wr.top).toFixed(1)}px, 0) translate(-100%, -50%)`;
       wrap.dataset.ready = "1";
     };
 
-    let raf = 0;
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; update(); }); };
+    let raf = 0, relayout = true;
+    const frame = () => { raf = 0; if (relayout) { relayout = false; layout(); } update(); };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(frame); };
+    const onResize = () => { relayout = true; onScroll(); };
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    const ro = new ResizeObserver(onScroll);
+    window.addEventListener("resize", onResize);
+    const ro = new ResizeObserver(onResize);
     ro.observe(el);
-    document.fonts?.ready.then(onScroll);
-    update();
+    document.fonts?.ready.then(onResize);
+    frame();
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
       ro.disconnect();
       cancelAnimationFrame(raf);
     };
@@ -297,7 +357,10 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
 
       <header className="wh-head">
         <div className="wh-head__in">
-          <a href="#top" className="wh-brand"><Mark size={28} />What Should We Watch</a>
+          <a href="#top" className="wh-brand">
+            <Mark size={32} header />
+            <span className="wh-brand__cell"><span data-header-word>What Should We Watch</span><span data-header-say aria-hidden="true" /></span>
+          </a>
           <a href={storeUrl} className="wh-ghost" target="_blank" rel="noopener" onClick={() => track("wsww_home_store", { where: "header" })}>App Store</a>
         </div>
       </header>
@@ -324,10 +387,10 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
           </div>
           <div data-prog="1" data-start="0.92" data-end="0.3" className="wh-sentence-wrap" aria-hidden="true">
             <span className="wh-micro">Sunday · 9:41 pm · autumn</span>
-            <div className="wh-sentence"><span>Tonight feels like</span><span className="wh-chip wh-chip--cozy">cozy</span><span>and</span><span className="wh-nowrap"><span className="wh-chip wh-chip--funny">funny</span><span>.</span></span></div>
+            <div className="wh-sentence"><span>Tonight feels like</span><span data-slot="1" className="wh-slotbox"><span className="wh-chip wh-chip--cozy">cozy</span></span><span>and</span><span className="wh-nowrap"><span data-slot="2" className="wh-slotbox"><span className="wh-chip wh-chip--funny">funny</span></span><span>.</span></span></div>
             <div className="wh-for">for <span>the two of us</span>, with <span>about 2 hours</span></div>
             <div className="wh-field">
-              {WORDS.map(([w, hue]) => <span key={w} className={`wh-word wh-word--${hue}`}>{w}</span>)}
+              {WORDS.map(([w, hue]) => w.startsWith("#") ? <span key={w} data-src={w.slice(1, 2)} className={`wh-word wh-word--twin wh-word--${hue}`}>{w.slice(2)}</span> : <span key={w} className={`wh-word wh-word--${hue}`}>{w}</span>)}
               <span className="wh-word wh-word--own">describe it yourself</span>
             </div>
             <div className="wh-deal"><span>Deal ten</span></div>
@@ -337,9 +400,16 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
 
       <section data-chapter="2" className="wh-ch wh-ch--deep">
         <div className="wh-grid">
-          <div data-prog="2" data-start="0.62" data-end="0.1" className="wh-deckcol" aria-hidden="true">
+          <div className="wh-copy">
+            <span className="wh-micro">2 · Ten films, all on your services</span>
+            <h2 className="wh-h2">Swipe ten you can actually watch tonight.</h2>
+            <p className="wh-body">Only films on the services you already pay for, in your country, right now. Pass, maybe, like, seen it. The trailer plays right on the card.</p>
+            <div className="wh-services">{SERVICES.map((s) => <span key={s}>{s}</span>)}</div>
+          </div>
+          <div data-pin className="wh-pin">
+          <div data-stage data-prog="2" data-start="0.62" data-end="0.1" className="wh-deckcol" aria-hidden="true">
             <div className="wh-deckhead"><span className="wh-deckhead__l"><span className="wh-micro">Tonight</span><span className="wh-cap">cozy · funny</span></span><span className="wh-undo"><b>↺</b>Undo</span></div>
-            <div className="wh-stack">
+            <div data-card className="wh-stack">
               <div className="wh-card wh-card--last" style={{ transform: "var(--c5)" }}>
                 <div className="wh-player">
                   <div className="wh-player__art wh-stripe--fine" />
@@ -351,6 +421,7 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
                   <span className="wh-under__title">Paddington 2</span>
                   <span className="wh-under__meta">2017 · 1 h 43 m · leaves in 4 days</span>
                   <span className="wh-under__why">You said cozy and funny. This is both, and it leaves Netflix on Friday.</span>
+                  <span className="wh-under__cta"><span>Watch now on Netflix</span><span>Shortlist</span></span>
                 </div>
                 <div className="wh-poster wh-stripe">
                   <span className="wh-glass wh-glass--trailer"><span className="wh-play" />Trailer · 2:14</span>
@@ -386,18 +457,13 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
             </div>
             <div className="wh-hint"><span className="wh-micro" style={{ opacity: "calc(1 - var(--open))" }}>or swipe · tap the poster for the trailer</span><span className="wh-micro" style={{ opacity: "var(--open)" }}>or swipe the words · it stops when the card goes</span></div>
           </div>
-          <div className="wh-copy wh-copy--deck">
-            <span className="wh-micro">2 · Ten films, all on your services</span>
-            <h2 className="wh-h2">Swipe ten you can actually watch tonight.</h2>
-            <p className="wh-body">Only films on the services you already pay for, in your country, right now. Pass, maybe, like, seen it. The trailer plays right on the card.</p>
-            <div className="wh-services">{SERVICES.map((s) => <span key={s}>{s}</span>)}</div>
           </div>
         </div>
       </section>
 
       <section data-chapter="3" className="wh-ch wh-ch--verdict">
         <div className="wh-grid">
-          <div data-px="1.08" className="wh-copy wh-px">
+          <div data-px-wide="1.08" className="wh-copy wh-px">
             <span className="wh-micro">3 · One verdict</span>
             <h2 className="wh-h2">Tonight, Paddington 2.</h2>
             <p className="wh-body">The one you were surest about, with why, and Watch now straight into Netflix. Tomorrow morning I ask how it went, and I’m a little better at your nights.</p>
@@ -437,7 +503,7 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
             <h2 className="wh-h2">One screen for the room, one phone each.</h2>
             <p className="wh-body wh-room-body">On an iPhone Duo the poster gets a display of its own. And soon, on the TV: one shared deck for the couch, private votes on every phone, one verdict for everyone.</p>
           </div>
-          <div data-prog="4" data-start="0.9" data-end="0.4" data-px="0.94" className="wh-room wh-px" aria-hidden="true">
+          <div data-prog="4" data-start="0.9" data-end="0.4" data-px-wide="0.94" className="wh-room wh-px" aria-hidden="true">
             <div className="wh-room__top">
               <span className="wh-room__name"><Mark size={24} />The Flat · 4 of 5 here</span>
               <span className="wh-room__code"><span>wsww.app/j · KQ7W3D</span><span className="wh-soon">TV · soon</span></span>
