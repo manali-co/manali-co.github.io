@@ -34,6 +34,10 @@ const securityHeaders = [
   { key: "Content-Security-Policy", value: csp },
 ];
 
+const WSWW_HOST = "wsww.app";
+// The production names (previews keep every path reachable, for testing).
+const LIVE_HOSTS = "(?:(?:www\\.)?manali\\.page|wsww\\.app)";
+
 const nextConfig: NextConfig = {
   /* Baked into the client so StaleTabGuard can tell when a newer deploy is live. */
   env: { NEXT_PUBLIC_BUILD: process.env.VERCEL_DEPLOYMENT_ID || "" },
@@ -51,7 +55,28 @@ const nextConfig: NextConfig = {
     : {
         // The project's vercel.app address still answers; send it to the real one.
         async redirects() {
-          return [{ source: "/:path*", has: [{ type: "host", value: "manali-web.vercel.app" }], destination: "https://manali.page/:path*", permanent: true }];
+          return [
+            { source: "/:path*", has: [{ type: "host", value: "manali-web.vercel.app" }], destination: "https://manali.page/:path*", permanent: true },
+            // What Should We Watch is live: its old waitlist address is now wsww.app (a 301, the board's
+            // call). The leave page under it stays on manali.page, where the emails' links point.
+            { source: "/what-should-we-watch{/}?", has: [{ type: "host", value: LIVE_HOSTS }], destination: "https://wsww.app/", statusCode: 301 },
+            // The home page's own path in this deployment is only ever seen as wsww.app's root.
+            { source: "/wsww-app{/}?", has: [{ type: "host", value: LIVE_HOSTS }], destination: "https://wsww.app/", statusCode: 301 },
+          ];
+        },
+        // wsww.app is this same deployment under its own name: its root is the app's home page, and its
+        // legal and support pages are the ones App Store Connect already links to.
+        async rewrites() {
+          return {
+            beforeFiles: [
+              { source: "/", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww-app/" },
+              { source: "/privacy{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/privacy.html" },
+              { source: "/terms{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/terms.html" },
+              { source: "/support{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/support.html" },
+            ],
+            afterFiles: [],
+            fallback: [],
+          };
         },
         async headers() {
           return [{ source: "/(.*)", headers: securityHeaders }];
