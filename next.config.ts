@@ -73,6 +73,10 @@ const nextConfig: NextConfig = {
               { source: "/privacy{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/privacy.html" },
               { source: "/terms{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/terms.html" },
               { source: "/support{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/support.html" },
+              // Those pages link each other relatively (terms.html, support.html…), which resolves to
+              // /terms.html or /privacy/terms.html here; answer both.
+              { source: "/:page(privacy|terms|support).html", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/:page.html" },
+              { source: "/:from(privacy|terms|support)/:page(privacy|terms|support).html", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/:page.html" },
             ],
             afterFiles: [],
             fallback: [],

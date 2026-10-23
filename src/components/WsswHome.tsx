@@ -94,6 +94,12 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [waiting, setWaiting] = useState(0);
+  // What the live region says. The same error twice is announced twice (a trailing no-break space
+  // makes it new text).
+  const [announce, setAnnounce] = useState("");
+  const sentRef = useRef<HTMLSpanElement>(null);
+  const say = (text: string) => setAnnounce((prev) => (prev === text ? `${text}\u00a0` : text));
+  useEffect(() => { if (sent) sentRef.current?.focus(); }, [sent]);
 
   // The Android line's count. The API reports Android joiners on their own; until it does, no line.
   useEffect(() => {
@@ -221,17 +227,18 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
     e.preventDefault();
     if (busy) return;
     const value = email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) { setError(ERR_EMAIL); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) { setError(ERR_EMAIL); say(ERR_EMAIL); return; }
     const website = (new FormData(e.currentTarget).get("website") as string) || "";
     setBusy(true); setError("");
     try {
       const res = await fetch("/api/waitlist/", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: value, platform: "android", website }) });
       const body = await res.json().catch(() => ({}));
-      if (res.ok) { setSent(true); track("wsww_android_join"); return; }
+      if (res.ok) { setSent(true); say("Thanks. I’ll write the day it’s on Android."); track("wsww_android_join"); return; }
       const code = body?.error?.code || body?.code;
-      setError(res.status === 429 ? ERR_SLOW_DOWN : code === "disposable_email" ? ERR_THROWAWAY : code === "undeliverable_email" ? ERR_UNREACHABLE(value.split("@")[1]) : res.status === 400 ? ERR_EMAIL : ERR_DOWN);
+      const msg = res.status === 429 ? ERR_SLOW_DOWN : code === "disposable_email" ? ERR_THROWAWAY : code === "undeliverable_email" ? ERR_UNREACHABLE(value.split("@")[1]) : res.status === 400 ? ERR_EMAIL : ERR_DOWN;
+      setError(msg); say(msg);
     } catch {
-      setError(ERR_DOWN);
+      setError(ERR_DOWN); say(ERR_DOWN);
     } finally {
       setBusy(false);
     }
@@ -241,8 +248,10 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
   const get = (where: "hero" | "close") => (
     <div className="wh-get" id={where === "hero" ? "get" : undefined}>
       <Badge href={storeUrl} where={where} />
-      {sent ? (
-        <span className="wh-sent" role="status">Thanks. I’ll write the day it’s on Android.</span>
+      {sent && androidOpen === where ? (
+        <span className="wh-sent" tabIndex={-1} ref={sentRef}>Thanks. I’ll write the day it’s on Android.</span>
+      ) : sent ? (
+        <span className="wh-sent">Thanks. I’ll write the day it’s on Android.</span>
       ) : androidOpen === where ? (
         <>
           <form className="wh-form" onSubmit={join} noValidate>
@@ -251,7 +260,7 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
             <span className="wh-hp" aria-hidden="true"><input type="text" name="website" tabIndex={-1} autoComplete="off" /></span>
             <button className="wh-btn" type="submit" disabled={busy}>Tell me</button>
           </form>
-          <span id={`wh-note-${where}`} className={`wh-note${error ? " wh-note--err" : ""}`} role={error ? "alert" : undefined}>{error || (waiting > 0 ? count : "")}</span>
+          <span id={`wh-note-${where}`} className={`wh-note${error ? " wh-note--err" : ""}`}>{error || (waiting > 0 ? count : "")}</span>
         </>
       ) : (
         <span className="wh-line">Android? <button type="button" className="wh-link" onClick={() => openAndroid(where)}>Tell me when.</button></span>
@@ -262,6 +271,7 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
   return (
     <div className="wh" ref={root}>
       <link rel="stylesheet" precedence="default" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600&display=swap" />
+      <span className="wh-sr" role="status" aria-live="polite" aria-atomic="true">{announce}</span>
       <div className="wh-narr-wrap" data-narr-wrap aria-hidden="true">
         <div className="wh-narr" data-narr>
           <div className="wh-narr-breathe" data-narr-breathe>
