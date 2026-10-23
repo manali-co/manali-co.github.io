@@ -14,6 +14,12 @@ export const site = {
   },
 };
 
+/* What Should We Watch's App Store page (no storefront in the path, so Apple opens each visitor's
+   own country). */
+export const WSWW = {
+  appStore: "https://apps.apple.com/app/what-should-we-watch/id6814684533",
+};
+
 export type ProjectSlug = "yapp" | "what-should-we-watch" | "spark" | "portfolio" | "manali";
 
 export const projects = [
@@ -34,21 +40,19 @@ export const projects = [
   {
     slug: "what-should-we-watch" as const,
     name: "What Should We Watch",
-    platform: "iOS & Android",
-    status: "building" as const,
-    statusLabel: "coming to the App Store",
+    platform: "iOS",
+    status: "live" as const,
+    statusLabel: "on the App Store",
     blurb:
       "The question everyone asks at 9pm, answered before 9:20. Pick a mood, get ten films that are actually streaming tonight, swipe to decide.",
     repo: "", // private since 29 Sep 2026: no Source link anywhere
     icon: "/apps/what-should-we-watch-icon.png",
     well: "wsww" as const,
     license: "Proprietary",
-    noBuild: "Launching on the App Store in the next few days.",
-    /* Launch week: "soon" shows dashed placeholders that don't link. On release, set state to
-       "live", fill href, and set badge to the official store artwork under public/ (Apple and
-       Google both require their own badges), then change status to live. */
+    noBuild: "",
+    /* Apple's and Google's own badge artwork (both require it). Google Play stays "soon" until Android ships. */
     stores: [
-      { store: "app-store" as const, state: "soon" as const, href: "", badge: "" },
+      { store: "app-store" as const, state: "live" as const, href: WSWW.appStore, badge: "/brand/app-store-badge-black.svg", badgeDark: "/brand/app-store-badge-white.svg" },
       { store: "google-play" as const, state: "soon" as const, href: "", badge: "" },
     ],
   },
