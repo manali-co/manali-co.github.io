@@ -5,7 +5,9 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import matter from "gray-matter";
 
-const parked = ["src/app/api", "src/app/admin", "src/app/sign-in", "src/app/unsubscribe", "src/app/confirm", "src/app/comments", "src/proxy.ts"];
+// src/app/.well-known is wsww.app's universal-link file: request-time only (it answers per host). Its
+// test imports it and the proxy, so it goes too (the build type-checks every file).
+const parked = ["src/app/api", "src/app/admin", "src/app/sign-in", "src/app/unsubscribe", "src/app/confirm", "src/app/comments", "src/app/.well-known", "src/proxy.ts", "src/lib/wsww-universal-links.test.ts"];
 // With no posts yet, the per-post routes have no params, which "output: export" refuses; park them too.
 const hasPosts = existsSync("content/posts") && readdirSync("content/posts").some((f) => f.endsWith(".md"));
 if (!hasPosts) parked.push("src/app/blog/[slug]");
