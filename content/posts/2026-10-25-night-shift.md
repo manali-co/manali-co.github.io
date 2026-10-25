@@ -20,15 +20,15 @@ The rotation is the part nobody warns you about.
 
 "Error rate above threshold" means the same routine every time. Open the laptop. Find the runbook. Run the same handful of queries. Check what shipped last. Then decide. ==The steps never change. Only the numbers do.==
 
-Google's SRE book has a name for that kind of work: [toil](https://sre.google/sre-book/eliminating-toil/). Manual, repetitive, automatable, tactical, and it grows with the service. Half of being on call is toil. The other half is judgement.
+Google's SRE book has a name for that kind of work: **[toil](https://sre.google/sre-book/eliminating-toil/)**. Manual, repetitive, automatable, tactical, and it grows with the service. Half of being on call is toil. The other half is judgement.
 
-> Those two halves don't need the same worker.
+> ==Those two halves don't need the same worker.==
 
-So I split them. I built **Night Shift**, a system that does the investigating and leaves the deciding to me. The agent that works it is called **Owl**: awake at night, sees in the dark, quiet until it matters.
+So I split them. I built **Night Shift**, a system that does the investigating and leaves the deciding to me. The agent that works it is called **::coral[Owl]**: awake at night, sees in the dark, quiet until it matters.
 
 When a production alert fires, Owl wakes up in a fresh Claude Code cloud session within a second. It reads the runbook, runs the checks against live telemetry, lines the timing up with the last deploy, and sends my phone a diagnosis with numbered options. I read it on my lock screen and either answer, go back to sleep, or get up.
 
-> Rule: Owl can look at everything. It can ::loud[change nothing]. Owl proposes, I dispose.
+> Rule: Owl can look at everything. It can **::rose[change nothing]**. **::moss[Owl proposes]**, I dispose.
 
 This is part one of *A Factory of One*, a series about running a real app as one person. ::sun[Writing code got cheap. Running software didn't.] Each part is one system that takes a job off my plate. Night Shift takes the night shift.
 
@@ -40,14 +40,14 @@ I wrote these down before any code. Everything else follows from them. If you ta
 
 | | Rule | What it means |
 |---|---|---|
-| 1 | **Investigate, don't operate** | Owl reads production. It never changes production. Fixes arrive as pull requests I review. |
+| 1 | **Investigate, don't operate** | Owl reads production. It **::rose[never changes]** production. Fixes arrive as pull requests I review. |
 | 2 | **Permissions over prompts** | If something must never happen, the credentials can't do it. The prompt is not a control. |
 | 3 | **Decisions, not dashboards** | My phone gets a diagnosis and options, not a chart to squint at. |
 | 4 | **One incident, one session** | Retries, repeats and alert storms fold into one investigation. |
 | 5 | **Add to your paging, don't replace it** | The emails and pushes I already trust keep working, untouched. |
 | 6 | **Nothing of mine stays on** | An alert in, a session out. No laptop left open, no inbox to poll. |
 
-Rule 1 is the one people push back on. In 1983 Lisanne Bainbridge wrote [Ironies of Automation](https://en.wikipedia.org/wiki/Ironies_of_Automation): automate most of a job and you leave the human with only the hardest parts, minus the practice they need to do them.
+Rule 1 is the one people push back on. In 1983 Lisanne Bainbridge wrote **[Ironies of Automation](https://en.wikipedia.org/wiki/Ironies_of_Automation)**: automate most of a job and you leave the human with only the hardest parts, minus the practice they need to do them.
 
 > An agent that quietly restarts things at 3am leaves me with a system I no longer understand. An agent that hands me a diagnosis keeps me in the loop, with a head start.
 
@@ -108,7 +108,7 @@ async def start_session(incident):
     await phone.push(f"{incident.title}: Owl is on it", click=session.url)
 ```
 
-> A timeout might still have started a session. A retry could start a second one. So a failed fire is never retried: my phone hears about it instead.
+> A timeout might still have started a session. A retry could start a second one. So a failed fire is **::rose[never retried]**: my phone hears about it instead.
 
 Severity sets the urgency:
 
@@ -155,7 +155,7 @@ Every note is a push. Here's a controlled test alert on production, start to fin
 |---|---|
 | 0 s | **Owl is on it** (tap opens the session) |
 | 18 s | **investigating**: "Description says it's a test alert. Verifying." |
-| 33 s | **diagnosis**: "Impact: none. 0 server errors in the last 30 minutes. Cause: a synthetic test alert." |
+| 33 s | **diagnosis**: "**::moss[Impact: none.]** 0 server errors in the last 30 minutes. Cause: a synthetic test alert." |
 | 33 s | **resolved**: "Test alert only. Nothing to do." |
 
 > It saw the alert was labelled a test, and it checked the data anyway.
@@ -166,7 +166,7 @@ Every note is a push. Here's a controlled test alert on production, start to fin
 
 > An agent with access to production at 3am is a security problem before it's anything else.
 
-Simon Willison calls the dangerous combination [the lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/): private data, untrusted content, and a way to send data out. An incident responder has the first two by definition. It reads my telemetry, and log lines can contain anything my users typed, the textbook setup for [indirect prompt injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/).
+Simon Willison calls the dangerous combination **[the lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/)**: private data, untrusted content, and a way to send data out. An incident responder has the first two by definition. It reads my telemetry, and log lines can contain anything my users typed, the textbook setup for [indirect prompt injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/).
 
 ==So Night Shift closes the third leg, and shrinks the other two.==
 
@@ -176,7 +176,7 @@ Simon Willison calls the dangerous combination [the lethal trifecta](https://sim
 - **Read-only by role.** The relay uses a [managed identity](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview), so there's no password to leak. *Log Analytics Reader* on exactly three resources. Key Vault access one secret at a time, never the vault. Write access only to its own storage.
 - **Bounded queries.** 30 seconds, 200 rows, two at a time.
 - **The alert is data.** The trigger wraps it in a block labelled untrusted, and the prompt never follows instructions found inside it.
-- **Merging is mine.** Branch rules require CI, review and simulator tests. Owl can open a pull request. It can't merge one.
+- **Merging is mine.** Branch rules require CI, review and simulator tests. Owl can open a pull request. It **::rose[can't merge one]**.
 
 > Rule: Write down what it must never do, then make that true in permissions. The prompt is the last line of defence, not the first.
 
@@ -184,10 +184,10 @@ Simon Willison calls the dangerous combination [the lethal trifecta](https://sim
 
 | What | Measured |
 |---|---|
-| Alert to Owl's session started | ::loud[about 1 second] |
+| Alert to Owl's session started | **::moss[about 1 second]** |
 | Alert to the first push on my phone | about 1 second |
 | First note from Owl | about 18 seconds |
-| Full triage of a test alert | 33 seconds |
+| Full triage of a test alert | **::moss[33 seconds]** |
 | Tests on the relay, including storage contract tests on a local emulator | 125 |
 | Always-on infrastructure | one small container, one table, one job every four hours |
 
@@ -221,7 +221,7 @@ related: ["[[latency-after-a-release]]"]
 
 Typed fields are the nodes. The `[[links]]` are the edges. Owl searches these files before it opens a runbook, and proposes runbook edits when an incident closes.
 
-> Every incident makes the next one shorter.
+> ==Every incident makes the next one shorter.==
 
 At a few dozen incidents a year, the model can simply read them all. At a couple of hundred, the same files load into a graph, and approaches like [GraphRAG](https://microsoft.github.io/graphrag/) let Owl ask relationship questions: *what broke after the last deploys that touched this component, and which check found it?*
 
@@ -241,7 +241,7 @@ You don't need my stack. You need these pieces, roughly in this order:
 
 > Note: Short on time? Start with steps 1, 5 and 6 and a hand-written alert. You'll feel the difference the first time your phone says "Impact: none" before you've found your glasses.
 
-## Want an Owl of your own?
+## Want an ::coral[Owl] of your own?
 
 I'm opening Night Shift up to a few builders who run production on their own or with a tiny team.
 
