@@ -77,7 +77,7 @@ And Azure retries webhooks. So the relay does four jobs:
 - the routine's token never sits in an alert's configuration
 - Owl gets a safe, read-only window into production
 
-It's deliberately plain: a small FastAPI service on Azure Container Apps, one always-on replica, its own identity and its own storage. It shares nothing with the app it watches, so the thing that's broken can't take its watcher down with it.
+It's deliberately plain: a small FastAPI service on Azure Container Apps, one always-on replica, its own identity and its own storage. It shares nothing with the app it watches, so an outage in the app can't stop the relay.
 
 ## What the relay decides
 
@@ -108,7 +108,8 @@ async def start_session(incident):
         return
 
     incident.fire_status, incident.session_url = "fired", session.url
-    await phone.push(f"{incident.title}: Owl is on it", click=session.url)
+    await phone.push(f"{incident.title}: Owl is on it", click=session.url)  # the phone hears first
+    await store.save(incident)              # then the record: a failed save can't un-start Owl
 ```
 
 > A timeout might still have started a session. A retry could start a second one. So a failed fire is **::rose[never retried]**: my phone hears about it instead.
@@ -184,17 +185,17 @@ Every architecture doc has the same shape: what's true now, what's proposed and 
 
 ## Who can do what
 
-[![Who can do what. Owl, the Claude session, holds no Azure credentials and no tokens, because the proxy adds them on the way out, plus a key that opens one incident only. It can read runbooks and code, run read-only queries, post notes on its incident and open a pull request to dev. It can't merge or deploy, run az, touch prod or see other incidents. The relay holds a managed identity with Log Analytics Reader on three resources and Key Vault reads one secret at a time. It can read telemetry, write its own table, start sessions within a cap and push to my phone. It can't change any production resource or read a secret it wasn't granted. I hold the merge button, the deploy, rollbacks, restarts, scaling and secrets. Alert text, log lines and query results can carry user-written text, so the session treats them as data, never as instructions.](/posts/night-shift/trust.png)](/posts/night-shift/trust.png)
+[![Who can do what. Owl, the Claude session, holds no Azure credentials and no tokens, because the proxy adds them on the way out, plus a key that opens one incident only. It can read runbooks and code, run read-only queries, post notes on its incident and open a pull request to dev. It can't merge or deploy, run az, touch prod or see other live incidents. The relay holds a managed identity with Log Analytics Reader on three resources and Key Vault reads one secret at a time. It can read telemetry, write its own table, start sessions within a cap and push to my phone. It can't change any production resource or read a secret it wasn't granted. I hold the merge button, the deploy, rollbacks, restarts, scaling and secrets. Alert text, log lines and query results can carry user-written text, so the session treats them as data, never as instructions.](/posts/night-shift/trust.png)](/posts/night-shift/trust.png)
 
 > An agent with access to production at 3am is a security problem before it's anything else.
 
 Simon Willison calls the dangerous combination **[the lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/)**: private data, untrusted content, and a way to send data out. An incident responder has the first two by definition. It reads my telemetry, and log lines can contain anything my users typed, the textbook setup for [indirect prompt injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/).
 
-==So Night Shift closes the third leg, and shrinks the other two.==
+==So Night Shift narrows the third leg to two places I control, and shrinks the other two.==
 
 - **No credentials in Owl's session.** The relay's token is a [network secret](https://code.claude.com/docs/en/cloud-environments#add-network-secrets): Anthropic's proxy adds it after the request leaves the VM, only for the relay's host, only on `/ops/`. Owl never sees it.
-- **A two-host internet.** Owl can reach GitHub and the relay. Nothing else.
-- **A key per incident.** Owl's link opens its own incident and no other.
+- **A two-host internet.** Owl can reach the relay and my private repository. Nothing else. Anything it writes to GitHub is a branch or a pull request that waits for my review.
+- **A key per incident.** Owl's link opens its own live incident and no other.
 - **Read-only by role.** The relay uses a [managed identity](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview), so there's no password to leak. *Log Analytics Reader* on exactly three resources. Key Vault access one secret at a time, never the vault. Write access only to its own storage.
 - **Bounded queries.** 30 seconds, 200 rows, two at a time.
 - **The alert is data.** The trigger wraps it in a block labelled untrusted, and the prompt never follows instructions found inside it.
@@ -225,7 +226,7 @@ Night Shift reacts. The next version should notice earlier, and remember.
 
 [![Incident memory. An incident is fired by alerts, affects components, started after a deploy, was caused by a root cause, was fixed by a pull request, updated a runbook, and is related to other incidents. Today each incident is one Markdown file with typed frontmatter and links; at 200 or more incidents, the same files load into a graph.](/posts/night-shift/incident-graph.png)](/posts/night-shift/incident-graph.png)
 
-I'm building the graph's *shape* now and the graph later. Every closed incident becomes one Markdown file, written by Owl in its handoff pull request, in the spirit of Google's [postmortem culture](https://sre.google/sre-book/postmortem-culture/):
+I'm building the graph's *shape* now and the graph later. Every closed incident becomes one Markdown file in the private repository, in the spirit of Google's [postmortem culture](https://sre.google/sre-book/postmortem-culture/). Owl drafts it in its handoff pull request, and it only becomes memory once I've reviewed and merged it. It holds a summary, not raw telemetry. Unlike a live incident, a closed one is meant to be shared with every future Owl:
 
 ```yaml
 ---
