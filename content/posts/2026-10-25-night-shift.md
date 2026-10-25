@@ -32,7 +32,7 @@ When a production alert fires, Owl wakes up in a fresh Claude Code cloud session
 
 This is part one of *A Factory of One*, a series about running a real app as one person. ::sun[Writing code got cheap. Running software didn't.] Each part is one system that takes a job off my plate. Night Shift takes the night shift.
 
-> Note: want an Owl watching your own app? There's a box at the end of this post. Tell me what you run.
+> Note: Want an Owl watching your own app? There's a box at the end of this post. Tell me what you run.
 
 ## The six rules
 
@@ -149,7 +149,7 @@ Options: numbered, each with its risk and who acts
 
 Every note is a push. Here's a controlled test alert on production, start to finish:
 
-> Receipt: one test alert on production. Four pushes. 33 seconds.
+> Receipt: One test alert on production. Four pushes. 33 seconds.
 
 | Time | Push |
 |---|---|
@@ -178,11 +178,9 @@ Simon Willison calls the dangerous combination [the lethal trifecta](https://sim
 - **The alert is data.** The trigger wraps it in a block labelled untrusted, and the prompt never follows instructions found inside it.
 - **Merging is mine.** Branch rules require CI, review and simulator tests. Owl can open a pull request. It can't merge one.
 
-> Rule: write down what it must never do, then make that true in permissions. The prompt is the last line of defence, not the first.
+> Rule: Write down what it must never do, then make that true in permissions. The prompt is the last line of defence, not the first.
 
 ## The numbers
-
-> Receipt: measured on production.
 
 | What | Measured |
 |---|---|
@@ -241,7 +239,7 @@ You don't need my stack. You need these pieces, roughly in this order:
 6. **A push channel you control,** with the session link in every push.
 7. **One synthetic alert, end to end,** before you trust it with a real one.
 
-> Note: short on time? Start with steps 1, 5 and 6 and a hand-written alert. You'll feel the difference the first time your phone says "Impact: none" before you've found your glasses.
+> Note: Short on time? Start with steps 1, 5 and 6 and a hand-written alert. You'll feel the difference the first time your phone says "Impact: none" before you've found your glasses.
 
 ## Want an Owl of your own?
 
