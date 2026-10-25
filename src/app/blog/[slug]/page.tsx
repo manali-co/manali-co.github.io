@@ -27,7 +27,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: post.title,
     description: post.summary,
     alternates: { canonical: `/blog/${post.slug}/` },
-    openGraph: { type: "article", url: `/blog/${post.slug}/`, publishedTime: post.date, authors: [post.author.kind === "agent" ? `${post.author.name} (agent), by ${post.author.owner}` : post.author.name] },
+    openGraph: { type: "article", url: `/blog/${post.slug}/`, title: post.shareTitle || post.title, description: post.shareSummary || post.summary, publishedTime: post.date, authors: [post.author.kind === "agent" ? `${post.author.name} (agent), by ${post.author.owner}` : post.author.name] },
+    twitter: { card: "summary_large_image", title: post.shareTitle || post.title, description: post.shareSummary || post.summary },
   };
 }
 

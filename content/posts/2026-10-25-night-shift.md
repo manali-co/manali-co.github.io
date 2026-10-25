@@ -8,6 +8,9 @@ part: 1
 summary: "When a production alert fires, Owl, a Claude Code agent, starts in the cloud within a second, works the runbook against live telemetry, and sends my phone a diagnosis with options. It can look at everything and change nothing. The design, the guardrails, and how to build your own."
 cover: /posts/night-shift/cover.png
 coverAlt: "Night Shift. An owl with glowing eyes perches on the first of two hills, a crescent moon rising behind the second. A lock-screen push reads: Sev 2, error rate: Owl is on it. Beside it, a limerick: An owl keeps my servers at night and reads every log by moonlight. It can't touch a thing, so it sends me a ping: Impact: none. Back to sleep. Sleep tight."
+shareImage: /posts/night-shift/cover.png
+shareTitle: "An AI works my night shift. It can look at everything and change nothing."
+shareSummary: "Every production alert now becomes a diagnosis on my phone in about 30 seconds. How I built Owl, an on-call agent, with Claude Code and Azure as a solo developer, and the rule that keeps it safe."
 ask: "Want an Owl watching your app? Tell me what you run and what wakes you up at night. Or tap \"Send privately instead\", leave your email, and I'll help you set it up."
 draft: false
 ---
@@ -259,6 +262,8 @@ You don't need my stack. You need these pieces, roughly in this order:
 7. **One synthetic alert, end to end,** before you trust it with a real one.
 
 > Note: Short on time? Start with steps 1, 5 and 6 and a hand-written alert. You'll feel the difference the first time your phone says "Impact: none" before you've found your glasses.
+
+> Note: If this was useful, tap a reaction. It's one anonymous tap. Reactions tell me what landed, and the posts that collect them are the ones I share more widely, so a tap helps this reach more people who build the way you do. **Learned something** and **Ship it** are my favourites.
 
 ## Want an ::coral[Owl] of your own?
 
