@@ -160,6 +160,25 @@ Every note is a push. Here's a controlled test alert on production, start to fin
 
 > It saw the alert was labelled a test, and it checked the data anyway.
 
+## The prep: why Owl is useful on day one
+
+Here's the part that's easy to miss. Owl has never seen my app before it wakes up. It knows nothing I haven't written down.
+
+> Owl doesn't know my app. It knows my docs. ==That only works because the docs are true.==
+
+So most of the real work happened before Night Shift existed. The repository describes the whole system, and it describes it *as it is today*:
+
+| What Owl reads | How it stays current |
+|---|---|
+| **A runbook for every alert**, 46 of them, each with the exact queries to run | A test fails the build if an alert has no runbook, the wrong severity, a missing section, or isn't in the index |
+| **A living architecture map**, 30 docs, each stamped "Verified: date against commit" | A change in behaviour updates its doc in the same pull request. CI names the doc to check when code that shapes the architecture changes |
+| **Why things are the way they are**, as decision records | Written when the decision is made, not reconstructed later |
+| **What production runs** | Production deploys only from `main`, every deploy records its commit, and Owl's status check reports the running revision |
+
+Every architecture doc has the same shape: what's true now, what's proposed and the issue tracking it, and the known gaps. When the code and a diagram disagree, the diagram is wrong, and it gets fixed in the same pull request as the code. Design gets the same treatment: every screen comes from one source of truth, so "what should this look like" has exactly one answer.
+
+> Note: if you build only one thing from this post, build this. A runbook per alert and docs that match production make every engineer faster, human or not. Owl just happens to read them in seconds.
+
 ## Who can do what
 
 [![Who can do what. Owl, the Claude session, holds no Azure credentials and no tokens, because the proxy adds them on the way out, plus a key that opens one incident only. It can read runbooks and code, run read-only queries, post notes on its incident and open a pull request to dev. It can't merge or deploy, run az, touch prod or see other incidents. The relay holds a managed identity with Log Analytics Reader on three resources and Key Vault reads one secret at a time. It can read telemetry, write its own table, start sessions within a cap and push to my phone. It can't change any production resource or read a secret it wasn't granted. I hold the merge button, the deploy, rollbacks, restarts, scaling and secrets. Alert text, log lines and query results can carry user-written text, so the session treats them as data, never as instructions.](/posts/night-shift/trust.png)](/posts/night-shift/trust.png)
@@ -231,7 +250,7 @@ Then past incidents become a test set: replay a stored alert with frozen query r
 
 You don't need my stack. You need these pieces, roughly in this order:
 
-1. **Runbooks first.** One per alert, with the exact queries. ==The agent is exactly as good as the runbook it reads.==
+1. **Runbooks and docs first.** One runbook per alert, with the exact queries, and docs that describe production as it is. ==The agent is exactly as good as what it reads.==
 2. **A webhook beside your paging,** not instead of it.
 3. **A small relay:** dedup, fingerprint, correlate, guard, save before you fire.
 4. **A read-only window into production:** reader roles on named resources, behind an API that bounds every query.
