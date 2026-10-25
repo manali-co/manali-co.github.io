@@ -17,13 +17,13 @@ I run a production iOS app on my own. I'm the developer, the designer, the relea
 
 An alert at 2am is a question, not an answer. "Error rate above threshold" means: open the laptop, find the runbook, run the same handful of queries, check what was deployed last, then decide. The steps are the same every time. Only the numbers change.
 
-Google's SRE book has a word for that kind of work. [Toil](https://sre.google/sre-book/eliminating-toil/) is operational work that is manual, repetitive, automatable and tactical, and that grows with the service. Half of being on call is toil. The other half is judgement: deciding what to do about what you found. Those two halves don't need the same worker.
+Google's SRE book has a word for that kind of work. [Toil](https://sre.google/sre-book/eliminating-toil/) is operational work that is manual, repetitive, automatable and tactical, and that grows with the service. Half of being on call is toil. The other half is judgement: deciding what to do about what you found. ==Those two halves don't need the same worker.==
 
 So I split them. I built a system called **Night Shift** that does the investigating, and leaves the deciding to me.
 
 When a production alert fires, a Claude Code session starts in the cloud within a second. It reads the alert's runbook, runs the runbook's checks against live telemetry, compares the timing with the last deploy, and sends my phone a diagnosis with numbered options. I read it on my lock screen, answer if it asks me something, and either go back to sleep or get up.
 
-> Rule: Night Shift can look at everything. It can change nothing. Claude proposes, I dispose.
+> Rule: Night Shift can look at everything. It can ::loud[change nothing]. Claude proposes, I dispose.
 
 This is part one of *A Factory of One*, a series about running a real app as one person. Writing code got cheap. Running software didn't. Each part is one system that takes a job off my plate. Night Shift takes the night shift.
 
@@ -38,7 +38,7 @@ I wrote these down before any code. Everything below follows from them, and they
 5. **Add to your paging, don't replace it.** The emails and pushes I already trust keep working, untouched.
 6. **Nothing of mine stays on.** An alert in, a session out. No laptop left open, no inbox to poll.
 
-Rule 1 is the one people push back on, so here's why. In 1983 Lisanne Bainbridge wrote [Ironies of Automation](https://en.wikipedia.org/wiki/Ironies_of_Automation): automate most of a job and you leave the human with the hardest parts, while taking away the practice they need to do them. An agent that silently restarts things at 3am leaves me with a system I no longer understand. An agent that hands me a diagnosis keeps me in the loop, with a head start.
+Rule 1 is the one people push back on, so here's why. In 1983 Lisanne Bainbridge wrote [Ironies of Automation](https://en.wikipedia.org/wiki/Ironies_of_Automation): automate most of a job and you leave the human with the hardest parts, while taking away the practice they need to do them. An agent that silently restarts things at 3am leaves me with a system I no longer understand. ==An agent that hands me a diagnosis keeps me in the loop, with a head start.==
 
 ## The shape
 
@@ -56,7 +56,7 @@ Tap any diagram for the full-size version. There are three places in this one. A
 
 **5. I answer if it asks.** The session waits for my reply, even hours later.
 
-You might ask why there's a relay at all. Why not point the webhook straight at Claude? The fire API's own docs answer it: ["each successful request creates a new session. There is no idempotency key. If a webhook caller retries, the endpoint creates multiple sessions."](https://platform.claude.com/docs/en/api/claude-code/routines-fire#idempotency) Azure retries webhooks. One outage fires several alerts. The routine's token shouldn't sit in an alert configuration. And the session needs a safe window into production. The relay does all four jobs.
+You might ask why there's a relay at all. Why not point the webhook straight at Claude? The fire API's own docs answer it: ["each successful request creates a new session. There is no idempotency key. If a webhook caller retries, the endpoint creates multiple sessions."](https://platform.claude.com/docs/en/api/claude-code/routines-fire#idempotency) Azure retries webhooks. One outage fires several alerts. The routine's token shouldn't sit in an alert configuration. And the session needs a safe window into production. ==The relay does all four jobs.==
 
 The relay itself is deliberately plain. It's a small FastAPI service on Azure Container Apps with a single always-on replica. It has its own identity and its own storage account, and it shares nothing with the app it watches, so the thing that's broken can't take its watcher down with it.
 
@@ -148,7 +148,7 @@ It noticed the label said "test", and checked the data anyway.
 
 [![Who can do what. The Claude session holds no Azure credentials and no tokens, because the proxy adds them on the way out, plus a key that opens one incident only. It can read runbooks and code, run read-only queries, post notes on its incident and open a pull request to dev. It can't merge or deploy, run az, touch prod or see other incidents. The relay holds a managed identity with Log Analytics Reader on three resources and Key Vault reads one secret at a time. It can read telemetry, write its own table, start sessions within a cap and push to my phone. It can't change any production resource or read a secret it wasn't granted. I hold the merge button, the deploy, rollbacks, restarts, scaling and secrets. Alert text, log lines and query results can carry user-written text, so the session treats them as data, never as instructions.](/posts/night-shift/trust.png)](/posts/night-shift/trust.png)
 
-An agent with access to production at 3am is a security problem before it's anything else. Simon Willison calls the dangerous combination [the lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/): access to private data, exposure to untrusted content, and a way to send data out. An incident responder has the first two by definition. It reads my telemetry, and alert text and log lines can contain whatever my users typed, the textbook case of [indirect prompt injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/). So the design closes the third leg and keeps the other two as small as they can be.
+An agent with access to production at 3am is a security problem before it's anything else. Simon Willison calls the dangerous combination [the lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/): access to private data, exposure to untrusted content, and a way to send data out. An incident responder has the first two by definition. It reads my telemetry, and alert text and log lines can contain whatever my users typed, the textbook case of [indirect prompt injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/). ==So the design closes the third leg and keeps the other two as small as they can be.==
 
 - **No credentials in the session.** The relay's API needs a bearer token. That token lives in the cloud environment as a [network secret](https://code.claude.com/docs/en/cloud-environments#add-network-secrets): Anthropic's proxy adds it to requests after they leave the session's VM, only for the relay's host and only for paths under `/ops/`. The session never sees it.
 - **A two-host internet.** The session's network allowlist is GitHub and the relay. There's nowhere else to send anything.
@@ -197,7 +197,7 @@ related: ["[[latency-after-a-release]]"]
 ---
 ```
 
-Typed fields are the graph's nodes. The `[[links]]` are its edges. Before opening a runbook, the session searches these files by alert, component and fingerprint, and when an incident closes it proposes runbook edits in the same pull request. So every incident makes the next one shorter.
+Typed fields are the graph's nodes. The `[[links]]` are its edges. Before opening a runbook, the session searches these files by alert, component and fingerprint, and when an incident closes it proposes runbook edits in the same pull request. ==So every incident makes the next one shorter.==
 
 At a few dozen incidents a year, the model can simply read all of them. Once there are a couple of hundred, or several services, the same files load into a graph, and approaches like [GraphRAG](https://microsoft.github.io/graphrag/) let the session ask relationship questions: what broke after the last deploys that touched this component, and which check found it?
 
@@ -224,4 +224,4 @@ Night Shift is one machine in the factory. It works the shift I used to work, an
 
 The rest of *A Factory of One* follows the same pattern. Find a job you do by hand. Give a machine everything it needs to look, and only what you allow it to change. Keep the decisions.
 
-I'm still the bottleneck, on purpose. I'd just rather be woken for a decision than for a query.
+I'm still the bottleneck, on purpose. ::sun[I'd just rather be woken for a decision than for a query.]
