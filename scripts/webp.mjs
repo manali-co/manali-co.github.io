@@ -17,8 +17,9 @@ for (const png of pngs) {
   if (fs.existsSync(webp) && fs.statSync(webp).mtimeMs >= fs.statSync(png).mtimeMs) continue;
   const out = await sharp(png).webp({ lossless: true, effort: 6 }).toBuffer();
   const [a, b] = await Promise.all([sharp(png).ensureAlpha().raw().toBuffer(), sharp(out).ensureAlpha().raw().toBuffer()]);
-  if (!a.equals(b)) { console.warn(`skipped ${png}: the WebP wasn't pixel-identical`); continue; }
-  if (out.length >= fs.statSync(png).size) { console.log(`skipped ${png}: the PNG is already smaller`); continue; }
+  // On a skip, drop any older .webp too: it shows the PNG as it was, and <Img> would still serve it.
+  if (!a.equals(b)) { fs.rmSync(webp, { force: true }); console.warn(`skipped ${png}: the WebP wasn't pixel-identical`); continue; }
+  if (out.length >= fs.statSync(png).size) { fs.rmSync(webp, { force: true }); console.log(`skipped ${png}: the PNG is already smaller`); continue; }
   fs.writeFileSync(webp, out);
   console.log(`${webp}  ${(fs.statSync(png).size / 1024).toFixed(0)} KB -> ${(out.length / 1024).toFixed(0)} KB`);
 }

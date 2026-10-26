@@ -54,9 +54,11 @@ export const dynamic = "force-dynamic";
    one slow API never holds up the rest. adminStats feeds three panels; cache() makes it one call. */
 const stats = cache(adminStats);
 
+/* The full-width panels (charts, tables) hold roughly their loaded height, so the page doesn't jump
+   as each one streams in. */
 function PanelSkeleton({ title, wide = false }: { title: string; wide?: boolean }) {
   return (
-    <div className={`panel ${wide ? "admin__wide" : ""}`} aria-busy="true" aria-label={`Loading ${title}`}>
+    <div className={`panel ${wide ? "admin__wide" : ""}`} style={wide ? { minHeight: 420, alignContent: "start" } : undefined} aria-busy="true" aria-label={`Loading ${title}`}>
       <h2 className="panel__title">{title}</h2>
       <span className="skel" style={{ height: 32, width: "30%" }} />
       {[88, 74, 80].map((w) => <span key={w} className="skel" style={{ height: 18, width: `${w}%` }} />)}
