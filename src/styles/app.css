@@ -23,8 +23,6 @@
 .post-card--grid { padding: 0; border: 0; gap: var(--space-3); }
 .post-card__cover { display: block; margin-bottom: var(--space-1); }
 @media (min-width: 720px) {
-  .featured { grid-template-columns: 3fr 2fr; align-items: center; gap: var(--space-7); }
-  .featured__title { font-size: var(--text-h1); line-height: var(--lh-tight); }
   .post-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-7) var(--space-6); }
 }
 .tag--active { background: var(--bg-inverse); color: var(--text-inverse); border-color: var(--bg-inverse); }
@@ -213,18 +211,16 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 .card__release-note { flex: 1 1 100%; color: var(--text-2); }
 
 /* --- responsive pass on the blog index --- */
-/* featured post and the grid only go side-by-side once there's real room; in between, one column */
+/* the grid only goes two-up once there's real room; in between, one column */
 @media (min-width: 720px) and (max-width: 959px) {
-  .featured { grid-template-columns: minmax(0, 1fr); }
-  .featured__title { font-size: var(--text-h2); line-height: var(--lh-snug); }
   .post-grid { grid-template-columns: minmax(0, 1fr); }
 }
-/* long featured titles (design system: LONG_TITLE, over 60 characters): the card stacks at every width,
-   the title steps down to the h2 scale and stops at 30ch, and the cover goes wide (2:1) above the text */
+/* the featured card stacks at every width, whatever the title's length: a wide (2:1) cover above
+   the text, the title on the h2 scale stopping at 30ch (was the long-title variant; now the only one) */
 .featured__title { text-wrap: balance; }
-.featured.featured--long { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
-.featured--long .featured__title { font-size: var(--text-h2); line-height: var(--lh-snug); max-width: 30ch; }
-.featured--long .featured__cover .cover, .featured--long .featured__cover .cover img { aspect-ratio: 2 / 1; }
+.featured { gap: var(--space-6); }
+.featured .featured__title { font-size: var(--text-h2); line-height: var(--lh-snug); max-width: 30ch; }
+.featured__cover .cover, .featured__cover .cover img { aspect-ratio: 2 / 1; }
 /* one or two leftover posts: rows with a small cover, never a half-empty grid */
 .post-rows { list-style: none; margin: 0 0 var(--space-9); padding: 0; display: grid; gap: var(--space-6); max-width: none; }
 .post-card--row { padding: 0; border: 0; display: grid; gap: var(--space-3); }
@@ -457,6 +453,19 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 .series-shelf { display: grid; gap: var(--space-4); }
 .series-shelf__one { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
 .series-shelf__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: var(--space-5); }
+/* a one-part series: the whole card is the link to that part (the title's link stretches over it) */
+.series-card--direct { position: relative; cursor: pointer; }
+.series-card--direct .series-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.series-card--direct .series-card__actions a { position: relative; z-index: 1; }
+.series-card__pitch { display: grid; gap: var(--space-3); align-content: start; min-width: 0; }
+/* compact cards side by side share their rows (kicker, title, summary, timeline, actions), so each line
+   sits at the same height in every card; the summary stops at two lines */
+.series-shelf__grid > .series-card { grid-row: span 5; grid-template-rows: subgrid; row-gap: var(--space-3); }
+.series-shelf__grid .series-card__pitch { display: contents; }
+.series-shelf__grid .series-card__summary { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+/* fixed rows, so a series without a summary leaves that row empty instead of shifting the rest up */
+.series-shelf__grid .series-card__pitch > [role="img"] { grid-row: 4; }
+.series-shelf__grid .series-card__actions { grid-row: 5; }
 
 .series-header { display: grid; gap: var(--space-4); }
 
@@ -634,7 +643,7 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
 
 /* Admin Traffic and Stored data (design system: components/admin/TrafficPanel.jsx, StoredDataPanel.jsx,
    admin-data.css, ported as is). Narrow layout follows the panel's own width (container query). */
-.traffic, .stored, .wq, .fb { grid-column: 1 / -1; min-width: 0; container: admin-panel / inline-size; }
+.traffic, .stored, .wq, .fb, .admin__wide { grid-column: 1 / -1; min-width: 0; container: admin-panel / inline-size; }
 .traffic > *, .stored > *, .fb > * { min-width: 0; }
 
 /* shared: segmented toggle, skeleton, data table, state message */
@@ -979,3 +988,6 @@ a.tag::after { content: ""; position: absolute; inset: -6px 0; }
   .fb__seg { display: grid; grid-template-columns: 1fr 1fr; box-sizing: border-box; width: 100%; }
   .fb__seg button { min-height: 40px; }
 }
+
+/* <Img>'s <picture> wrapper takes no box of its own, so the <img> lays out exactly as before */
+.img-wrap { display: contents; }

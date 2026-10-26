@@ -9,6 +9,7 @@
     "lint": "eslint",
     "new": "node scripts/new-post.mjs",
     "build:static": "node scripts/static-export.mjs",
+    "images": "node scripts/webp.mjs",
     "test": "tsx --test src/lib/email-suggest.test.ts src/lib/wsww-universal-links.test.ts"
   },
   "dependencies": {

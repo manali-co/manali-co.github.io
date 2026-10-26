@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getAllPosts } from "@/lib/posts";
 import { projects, projectLabel } from "@/lib/site";
 import { PostList } from "@/components/PostList";
+import { Img } from "@/components/Img";
 import { SubscribeForm } from "@/components/SubscribeForm";
 import { SeriesShelf } from "@/components/series/SeriesShelf";
 import { getPublicSeries, seriesView } from "@/lib/series";
@@ -51,7 +52,7 @@ export function NotesView({ filter }: { filter: Filter }) {
           <div className="notes__projects">
             {projects.map((p) => (
               <Link key={p.slug} className={`project-row ${filter === p.slug ? "project-row--active" : ""}`} href={filter === p.slug ? "/blog/" : filterHref(p.slug)} aria-pressed={filter === p.slug}>
-                <span className={`project-row__well project-row__well--${p.well}`}><img src={p.icon} alt="" width={30} height={30} /></span>
+                <span className={`project-row__well project-row__well--${p.well}`}><Img src={p.icon} alt="" width={30} height={30} /></span>
                 <span className="project-row__text"><span className="project-row__name">{p.name}</span><span className={`badge badge--${p.status}`}>{p.statusLabel}</span></span>
                 <span className="project-row__count">{count(p.slug)} {count(p.slug) === 1 ? "post" : "posts"}</span>
               </Link>

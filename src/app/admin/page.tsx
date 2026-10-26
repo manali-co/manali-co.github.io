@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache, Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireOwner } from "@/lib/admin";
@@ -48,6 +49,125 @@ function sendOf(all: Announcement[], slug: string): AnnounceRow["send"] {
 export const metadata: Metadata = { title: "Admin", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
+/* The admin data comes from two Azure Functions apps that can take seconds to wake from cold.
+   Each panel waits only for its own calls and streams in behind a skeleton when they answer, so
+   one slow API never holds up the rest. adminStats feeds three panels; cache() makes it one call. */
+const stats = cache(adminStats);
+
+function PanelSkeleton({ title, wide = false }: { title: string; wide?: boolean }) {
+  return (
+    <div className={`panel ${wide ? "admin__wide" : ""}`} aria-busy="true" aria-label={`Loading ${title}`}>
+      <h2 className="panel__title">{title}</h2>
+      <span className="skel" style={{ height: 32, width: "30%" }} />
+      {[88, 74, 80].map((w) => <span key={w} className="skel" style={{ height: 18, width: `${w}%` }} />)}
+    </div>
+  );
+}
+
+/* An answer with when it came back, so "3 min ago" reads the same on the server and in the browser. */
+const stamped = async <T,>(p: Promise<T>) => ({ data: await p, at: Date.now() });
+
+async function Waitlist() {
+  const { data, at } = await stamped(waitlistSummary());
+  return <WaitlistPanel data={data} now={at} />;
+}
+
+async function Feedback() {
+  const { data, at } = await stamped(adminFeedback());
+  return <FeedbackPanel data={data} now={at} limit={FEEDBACK_LIMIT} />;
+}
+
+async function Subscribers() {
+  const s = await stats();
+  return (
+    <div className="panel">
+      <h2 className="panel__title">Subscribers</h2>
+      <p className="stat">{s ? s.subscribers : "—"}</p>
+      <p className="stat__label">{s ? `confirmed addresses${s.pending ? ` · ${s.pending} waiting to confirm` : ""}` : "backend not reachable; set API_BASE_URL, API_KEY and ADMIN_API_KEY"}</p>
+      {s && s.recent.length > 0 && (
+        <ul className="list">
+          {s.recent.slice(0, 8).map((r) => (
+            <li key={r.email}><span>{r.email}</span><span className="muted">{r.confirmed ? "confirmed" : "pending"} · {readableDate(r.created.slice(0, 10))}</span></li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+async function Comments() {
+  const comments = await adminComments();
+  const held = (comments || []).filter((c) => c.state === "pending");
+  const recent = (comments || []).filter((c) => c.state === "live").slice(0, 20);
+  return (
+    <div className="panel">
+      <h2 className="panel__title">Comments {comments ? <span className="muted">· {held.length} waiting</span> : null}</h2>
+      {!comments ? <p className="muted">Backend not reachable.</p> : held.length + recent.length === 0 ? <p className="muted">No comments yet. A browser&apos;s first comment waits here for you; after you approve one, that browser posts straight away.</p> : (
+        <ul className="list">
+          {[...held, ...recent].map((c) => (
+            <li key={c.id} style={{ display: "grid", gap: 6, alignItems: "start" }}>
+              <span style={{ whiteSpace: "pre-wrap" }}>{c.text}</span>
+              <span className="muted">
+                {c.owner ? "You" : c.name || "A reader"}{c.email ? <> · <a href={`mailto:${c.email}`}>{c.email}</a></> : ""} · <Link href={`/blog/${c.slug}/#comments`}>{c.title || c.slug}</Link>{c.parent ? " · reply" : ""} · {readableDate(c.created.slice(0, 10))}
+                {c.state === "pending" ? <> · <b>waiting</b></> : null}
+              </span>
+              <CommentActions slug={c.slug} id={c.id} title={c.title} pending={c.state === "pending"} canReply={c.state === "live" && !c.owner} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+async function Announcements() {
+  const [s, sends] = await Promise.all([stats(), adminAnnouncements()]);
+  const rows: AnnounceRow[] = getAllPosts().map((p) => ({ post: emailPost(p), send: sends ? sendOf(sends, p.slug) : null }));
+  return <AnnouncementsPanel rows={rows} subscribers={s ? s.subscribers : null} reachable={!!sends} />;
+}
+
+async function PrivateNotes() {
+  const replies = await adminReplies();
+  return (
+    <div className="panel">
+      <h2 className="panel__title">Private notes {replies ? <span className="muted">· {replies.length}</span> : null}</h2>
+      {!replies ? <p className="muted">Backend not reachable.</p> : replies.length === 0 ? <p className="muted">No private notes yet. &quot;Send privately instead&quot; lands here and in your inbox.</p> : (
+        <ul className="list">
+          {replies.map((r) => (
+            <li key={r.id} style={{ display: "grid", gap: 4, alignItems: "start" }}>
+              <span>{r.text}</span>
+              <span className="muted">
+                {r.name || "Someone"}{r.email ? <> · <a href={`mailto:${r.email}?subject=${encodeURIComponent("Re: your reply on manali apps")}`}>{r.email}</a></> : " · no email"} · <Link href={`/blog/${r.slug}/`}>{r.slug}</Link> · {readableDate(r.created.slice(0, 10))}
+              </span>
+              <form action={removeReply}><input type="hidden" name="slug" value={r.slug} /><input type="hidden" name="id" value={r.id} /><button className="button button--sm" type="submit">Delete</button></form>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+async function SiteHealth() {
+  const s = await stats();
+  const latest = getAllPosts()[0];
+  return (
+    <div className="panel">
+      <h2 className="panel__title">Site health</h2>
+      <ul className="list">
+        <li><span>Last email sent</span><span className="muted">{s?.lastEmail ? `${readableDate(s.lastEmail.sent.slice(0, 10))} · ${s.lastEmail.recipients} recipients` : "never"}</span></li>
+        <li><span>Latest post</span><span className="muted">{latest ? readableDate(latest.date) : "none"}</span></li>
+        <li><span>Deploys</span><a className="muted" href="https://vercel.com">Vercel</a></li>
+      </ul>
+    </div>
+  );
+}
+
+async function Stored() {
+  const stored = await adminData();
+  return <StoredDataPanel tables={stored.tables} now={stored.at} />;
+}
+
 export default async function Admin() {
   const { ok, user } = await requireOwner();
   if (!user) redirect("/sign-in/");
@@ -59,12 +179,6 @@ export default async function Admin() {
       </section>
     );
   }
-  const [stats, replies, comments, sends, stored, waitlist, feedback] = await Promise.all([adminStats(), adminReplies(), adminComments(), adminAnnouncements(), adminData(), waitlistSummary(), adminFeedback()]);
-  const posts = getAllPosts();
-  const latest = posts[0];
-  const rows: AnnounceRow[] = posts.map((p) => ({ post: emailPost(p), send: sends ? sendOf(sends, p.slug) : null }));
-  const held = (comments || []).filter((c) => c.state === "pending");
-  const recent = (comments || []).filter((c) => c.state === "live").slice(0, 20);
   return (
     <section className="admin">
       <div className="section__head">
@@ -73,64 +187,15 @@ export default async function Admin() {
         <form action="/api/auth/signout/" method="post"><button className="button button--sm button--ghost" type="submit">Sign out</button></form>
       </div>
       <div className="admin__grid">
-        <WaitlistPanel data={waitlist} now={stored.at} />
-        <FeedbackPanel data={feedback} now={stored.at} limit={FEEDBACK_LIMIT} />
-        <div className="panel">
-          <h2 className="panel__title">Subscribers</h2>
-          <p className="stat">{stats ? stats.subscribers : "—"}</p>
-          <p className="stat__label">{stats ? `confirmed addresses${stats.pending ? ` · ${stats.pending} waiting to confirm` : ""}` : "backend not reachable; set API_BASE_URL, API_KEY and ADMIN_API_KEY"}</p>
-          {stats && stats.recent.length > 0 && (
-            <ul className="list">
-              {stats.recent.slice(0, 8).map((r) => (
-                <li key={r.email}><span>{r.email}</span><span className="muted">{r.confirmed ? "confirmed" : "pending"} · {readableDate(r.created.slice(0, 10))}</span></li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div className="panel">
-          <h2 className="panel__title">Comments {comments ? <span className="muted">· {held.length} waiting</span> : null}</h2>
-          {!comments ? <p className="muted">Backend not reachable.</p> : held.length + recent.length === 0 ? <p className="muted">No comments yet. A browser&apos;s first comment waits here for you; after you approve one, that browser posts straight away.</p> : (
-            <ul className="list">
-              {[...held, ...recent].map((c) => (
-                <li key={c.id} style={{ display: "grid", gap: 6, alignItems: "start" }}>
-                  <span style={{ whiteSpace: "pre-wrap" }}>{c.text}</span>
-                  <span className="muted">
-                    {c.owner ? "You" : c.name || "A reader"}{c.email ? <> · <a href={`mailto:${c.email}`}>{c.email}</a></> : ""} · <Link href={`/blog/${c.slug}/#comments`}>{c.title || c.slug}</Link>{c.parent ? " · reply" : ""} · {readableDate(c.created.slice(0, 10))}
-                    {c.state === "pending" ? <> · <b>waiting</b></> : null}
-                  </span>
-                  <CommentActions slug={c.slug} id={c.id} title={c.title} pending={c.state === "pending"} canReply={c.state === "live" && !c.owner} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <AnnouncementsPanel rows={rows} subscribers={stats ? stats.subscribers : null} reachable={!!sends} />
-        <div className="panel">
-          <h2 className="panel__title">Private notes {replies ? <span className="muted">· {replies.length}</span> : null}</h2>
-          {!replies ? <p className="muted">Backend not reachable.</p> : replies.length === 0 ? <p className="muted">No private notes yet. &quot;Send privately instead&quot; lands here and in your inbox.</p> : (
-            <ul className="list">
-              {replies.map((r) => (
-                <li key={r.id} style={{ display: "grid", gap: 4, alignItems: "start" }}>
-                  <span>{r.text}</span>
-                  <span className="muted">
-                    {r.name || "Someone"}{r.email ? <> · <a href={`mailto:${r.email}?subject=${encodeURIComponent("Re: your reply on manali apps")}`}>{r.email}</a></> : " · no email"} · <Link href={`/blog/${r.slug}/`}>{r.slug}</Link> · {readableDate(r.created.slice(0, 10))}
-                  </span>
-                  <form action={removeReply}><input type="hidden" name="slug" value={r.slug} /><input type="hidden" name="id" value={r.id} /><button className="button button--sm" type="submit">Delete</button></form>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div className="panel">
-          <h2 className="panel__title">Site health</h2>
-          <ul className="list">
-            <li><span>Last email sent</span><span className="muted">{stats?.lastEmail ? `${readableDate(stats.lastEmail.sent.slice(0, 10))} · ${stats.lastEmail.recipients} recipients` : "never"}</span></li>
-            <li><span>Latest post</span><span className="muted">{latest ? readableDate(latest.date) : "none"}</span></li>
-            <li><span>Deploys</span><a className="muted" href="https://vercel.com">Vercel</a></li>
-          </ul>
-        </div>
+        <Suspense fallback={<PanelSkeleton title="What Should We Watch · Waitlist" wide />}><Waitlist /></Suspense>
+        <Suspense fallback={<PanelSkeleton title="What Should We Watch · Feedback" wide />}><Feedback /></Suspense>
+        <Suspense fallback={<PanelSkeleton title="Subscribers" />}><Subscribers /></Suspense>
+        <Suspense fallback={<PanelSkeleton title="Comments" />}><Comments /></Suspense>
+        <Suspense fallback={<PanelSkeleton title="Announcements" wide />}><Announcements /></Suspense>
+        <Suspense fallback={<PanelSkeleton title="Private notes" />}><PrivateNotes /></Suspense>
+        <Suspense fallback={<PanelSkeleton title="Site health" />}><SiteHealth /></Suspense>
         <TrafficPanel />
-        <StoredDataPanel tables={stored.tables} now={stored.at} />
+        <Suspense fallback={<PanelSkeleton title="Stored data" wide />}><Stored /></Suspense>
       </div>
     </section>
   );
