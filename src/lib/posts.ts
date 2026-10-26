@@ -4,6 +4,7 @@ import matter from "gray-matter";
 import MarkdownIt from "markdown-it";
 import anchor from "markdown-it-anchor";
 import { authors, projectLabel, type Author } from "./site";
+import { webpOf } from "./webp";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 
@@ -12,7 +13,8 @@ const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 const md = new MarkdownIt({ html: false, linkify: true, typographer: true }).use(anchor, {
   permalink: anchor.permalink.headerLink({ safariReaderFix: true }),
 });
-// Images in the body load lazily and never stretch past their own size. An "image" whose file
+// Images in the body load lazily, never stretch past their own size, and come as the lossless
+// .webp beside a .png when there is one (see <Img>). An "image" whose file
 // is .mp4 or .webm becomes a silent, looping clip (a sibling .jpg with the same name is its poster).
 md.renderer.rules.image = (tokens, idx, options, env, self) => {
   const src = String(tokens[idx].attrGet("src") || "");
@@ -24,7 +26,9 @@ md.renderer.rules.image = (tokens, idx, options, env, self) => {
   }
   tokens[idx].attrSet("loading", "lazy");
   tokens[idx].attrSet("decoding", "async");
-  return self.renderToken(tokens, idx, options);
+  const img = self.renderToken(tokens, idx, options);
+  const webp = webpOf(src);
+  return webp ? `<picture class="img-wrap"><source srcset="${md.utils.escapeHtml(webp)}" type="image/webp">${img}</picture>` : img;
 };
 
 // A blockquote whose first words are "Aside:", "Note:" or "Confession:" renders as a callout with

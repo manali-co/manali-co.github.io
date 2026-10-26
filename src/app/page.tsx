@@ -4,6 +4,7 @@ import { projects, site } from "@/lib/site";
 import { latestRelease } from "@/lib/releases";
 import { AuthorLine } from "@/components/AuthorLine";
 import { StoreButton } from "@/components/StoreButton";
+import { Img } from "@/components/Img";
 import { ProjectTag } from "@/components/PostCard";
 
 import type { Metadata } from "next";
@@ -53,7 +54,7 @@ export default async function Home() {
             const rel = releases[i];
             return (
               <article key={p.slug} className={`card card--project card--${p.well}`}>
-                <img className="card__icon" src={p.icon} alt="" width={72} height={72} />
+                <Img className="card__icon" src={p.icon} alt="" width={72} height={72} />
                 <div className="card__body">
                   <h3 className="card__title">{"home" in p && p.home ? <a className="card__stretch" href={p.home}>{p.name}</a> : <Link className="card__stretch" href={"post" in p && p.post ? p.post : `/${p.slug}/`}>{p.name}</Link>} <span className="card__platform">{p.platform}</span></h3>
                   <p className="card__blurb">{p.blurb}</p>
