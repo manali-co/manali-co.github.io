@@ -22,7 +22,7 @@ export function visitorIp(h: Headers): string | null {
 export type PreviewResult = { state: "ok"; preview: Preview } | { state: "busy" };
 
 export async function fetchPreview(path: LinkPath, token: string, h: Headers): Promise<PreviewResult> {
-  if (!TOKEN.test(token)) return { state: "ok", preview: path === "add" ? { kind: "expired", from: null, maxAgeS: 60 } : { kind: "missing", maxAgeS: 300 } };
+  if (!TOKEN.test(token)) return { state: "busy" };
   const api = API(), secret = SECRET();
   if (!api || !secret) return { state: "busy" };
   const ip = visitorIp(h);
@@ -54,16 +54,23 @@ export function originOf(h: Headers): string {
 /* The poster, fetched once per render and inlined (Satori would fetch it otherwise, with no
    timeout or size cap): the catalog CDN only (posterUrl), 3 s, 2 MB, JPEG or PNG. Anything else
    is the board's dashed frame with the real title (board 20, C "Posters"). */
+const MAX_POSTER = 2_000_000;
 export async function posterData(url: string | null): Promise<string | null> {
   if (!url) return null;
   try {
     const res = await fetch(url, { cache: "no-store", redirect: "error", signal: AbortSignal.timeout(3000) });
     const type = (res.headers.get("content-type") || "").split(";")[0].trim();
     if (!res.ok || !/^image\/(jpeg|png)$/.test(type)) return null;
-    const len = Number(res.headers.get("content-length") || 0);
-    if (len > 2_000_000) return null;
-    const buf = Buffer.from(await res.arrayBuffer());
-    if (buf.length > 2_000_000) return null;
+    if (Number(res.headers.get("content-length") || 0) > MAX_POSTER || !res.body) return null;
+    // Counted as it arrives: past 2 MB the read stops, whatever the headers said.
+    const parts: Uint8Array[] = [];
+    let size = 0;
+    for await (const chunk of res.body as unknown as AsyncIterable<Uint8Array>) {
+      size += chunk.length;
+      if (size > MAX_POSTER) return null;
+      parts.push(chunk);
+    }
+    const buf = Buffer.concat(parts);
     return `data:${type};base64,${buf.toString("base64")}`;
   } catch {
     return null;

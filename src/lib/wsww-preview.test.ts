@@ -2,6 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { NextRequest } from "next/server";
 import proxy from "../proxy";
+import { readFileSync } from "node:fs";
+import { cmapCodepoints, keepDrawn } from "./font-coverage";
+import { previewImageResponse } from "./wsww-preview-routes";
 import { cacheHeaders, cacheSeconds, copyFor, cut, isPreviewBot, names, parsePreview, posterUrl, previewHtml, type Person, type Preview } from "./wsww-preview";
 
 /* wsww.app's link previews (Claude Design board 20): the board's copy word for word, what reaches
@@ -123,4 +126,32 @@ test("the preview image is served as is, to fetchers and people alike", async ()
     const res = await proxy(req(`https://wsww.app/f/${TOKEN}/og.jpg`, ua));
     assert.equal(res?.headers.get("x-middleware-next"), "1", ua);
   }
+});
+
+test("a query never reaches the image (one link, one cache entry)", async () => {
+  const res = await proxy(req(`https://wsww.app/add/${TOKEN}/og.png?x=1`, IMESSAGE));
+  assert.equal(res?.status, 404);
+  const page = await proxy(req(`https://wsww.app/f/${TOKEN}?utm_source=share`, IMESSAGE));
+  assert.equal(page?.headers.get("x-middleware-rewrite"), `https://wsww.app/wsww-link-preview/f/${TOKEN}/`);
+});
+
+test("nothing renders for a malformed token, a query, or another host in production", async () => {
+  const env = process.env.VERCEL_ENV;
+  process.env.VERCEL_ENV = "production";
+  try {
+    const get = (url: string) => previewImageResponse(new Request(url, { headers: { host: new URL(url).host } }), "add", new URL(url).pathname.split("/")[2]);
+    for (const url of ["https://wsww.app/add/abc/og.png", `https://wsww.app/add/${TOKEN}/og.png?x=1`, `https://manali.page/add/${TOKEN}/og.png`, `https://manali-web.vercel.app/add/${TOKEN}/og.png`]) {
+      assert.equal((await get(url)).status, 404, url);
+    }
+  } finally {
+    if (env === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = env;
+  }
+});
+
+test("the image keeps only what its own fonts draw, so no text is sent to fetch a glyph", () => {
+  const drawn = cmapCodepoints(readFileSync("src/assets/fonts/Figtree_400Regular.ttf"));
+  assert.ok(drawn.has("a".codePointAt(0) as number) && drawn.has("“".codePointAt(0) as number));
+  assert.equal(keepDrawn("Zoë 🐙 loved it", drawn), "Zoë loved it");
+  assert.equal(keepDrawn("प्रिया", drawn), "");
 });

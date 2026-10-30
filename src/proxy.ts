@@ -20,11 +20,13 @@ export default async function proxy(req: NextRequest) {
   // messenger's preview fetcher reads the link's own preview page instead of the home page's, so
   // an invite, a film and an expired link each look like what they are. A person never sees it.
   const link = /^\/(add|f)(?:\/([A-Za-z0-9_-]{22}))?(\/og\.(?:png|jpg))?\/?$/.exec(req.nextUrl.pathname);
-  if (link?.[3] && link[2]) return NextResponse.next();
+  // A query would make every request a new cache key (and a new render): the image has none.
+  if (link?.[3] && link[2]) return req.nextUrl.search ? new NextResponse(null, { status: 404 }) : NextResponse.next();
   if (/^\/(?:add|f)(?:\/|$)/.test(req.nextUrl.pathname)) {
     if (!isWswwHost(req.headers)) return;
     if (link?.[2] && !link[3] && isPreviewBot(req.headers.get("user-agent"))) {
-      return NextResponse.rewrite(new URL(`/wsww-link-preview/${link[1]}/${link[2]}/`, req.url));
+      // The rewrite drops any query (utm_… from a share sheet), so one link is one cache entry.
+      return NextResponse.rewrite(new URL(`/wsww-link-preview/${link[1]}/${link[2]}/`, req.nextUrl.origin));
     }
     const res = NextResponse.redirect("https://wsww.app/", 307);
     res.headers.set("Cache-Control", "no-store");

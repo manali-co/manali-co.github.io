@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import jpeg from "jpeg-js";
 import { PNG } from "pngjs";
+import { cmapCodepoints, keepDrawn } from "./font-coverage";
 import { copyFor, cut, nameOf, OG_SIZE, type Disco, type Person, type Preview } from "./wsww-preview";
 
 /* The link preview image: a 1:1 port of Claude Design's "Link preview" component (board 20).
@@ -139,7 +140,7 @@ function Film({ title, year, poster, pitch, from, line }: { title: string; year:
 export const pretty = (t: string) => t.replace(/ (\S+)$/, "\u00a0$1");
 
 const asset = (...p: string[]) => readFile(path.join(process.cwd(), ...p));
-let loaded: Promise<{ fonts: { name: string; data: Buffer; weight: 400 | 500 | 600; style: "normal" }[]; icon: string }> | null = null;
+let loaded: Promise<{ fonts: { name: string; data: Buffer; weight: 400 | 500 | 600; style: "normal" }[]; icon: string; drawn: Set<number> }> | null = null;
 function assets() {
   loaded ??= (async () => {
     const [f4, f5, f6, b6, icon] = await Promise.all([
@@ -157,6 +158,8 @@ function assets() {
         { name: "Bricolage Grotesque", data: b6, weight: 600 as const, style: "normal" as const },
       ],
       icon: `data:image/png;base64,${icon.toString("base64")}`,
+      // What every one of the four faces draws: the only characters the image may hold.
+      drawn: [f5, f6, b6].map(cmapCodepoints).reduce((a, b) => new Set([...a].filter((c) => b.has(c))), cmapCodepoints(f4)),
     };
   })().catch((e) => {
     loaded = null;
@@ -180,9 +183,42 @@ async function encode(res: ImageResponse, format: ImageFormat, headers: Record<s
   return new Response(new Uint8Array(body), { status: 200, headers: { ...headers, "Content-Type": format === "png" ? "image/png" : "image/jpeg", "Content-Length": String(body.length) } });
 }
 
+/** A name or title the image's fonts can't draw at all: no image (the card keeps its text). */
+export class NotDrawable extends Error {}
+
+/* Only characters the bundled fonts draw reach the image: next/og would fetch any other glyph
+   from Google Fonts with the text (a person's name or note) in the URL. Emoji and scripts the
+   fonts lack drop out of the image; the og:title and og:description keep the full text. */
+function drawable(p: Preview, drawn: Set<number>): Preview {
+  const keep = (t: string) => keepDrawn(t, drawn);
+  const person = (x: Person): Person => {
+    const firstName = keep(x.firstName);
+    if (!firstName) throw new NotDrawable();
+    return { ...x, firstName };
+  };
+  switch (p.kind) {
+    case "invite": return { ...p, from: person(p.from) };
+    case "expired": return { ...p, from: p.from && keep(p.from.firstName) ? person(p.from) : null };
+    case "group": {
+      const group = keep(p.group);
+      if (!group) throw new NotDrawable();
+      return { ...p, group, from: person(p.from), members: p.members.map(person) };
+    }
+    case "withdrawn": return { ...p, group: keep(p.group) };
+    case "film": {
+      const title = keep(p.film.title);
+      if (!title) throw new NotDrawable();
+      const from = p.from && keep(p.from.firstName) ? person(p.from) : null;
+      return { ...p, film: { ...p.film, title }, from, pitch: p.pitch ? keep(p.pitch) || null : null };
+    }
+    case "missing": return p;
+  }
+}
+
 /** The preview image for one link. `poster` is the poster already fetched (a data URL) or null. */
-export async function previewImage(p: Preview, poster: string | null, headers: Record<string, string>, format: ImageFormat = "png") {
-  const { fonts, icon } = await assets();
+export async function previewImage(raw: Preview, poster: string | null, headers: Record<string, string>, format: ImageFormat = "png") {
+  const { fonts, icon, drawn } = await assets();
+  const p = drawable(raw, drawn);
   const c = copyFor(p);
   let body;
   switch (p.kind) {

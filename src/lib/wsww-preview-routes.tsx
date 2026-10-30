@@ -1,6 +1,6 @@
-import { isManaliHost } from "./wsww-host";
+import { isWswwHost } from "./wsww-host";
 import { cacheHeaders, copyFor, previewHtml, TOKEN, type LinkPath } from "./wsww-preview";
-import { formatFor, previewImage } from "./wsww-preview-image";
+import { formatFor, NotDrawable, previewImage } from "./wsww-preview-image";
 import { fetchPreview, originOf, posterData } from "./wsww-preview-server";
 
 /* The two answers behind a shared link's preview (board 20):
@@ -11,23 +11,32 @@ import { fetchPreview, originOf, posterData } from "./wsww-preview-server";
    long as the API allows (an invite 60 s and never past its expiry). On manali.page, or when the
    API can't answer, there is no preview at all: a messenger then shows the bare URL. */
 
+/* Previews answer on wsww.app only (and on preview deploys and localhost, for testing), and only
+   for a well-formed token: nothing else gets a render. */
+const served = (req: Request, token: string) =>
+  TOKEN.test(token) && !new URL(req.url).search && (isWswwHost(req.headers) || process.env.VERCEL_ENV !== "production");
+
 const none = (status: number) => new Response(null, { status, headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } });
 
 export async function previewImageResponse(req: Request, path: LinkPath, token: string): Promise<Response> {
-  if (isManaliHost(req.headers)) return none(404);
+  if (!served(req, token)) return none(404);
   const got = await fetchPreview(path, token, req.headers);
   if (got.state !== "ok") return none(503);
   const p = got.preview;
   const poster = p.kind === "film" ? await posterData(p.film.posterUrl) : null;
-  return previewImage(p, poster, cacheHeaders(p), formatFor(path));
+  try {
+    return await previewImage(p, poster, cacheHeaders(p), formatFor(path));
+  } catch (e) {
+    if (e instanceof NotDrawable) return none(404);
+    throw e;
+  }
 }
 
 export async function previewPageResponse(req: Request, path: LinkPath, token: string): Promise<Response> {
-  if (isManaliHost(req.headers)) return none(404);
+  if (!served(req, token)) return none(404);
   const got = await fetchPreview(path, token, req.headers);
   if (got.state !== "ok") return none(503);
   const origin = originOf(req.headers);
-  if (!TOKEN.test(token)) return none(404);
   const safe = token;
   const url = `${origin}/${path}/${safe}`;
   // The image's URL carries the same token as the link itself, nothing more.
