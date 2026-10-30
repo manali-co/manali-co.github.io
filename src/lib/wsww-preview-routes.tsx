@@ -24,8 +24,12 @@ export async function previewImageResponse(req: Request, path: LinkPath, token: 
   if (got.state !== "ok") return none(503);
   const p = got.preview;
   const poster = p.kind === "film" ? await posterData(p.film.posterUrl) : null;
+  // A poster that didn't load (slow, gone) draws the dashed frame: cached briefly, so the next
+  // fetch can get the real poster (CodeRabbit #43).
+  const missed = p.kind === "film" && !!p.film.posterUrl && !poster;
+  const headers = missed ? { ...cacheHeaders(p), "Cache-Control": "public, max-age=30, s-maxage=30", "CDN-Cache-Control": "public, max-age=30, s-maxage=30" } : cacheHeaders(p);
   try {
-    return await previewImage(p, poster, cacheHeaders(p), formatFor(path));
+    return await previewImage(p, poster, headers, formatFor(path));
   } catch (e) {
     if (e instanceof NotDrawable) return none(404);
     throw e;
