@@ -1,14 +1,18 @@
 /* What Should We Watch film links (wsww.app/f/<token>): the shapes the API answers with, and the
    small pure helpers the page, its proxy routes and its preview card share. Safe for the browser:
    nothing here reads the environment. The API contract is the app repo's "Taste together, Phase 1:
-   API contract" (Public section). */
+   API contract" (Public section), as served today: the app repo's services/api routers/links.py
+   (POST /v1/public/links/read, /react, /keep) and docs/architecture/api/public-surface.md. */
 
-/** secrets.token_urlsafe(16): 22 characters. Anything else is not a link we made. */
+/** 128 bits as 22 URL-safe characters (social/tokens.py). Anything else is not a link we made. */
 export const TOKEN = /^[A-Za-z0-9_-]{22}$/;
 /** The page's random guest id, as the API accepts it. */
 export const WEB_ID = /^[A-Za-z0-9_-]{8,64}$/;
-/** Claim codes: six characters, no 0, O, 1, I or L. */
-export const CODE = /^[23456789ABCDEFGHJKMNPQRSTUVWXYZ]{6}$/;
+/** Claim codes as the API mints them (social/tokens.py): ten symbols of Crockford base32 (no I, L,
+    O or U), good for 15 minutes and used once. */
+export const CODE = /^[0-9ABCDEFGHJKMNPQRSTVWXYZ]{10}$/;
+/** "K7Q2M-P9XWD", as the app shows a code; the app reads it with or without the dash. */
+export const displayCode = (code: string) => `${code.slice(0, 5)}-${code.slice(5)}`;
 
 export const APP_STORE_URL = "https://apps.apple.com/app/id6814684533";
 

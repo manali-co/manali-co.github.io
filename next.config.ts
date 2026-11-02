@@ -34,9 +34,14 @@ const securityHeaders = [
   { key: "Content-Security-Policy", value: csp },
 ];
 
-/* What Should We Watch film links (wsww.app/f/<token>) and their answer routes: a link is a secret
-   between two people. No referrer leaves the page (fonts, posters, the store, the service), it is
-   never indexed and never cached. Listed after the site-wide headers so these win. */
+const WSWW_HOST = "wsww.app";
+// The production names (previews keep every path reachable, for testing).
+const LIVE_HOSTS = "(?:(?:www\\.)?manali\\.page|wsww\\.app)";
+
+/* The film link pages' answer routes (/api/links/react, /keep) carry a link's token: no referrer,
+   never indexed, never cached. Listed after the site-wide headers so these win. The page itself
+   (wsww.app/f/<token>) gets the same three from src/proxy.ts, which sends them only to a person's
+   browser: a messenger's preview fetch of the same URL is cached (site #43). */
 const privateLinkHeaders = [
   { key: "Referrer-Policy", value: "no-referrer" },
   { key: "X-Robots-Tag", value: "noindex, nofollow" },
@@ -64,18 +69,40 @@ const nextConfig: NextConfig = {
     : {
         // The project's vercel.app address still answers; send it to the real one.
         async redirects() {
-          return [{ source: "/:path*", has: [{ type: "host", value: "manali-web.vercel.app" }], destination: "https://manali.page/:path*", permanent: true }];
+          return [
+            { source: "/:path*", has: [{ type: "host", value: "manali-web.vercel.app" }], destination: "https://manali.page/:path*", permanent: true },
+            // What Should We Watch is live: its old waitlist address is now wsww.app (a 301, the board's
+            // call). The leave page under it stays on manali.page, where the emails' links point.
+            { source: "/what-should-we-watch{/}?", has: [{ type: "host", value: LIVE_HOSTS }], destination: "https://wsww.app/", statusCode: 301 },
+            // The home page's own path in this deployment is only ever seen as wsww.app's root.
+            { source: "/wsww-app{/}?", has: [{ type: "host", value: LIVE_HOSTS }], destination: "https://wsww.app/", statusCode: 301 },
+          ];
+        },
+        // wsww.app is this same deployment under its own name: its root is the app's home page, and its
+        // legal and support pages are the ones App Store Connect already links to.
+        async rewrites() {
+          return {
+            beforeFiles: [
+              // Its robots.txt keeps crawlers off the links (public/wsww/robots.txt).
+              { source: "/robots.txt", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/robots.txt" },
+              { source: "/", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww-app/" },
+              { source: "/privacy{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/privacy.html" },
+              { source: "/terms{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/terms.html" },
+              { source: "/support{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/support.html" },
+              // Those pages link each other relatively (terms.html, support.html…), which resolves to
+              // /terms.html or /privacy/terms.html here; answer both.
+              { source: "/:page(privacy|terms|support).html", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/:page.html" },
+              { source: "/:from(privacy|terms|support)/:page(privacy|terms|support).html", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/:page.html" },
+            ],
+            afterFiles: [],
+            fallback: [],
+          };
         },
         async headers() {
           return [
             { source: "/(.*)", headers: securityHeaders },
-            { source: "/f/:path*", headers: privateLinkHeaders },
             { source: "/api/links/:path*", headers: privateLinkHeaders },
           ];
-        },
-        // wsww.app is the same deployment as manali.page; its robots.txt keeps crawlers off links.
-        async rewrites() {
-          return { beforeFiles: [{ source: "/robots.txt", has: [{ type: "host", value: "wsww.app" }], destination: "/wsww/robots.txt" }], afterFiles: [], fallback: [] };
         },
       }),
 };

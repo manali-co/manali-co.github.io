@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { CODE, REACTIONS, TOKEN, WEB_ID, type Reaction } from "@/lib/wsww-link";
-import { ipHeader, isManaliHost, WSWW_API } from "@/lib/wsww-link-server";
+import { isManaliHost, LINKS_API, proxyHeaders, WSWW_API } from "@/lib/wsww-link-server";
 
 /* The film link page's two answers, forwarded to the app API (the browser only ever talks to this
    site, like the waitlist): POST /api/links/react {token, reaction, webId} and
    POST /api/links/keep {token, webId}. The token rides in the body both ways, so no request log
    (Vercel's or the API's) ever holds it. Only those fields go on, checked here first; the
-   visitor's IP rides along for the API's per-visitor limits. Never cached, never logged. */
+   visitor's IP rides along for the API's per-visitor limits, with the proxy secret the API requires. Never cached, never logged. */
 
 const PRIVATE = { "cache-control": "no-store", "referrer-policy": "no-referrer", "x-robots-tag": "noindex, nofollow" };
 const reply = (body: unknown, status = 200, extra: Record<string, string> = {}) => NextResponse.json(body, { status, headers: { ...PRIVATE, ...extra } });
@@ -24,9 +24,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ action:
   if (!WSWW_API) return reply({ code: "not_configured" }, 503);
 
   try {
-    const res = await fetch(`${WSWW_API}/v1/links/${action}`, {
+    const res = await fetch(`${LINKS_API}/${action}`, {
       method: "POST",
-      headers: { "content-type": "application/json", ...ipHeader(req.headers) },
+      headers: { "content-type": "application/json", ...proxyHeaders(req.headers) },
       body: JSON.stringify(action === "react" ? { token, reaction, webId } : { token, webId }),
       cache: "no-store",
       signal: AbortSignal.timeout(8000),

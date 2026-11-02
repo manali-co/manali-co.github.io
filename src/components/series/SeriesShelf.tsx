@@ -8,26 +8,29 @@ import { seriesState, useSeriesRead } from "./state";
 /* Ported from the design system (components/series/SeriesCard.jsx and SeriesShelf.jsx). A card per
    series that knows the reader: not started, Start with Part 1; part-way, "Pick up where you left
    off" and Pick up at Part N; all read, caught up. Series the reader is part-way through come
-   first. One series renders wide with its parts beside the pitch; more become a grid. */
+   first. One series renders wide with its parts beside the pitch; more become a grid of compact
+   cards (a two-line pitch, the timeline and one button; the parts list is on the series page). */
 function SeriesCard({ series, read, wide }: { series: SeriesView; read: string[]; wide: boolean }) {
   const s = seriesState(series, undefined, read);
   const target = s.mode === "resume" ? s.resume : s.mode === "start" ? s.first : s.latest;
+  // One part out so far: the series page would only point at it, so every link goes straight there.
+  const only = s.published.length === 1 ? s.published[0].href : undefined;
   const count = `${s.published.length} ${s.published.length === 1 ? "part" : "parts"}${s.soonCount ? `, ${s.soonCount} coming` : ""}`;
   return (
-    <article className={`series-card ${wide ? "series-card--wide" : ""}`}>
-      <div style={{ display: "grid", gap: "var(--space-3)", alignContent: "start", minWidth: 0 }}>
+    <article className={`series-card ${wide ? "series-card--wide" : ""} ${only ? "series-card--direct" : ""}`}>
+      <div className="series-card__pitch">
         <span className="series-mono series-mono--muted"><span style={{ color: "var(--sun)" }}>{s.mode === "resume" ? "Pick up where you left off" : "Series"}</span>{s.mode === "resume" ? "" : ` · ${count}`}</span>
-        <h3 style={{ margin: 0, fontSize: wide ? "var(--text-h2)" : "var(--text-h3)", lineHeight: 1.2 }}><Link href={series.href} className="series-link" style={{ textDecoration: "none" }}>{series.name}</Link></h3>
-        {series.summary && <p style={{ margin: 0, fontSize: "var(--text-md)", lineHeight: "var(--lh-body)", color: "var(--text-2)", maxWidth: "48ch" }}>{series.summary}</p>}
+        <h3 style={{ margin: 0, fontSize: wide ? "var(--text-h2)" : "var(--text-h3)", lineHeight: 1.2 }}><Link href={only || series.href} className="series-link" style={{ textDecoration: "none" }}>{series.name}</Link></h3>
+        {series.summary && <p className="series-card__summary" style={{ margin: 0, fontSize: "var(--text-md)", lineHeight: "var(--lh-body)", color: "var(--text-2)", maxWidth: "48ch" }}>{series.summary}</p>}
         <SeriesTrack parts={s.parts} size="md" style={{ marginTop: 4 }} />
         <div className="series-card__actions">
           {s.mode === "caught" || !target?.href
-            ? <Link className="button button--sm" href={series.href}>All parts</Link>
+            ? <Link className="button button--sm" href={only || series.href}>{only ? "Read again" : "All parts"}</Link>
             : <Link className={`button button--sm ${s.mode === "resume" ? "button--primary" : ""}`} href={target.href}>{s.mode === "resume" ? `Pick up at Part ${target.n}` : "Start with Part 1"}<Icon name="arrow-right" size={14} /></Link>}
-          <span className="series-small series-small--muted">{s.mode === "start" ? (s.latest?.date ? `Latest: ${s.latest.date}` : "") : s.mode === "caught" ? "You're caught up" : `You've read ${s.readCount} of ${s.published.length}`}</span>
+          {wide && <span className="series-small series-small--muted">{s.mode === "start" ? (s.latest?.date ? `Latest: ${s.latest.date}` : "") : s.mode === "caught" ? "You're caught up" : `You've read ${s.readCount} of ${s.published.length}`}</span>}
         </div>
       </div>
-      <ol className="series-card__list">
+      {wide && <ol className="series-card__list">
         {s.parts.map((p) => (
           <li key={p.n}>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-sm)", color: p.state === "read" ? "var(--accent-text)" : "var(--text-3)" }}>{p.n}</span>
@@ -35,7 +38,7 @@ function SeriesCard({ series, read, wide }: { series: SeriesView; read: string[]
             <span className="series-mono" style={{ fontSize: 11, color: p.state === "read" ? "var(--accent-text)" : "var(--text-3)", display: "inline-flex", alignItems: "center", gap: 4 }}>{p.state === "read" ? <><Icon name="check" size={12} />Read</> : p.soon ? "Soon" : ""}</span>
           </li>
         ))}
-      </ol>
+      </ol>}
     </article>
   );
 }

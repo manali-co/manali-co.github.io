@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { APP_STORE_URL, CODE, factsLine, senderName, serviceName, countryName, yearAndRuntime, type FilmLink, type Reaction } from "@/lib/wsww-link";
+import { APP_STORE_URL, CODE, displayCode, factsLine, senderName, serviceName, countryName, yearAndRuntime, type FilmLink, type Reaction } from "@/lib/wsww-link";
 import { DiscAvatar } from "./DiscAvatar";
 import { LinkFrame, LinkUnavailable } from "./LinkStates";
 import "@/styles/wsww-link.css";
@@ -44,7 +44,8 @@ async function answer(token: string, action: "react" | "keep", body: Record<stri
     // The token goes in the body, never in a URL that a request log would keep.
     const res = await fetch(`/api/links/${action}/`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...body, token, webId: webId() }), cache: "no-store" });
     const data = (await res.json().catch(() => ({}))) as { code?: unknown };
-    if (res.ok && typeof data.code === "string" && CODE.test(data.code)) return { ok: true, code: data.code };
+    // Shown and copied as the app shows it (XXXXX-XXXXX); the app reads it with or without the dash.
+    if (res.ok && typeof data.code === "string" && CODE.test(data.code)) return { ok: true, code: displayCode(data.code) };
     if (res.status === 404) return { ok: false, error: "gone" };
     return { ok: false, error: res.status === 429 ? "slow" : "down" };
   } catch {
@@ -172,7 +173,7 @@ export function FilmLinkView({ token, link }: { token: string; link: FilmLink })
           <span className="wsl-micro">{view.copied ? "Your code · copied" : "Your code"}</span>
           <span className="wsl-code-value">{view.code}</span>
           <p className="wsl-code-text">
-            {view.copied ? "It’s on your clipboard and good for 24 hours." : "It’s good for 24 hours."} Get the app, paste or type it on the first screen, and this film is already waiting. Or just tap {name}’s link again once the app is on your phone.
+            {view.copied ? "It’s on your clipboard and good for 15 minutes." : "It’s good for 15 minutes."} Get the app, enter it under Friends › Add a friend › I have a code, and this film is already waiting. Or just tap {name}’s link again once the app is on your phone.
           </p>
         </section>
         <div className="wsl-bottom">
@@ -198,7 +199,7 @@ export function FilmLinkView({ token, link }: { token: string; link: FilmLink })
           <span className="wsl-micro">Keep this in the app · your code</span>
           <span className="wsl-code-value">{code}</span>
           <p className="wsl-code-text">
-            Paste or type it on the app’s first screen and {film.title} is in your Watched list, {view.reaction === "liked" ? "liked, " : ""}with {name} as the one who sent it.
+            Enter it in the app under Friends › Add a friend › I have a code and {film.title} is in your Watched list, {view.reaction === "liked" ? "liked, " : ""}with {name} as the one who sent it.
           </p>
         </section>
         <div className="wsl-bottom">

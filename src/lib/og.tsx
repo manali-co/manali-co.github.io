@@ -14,6 +14,21 @@ async function font(file: string) {
   return readFile(path.join(process.cwd(), "src", "assets", "fonts", file));
 }
 
+/* A post that sets shareImage: that image fills the card, cropped to 1200x630 from the centre. */
+export async function ogFromImage(publicPath: string) {
+  const file = await readFile(path.join(process.cwd(), "public", publicPath));
+  const type = /\.png$/i.test(publicPath) ? "image/png" : "image/jpeg";
+  return new ImageResponse(
+    (
+      <div style={{ width: "100%", height: "100%", display: "flex" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+        <img src={`data:${type};base64,${file.toString("base64")}`} width={OG_SIZE.width} height={OG_SIZE.height} style={{ objectFit: "cover" }} />
+      </div>
+    ),
+    OG_SIZE,
+  );
+}
+
 /* series: the design system's series card (SocialCard kind="series"): a gold "Series" kicker with
    the part count, and the progress line bottom-right, filled for parts out, dashed for coming. */
 /* agent: the post was written by that project's agent; its dot-mark tile sits before the byline. */

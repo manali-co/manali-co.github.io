@@ -6,6 +6,8 @@ import "server-only";
    what the panel shows. */
 const BASE = (process.env.WSWW_API_BASE_URL || "").replace(/\/$/, "");
 const TOKEN = process.env.WSWW_ADMIN_TOKEN || "";
+/* A cold start of the WSWW API has taken over 9s, so reads wait 20s; each admin panel streams on its own. */
+export const READ_TIMEOUT = 20000;
 
 export type WaitlistPlatform = "ios" | "android" | "none";
 /* The "You're in" email, per person: never colour alone on the panel (icon + word). */
@@ -39,7 +41,7 @@ const welcomeOf = (s: string | null | undefined): WelcomeStatus =>
   s === "delivered" ? "delivered" : s === "bounced" ? "bounced" : s === "complained" ? "spam" : s === "sent" || s === "delayed" ? "sent" : "pending";
 
 async function page(after: number): Promise<{ entries: Entry[]; next: number | null; welcome?: Summary }> {
-  const res = await fetch(`${BASE}/v1/waitlist?after=${after}&limit=1000`, { headers: { "x-admin-token": TOKEN }, cache: "no-store", signal: AbortSignal.timeout(8000) });
+  const res = await fetch(`${BASE}/v1/waitlist?after=${after}&limit=1000`, { headers: { "x-admin-token": TOKEN }, cache: "no-store", signal: AbortSignal.timeout(READ_TIMEOUT) });
   if (!res.ok) throw new Error(`waitlist ${res.status}`);
   const body = (await res.json()) as { entries?: Entry[]; next?: number | null; welcome?: Summary };
   return { entries: body.entries || [], next: body.next ?? null, welcome: body.welcome };
@@ -49,6 +51,10 @@ async function page(after: number): Promise<{ entries: Entry[]; next: number | n
 export async function waitlistSummary(now = new Date()): Promise<WaitlistSummary | null> {
   if (!BASE || !TOKEN) return null;
   try {
+    // Who a send would reach right now (dry run: nothing is sent), for the confirm step. Asked
+    // alongside the pages rather than after them, so a cold API is waited on once.
+    const dryRun = fetch(`${BASE}/v1/waitlist/welcome`, { method: "POST", headers: { "x-admin-token": TOKEN, "content-type": "application/json" }, body: JSON.stringify({ dryRun: true }), cache: "no-store", signal: AbortSignal.timeout(READ_TIMEOUT) })
+      .then((r) => (r.ok ? (r.json() as Promise<{ count?: number; sample?: string[]; ready?: boolean }>) : null)).catch(() => null);
     const all: Entry[] = [];
     let summary: Summary = {};
     // At most 100 pages (100,000 people); past that, partial numbers would be wrong numbers.
@@ -79,9 +85,7 @@ export async function waitlistSummary(now = new Date()): Promise<WaitlistSummary
       perDay.push({ day, joins: people.filter((p) => p.joined.slice(0, 10) === day).length });
     }
     const latest = [...people].sort((a, b) => b.position - a.position).slice(0, 10);
-    // Who a send would reach right now (dry run: nothing is sent), for the confirm step.
-    const dry = await fetch(`${BASE}/v1/waitlist/welcome`, { method: "POST", headers: { "x-admin-token": TOKEN, "content-type": "application/json" }, body: JSON.stringify({ dryRun: true }), cache: "no-store", signal: AbortSignal.timeout(8000) })
-      .then((r) => (r.ok ? (r.json() as Promise<{ count?: number; sample?: string[]; ready?: boolean }>) : null)).catch(() => null);
+    const dry = await dryRun;
     const counts: WelcomeCounts = {
       sent: summary.sent ?? 0, delivered: summary.delivered ?? 0, bounced: summary.bounced ?? 0,
       spam: summary.complained ?? 0, left: summary.left ?? 0, pending: dry?.count ?? summary.pending ?? 0,

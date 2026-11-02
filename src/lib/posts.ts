@@ -4,6 +4,7 @@ import matter from "gray-matter";
 import MarkdownIt from "markdown-it";
 import anchor from "markdown-it-anchor";
 import { authors, projectLabel, type Author } from "./site";
+import { webpOf } from "./webp";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 
@@ -12,7 +13,8 @@ const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 const md = new MarkdownIt({ html: false, linkify: true, typographer: true }).use(anchor, {
   permalink: anchor.permalink.headerLink({ safariReaderFix: true }),
 });
-// Images in the body load lazily and never stretch past their own size. An "image" whose file
+// Images in the body load lazily, never stretch past their own size, and come as the lossless
+// .webp beside a .png when there is one (see <Img>). An "image" whose file
 // is .mp4 or .webm becomes a silent, looping clip (a sibling .jpg with the same name is its poster).
 md.renderer.rules.image = (tokens, idx, options, env, self) => {
   const src = String(tokens[idx].attrGet("src") || "");
@@ -24,7 +26,9 @@ md.renderer.rules.image = (tokens, idx, options, env, self) => {
   }
   tokens[idx].attrSet("loading", "lazy");
   tokens[idx].attrSet("decoding", "async");
-  return self.renderToken(tokens, idx, options);
+  const img = self.renderToken(tokens, idx, options);
+  const webp = webpOf(src);
+  return webp ? `<picture class="img-wrap"><source srcset="${md.utils.escapeHtml(webp)}" type="image/webp">${img}</picture>` : img;
 };
 
 // A blockquote whose first words are "Aside:", "Note:" or "Confession:" renders as a callout with
@@ -99,6 +103,11 @@ function check(file: string, data: Record<string, unknown>, slug: string, date: 
     if (!cover.startsWith("/")) fail(`cover "${cover}" must be a site path such as /posts/${slug}/cover.webp (files live under public/)`);
     if (!fs.existsSync(path.join(process.cwd(), "public", cover))) fail(`cover "${cover}" does not exist under public/`);
   }
+  if (data.shareImage !== undefined) {
+    const img = String(data.shareImage);
+    if (!/^\/.+\.(png|jpe?g)$/i.test(img)) fail(`shareImage "${img}" must be a site path to a .png or .jpg (the social card renderer can't read webp)`);
+    if (!fs.existsSync(path.join(process.cwd(), "public", img))) fail(`shareImage "${img}" does not exist under public/`);
+  }
   if (!data.draft && !data.summary) fail("needs a summary (one or two sentences; it is the card text, the feed description and the email preview)");
   if ((data.series === undefined) !== (data.part === undefined)) fail("series and part go together: set both (series: <slug>, part: <number>) or neither");
   if (data.series !== undefined && !SLUG.test(String(data.series))) fail(`series "${String(data.series)}" must be a series slug from content/series/`);
@@ -126,6 +135,9 @@ export type Post = {
   coverText?: string;
   coverVariant?: "type" | "icon" | "mono";
   ask?: string; // one question for readers, shown above the reply box
+  shareImage?: string; // optional: the social card is this image (cropped to 1200x630) instead of the generated one
+  shareTitle?: string; // optional: the title social networks show, when it should differ from the page's
+  shareSummary?: string; // optional: the description social networks show; defaults to summary
   series?: string; // slug of a file in content/series/
   part?: number; // this post's place in that series, from 1
   tags: string[];
@@ -168,6 +180,9 @@ export function getAllPosts({ includeDrafts = false } = {}): Post[] {
       coverText: data.coverText ? String(data.coverText) : undefined,
       coverVariant: data.coverVariant,
       ask: data.ask ? String(data.ask) : undefined,
+      shareImage: data.shareImage ? String(data.shareImage) : undefined,
+      shareTitle: data.shareTitle ? String(data.shareTitle) : undefined,
+      shareSummary: data.shareSummary ? String(data.shareSummary) : undefined,
       series: data.series !== undefined ? String(data.series) : undefined,
       part: data.part !== undefined ? Number(data.part) : undefined,
       tags: Array.isArray(data.tags) ? data.tags.map(String) : [],

@@ -7,12 +7,19 @@ const COPY = {
   "google-play": { live: ["Get it on", "Google Play"], soon: ["Coming to", "Google Play"] },
 } as const;
 
-export type Store = { store: keyof typeof COPY; state: "live" | "soon"; href?: string; badge?: string };
+export type Store = { store: keyof typeof COPY; state: "live" | "soon"; href?: string; badge?: string; badgeDark?: string };
 
-export function StoreButton({ store, state, href, badge }: Store) {
+/* The badge follows the site's theme: the toggle's data-theme when set, the system otherwise
+   (Apple's badge is black on light and white on dark). */
+export function StoreButton({ store, state, href, badge, badgeDark }: Store) {
   const [small, big] = COPY[store][state];
   if (state === "live" && href && badge) {
-    return <a className="store store--badge" href={href} target="_blank" rel="noopener noreferrer" aria-label={`${small} ${big}`}><img src={badge} alt="" height={48} /></a>;
+    return (
+      <a className="store store--badge" href={href} target="_blank" rel="noopener noreferrer" aria-label={`${small} ${big}`}>
+        <img className={badgeDark ? "store__badge-light" : undefined} src={badge} alt="" height={48} />
+        {badgeDark && <img className="store__badge-dark" src={badgeDark} alt="" height={48} />}
+      </a>
+    );
   }
   if (state === "live" && href) {
     return <a className="store" href={href} target="_blank" rel="noopener noreferrer"><span className="store__small">{small}</span><span className="store__big">{big}</span></a>;

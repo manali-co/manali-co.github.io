@@ -5,6 +5,7 @@ import { getProjectPosts } from "@/lib/posts";
 import { projects } from "@/lib/site";
 import { PostCard } from "@/components/PostCard";
 import { StoreButton } from "@/components/StoreButton";
+import { Img } from "@/components/Img";
 import { SeriesShelf } from "@/components/series/SeriesShelf";
 import { getProjectSeries, seriesView } from "@/lib/series";
 import { WsswWaitlist } from "@/components/WsswWaitlist";
@@ -45,7 +46,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
   return (
     <>
       <section className={`page-head page-head--project page-head--${p.well}`}>
-        <img className="page-head__icon" src={p.icon} alt="" width={96} height={96} />
+        <Img className="page-head__icon" src={p.icon} alt="" width={96} height={96} />
         <div>
           <h1 className="page-head__title">{p.name} <span className="card__platform">{p.platform}</span></h1>
           <p className="page-head__lede">{p.blurb}</p>

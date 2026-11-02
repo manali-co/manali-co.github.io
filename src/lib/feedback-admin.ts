@@ -1,4 +1,5 @@
 import "server-only";
+import { READ_TIMEOUT } from "./waitlist-admin";
 
 /* What Should We Watch in-app feedback, for the owner's /admin. Read server-side from the app API's
    operator-only GET /v1/feedback with the same token as the waitlist (WSWW_ADMIN_TOKEN), so the
@@ -30,7 +31,7 @@ const text = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : nul
 export async function adminFeedback(): Promise<FeedbackData> {
   if (!BASE || !TOKEN) return { state: "unconfigured" };
   try {
-    const res = await fetch(`${BASE}/v1/feedback?limit=${FEEDBACK_LIMIT}`, { headers: { "x-admin-token": TOKEN }, cache: "no-store", signal: AbortSignal.timeout(8000) });
+    const res = await fetch(`${BASE}/v1/feedback?limit=${FEEDBACK_LIMIT}`, { headers: { "x-admin-token": TOKEN }, cache: "no-store", signal: AbortSignal.timeout(READ_TIMEOUT) });
     if (res.status === 503) return { state: "unconfigured" };
     if (!res.ok) return { state: "unreachable", error: `HTTP ${res.status}` };
     const body = (await res.json()) as { feedback?: unknown };

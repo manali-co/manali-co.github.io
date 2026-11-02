@@ -36,18 +36,18 @@ wsww.app points at this same Vercel project. It serves what the app's links need
 
 | Path | What |
 |---|---|
-| `/f/<token>` | A film someone sent, for a phone without the app (`src/app/f/[token]`). Server-rendered from the app API's `POST /v1/links/read`; Seen it and Keep it in the app go through `/api/links/react` and `/api/links/keep`, which forward to the API with the visitor's IP. The token rides in request bodies, never in a URL the site or the API would log. |
+| `/f/<token>` | A film someone sent, for a phone without the app (`src/app/f/[token]`). Server-rendered from the app API's `POST /v1/public/links/read`; Seen it and Keep it in the app go through `/api/links/react` and `/api/links/keep`, which forward to `/v1/public/links/react` and `/keep` with the proxy secret and the visitor's IP. A person's browser reaches the page through `src/proxy.ts`; `/add/<token>` still goes to the home page until it has a page. The token rides in request bodies, never in a URL the site or the API would log. |
 | `/f/<token>/card` | The link's preview card, 1200 × 630, text only until the poster licence clears. |
-| `/.well-known/apple-app-site-association` | Universal links for `W6RL988KTP.co.manali.wsww` (`/f/*`, and `/g/*`, `/j/*` for later phases). |
+| `/.well-known/apple-app-site-association` | Universal links for `W6RL988KTP.co.manali.wsww` (`/add/*` and `/f/*`). |
 | `/robots.txt` | wsww.app's own (`public/wsww/robots.txt`): crawlers stay off `/f/`, `/g/`, `/j/`. |
 
-A link is a secret between two people: the pages send no referrer, are never indexed or cached, load no telemetry, and keep nothing but a random id in localStorage (no cookies). `WSWW_API_BASE_URL` picks the API, like the waitlist. `WSWW_WEB_PROXY_SECRET` (Vercel, Production and Preview; the same value as the API's Key Vault `web-proxy-secret` for that environment) goes with the visitor's IP on every API call, so the API gives each visitor their own limits instead of one budget for everyone behind Vercel; without it the API ignores the visitor IP. It never reaches the browser.
+A link is a secret between two people: the pages send no referrer, are never indexed or cached, load no telemetry, and keep nothing but a random id in localStorage (no cookies). `WSWW_API_BASE_URL` picks the API, like the waitlist. `WSWW_WEB_PROXY_SECRET` (Vercel, Production and Preview; the same value as the API's Key Vault `web-proxy-secret` for that environment) goes on every API call as `X-WSWW-Proxy-Secret`: the public link routes answer only with it (403 `proxy_required` without it, and the page shows "Give it a minute and try again."), and it vouches for the visitor's IP (`X-WSWW-Client-IP`), so each visitor gets their own limits. It never reaches the browser.
 
 Run the page against a local API (the app repo's API on 7181, with `WSWW_SOCIAL_ENABLED` on):
 
 ```sh
 WSWW_API_BASE_URL=http://127.0.0.1:7181 npx next dev -p 3107
-# then open http://localhost:3107/f/<token> with a token from POST /v1/sends {asLink: true}
+# then open http://localhost:3107/f/<token> with a token from the app's POST /v1/links {kind: "film"}
 ```
 
 Tests: `npm run build && npx playwright test` runs `e2e/` against a mocked API (`e2e/mock-api.mjs`); CI does the same.

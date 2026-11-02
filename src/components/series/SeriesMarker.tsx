@@ -14,10 +14,13 @@ export function SeriesMarker({ series, current }: { series: SeriesView; current:
   const cur = s.currentPart;
   const first = s.parts[0];
   const offerStart = cur && cur.n > 1 && first && first.state === "unread" && first.href;
+  // "of M" only when M is known: a finished series, or one that announces its next parts. An
+  // open-ended series with nothing announced reads "Part 1", not "Part 1 of 1".
+  const totalKnown = series.complete || series.parts.some((p) => p.soon);
   return (
     <nav aria-label="Series" className="series-marker">
       <div className="series-row">
-        <span className="series-mono series-mono--muted"><span style={{ color: "var(--sun)" }}>Series</span>{cur ? ` · Part ${cur.n} of ${s.total}` : ""}</span>
+        <span className="series-mono series-mono--muted"><span style={{ color: "var(--sun)" }}>Series</span>{cur ? ` · Part ${cur.n}${totalKnown ? ` of ${s.total}` : ""}` : ""}</span>
         <SeriesTrack parts={s.parts} size="sm" />
       </div>
       <Link href={series.href} className="series-marker__name series-link">{series.name}<span className="series-nudge"><Icon name="arrow-right" size={16} /></span></Link>
