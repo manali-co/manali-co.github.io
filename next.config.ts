@@ -43,7 +43,12 @@ const nextConfig: NextConfig = {
   env: { NEXT_PUBLIC_BUILD: process.env.VERCEL_DEPLOYMENT_ID || "" },
   trailingSlash: true,
   // The follow endpoint reads a series title from content/series at request time.
-  outputFileTracingIncludes: { "/api/subscribe": ["./content/series/**"] },
+  // The link preview images (board 20) read their fonts and the app icon at request time.
+  outputFileTracingIncludes: {
+    "/api/subscribe": ["./content/series/**"],
+    "/add/[token]/og.png": ["./src/assets/fonts/Figtree_*.ttf", "./src/assets/fonts/BricolageGrotesque_600SemiBold.ttf", "./public/apps/what-should-we-watch/apple-touch-icon-180.png"],
+    "/f/[token]/og.jpg": ["./src/assets/fonts/Figtree_*.ttf", "./src/assets/fonts/BricolageGrotesque_600SemiBold.ttf", "./public/apps/what-should-we-watch/apple-touch-icon-180.png"],
+  },
   // Links carry the slash; nothing redirects when a URL arrives without one. Social crawlers fetch the
   // generated card URL exactly as written in og:image, and some of them refuse a redirect.
   skipTrailingSlashRedirect: true,
