@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { isPrivateLinkPath } from "@/lib/wsww-link"; // link pages never load telemetry
 
 /* Page views, route changes, client errors and outgoing fetches go to Application Insights
    (the same resource the API reports to), so one workbook shows the whole picture. Loads
@@ -80,9 +81,14 @@ export function Telemetry() {
   const pathname = usePathname();
   useEffect(() => {
     const cs = process.env.NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING;
-    if (!cs || ai || loading) return;
+    if (!cs || ai || loading || isPrivateLinkPath(location.pathname)) return;
     loading = true;
     import("@microsoft/applicationinsights-web").then(({ ApplicationInsights }) => {
+      // The visitor may have reached a link page while the import was loading.
+      if (isPrivateLinkPath(location.pathname)) {
+        loading = false;
+        return;
+      }
       const inst = new ApplicationInsights({
         config: {
           connectionString: cs,
@@ -99,6 +105,8 @@ export function Telemetry() {
       inst.loadAppInsights();
       const clean = (u: unknown) => (typeof u === "string" ? u.split("?")[0].split("#")[0] : u);
       inst.addTelemetryInitializer((item) => {
+        // Nothing at all leaves while a link page is open (its path holds the link's secret).
+        if (isPrivateLinkPath(location.pathname)) return false;
         item.tags = item.tags || {};
         item.tags["ai.cloud.role"] = "manali-web";
         // Query strings carry confirm/unsubscribe tokens; they stay out of telemetry entirely.
@@ -132,7 +140,7 @@ export function Telemetry() {
   useEffect(() => {
     // A throw in this effect would take down the page on every route change. Telemetry never may,
     // and a failed page view must not stop engaged-time tracking for the new page.
-    if (!pathname) return;
+    if (!pathname || isPrivateLinkPath(pathname)) return;
     try { if (ai) ai.trackPageView({ name: document.title, uri: location.origin + location.pathname }); } catch {}
     try { startEngaged(pathname); } catch {}
   }, [pathname]);

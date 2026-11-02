@@ -4,7 +4,8 @@ import { NextRequest } from "next/server";
 import { GET as aasa } from "../app/.well-known/apple-app-site-association/route";
 import proxy, { config } from "../proxy";
 
-/* wsww.app's universal links: the AASA file iOS reads, and the fallback for a phone without the app. */
+/* wsww.app's universal links: the AASA file iOS reads, and what a phone without the app gets: a
+   film link's own page, and the home page for everything else under /add/ and /f/. */
 
 const aasaReq = (host: string) => new Request(`https://${host}/.well-known/apple-app-site-association`, { headers: { host } });
 const req = (url: string) => new NextRequest(url, { headers: { host: new URL(url).host } });
@@ -33,14 +34,42 @@ test("manali.page has no AASA file", () => {
   for (const host of ["manali.page", "www.manali.page", "MANALI.PAGE:443"]) assert.equal(aasa(aasaReq(host)).status, 404, host);
 });
 
-test("wsww.app/add/<token> and /f/<token> go home with a 307, no token or query, never cached", async () => {
+const TOKEN = "Q3v9mT2xK7pLwZ4rN8bYcA"; // 22 characters, like every link the API makes
+
+test("wsww.app/f/<token> reaches the film's page (and its preview card), private: no referrer, noindex, no-store", async () => {
   for (const url of [
-    "https://wsww.app/add/tok_AbC123",
+    `https://wsww.app/f/${TOKEN}`,
+    `https://wsww.app/f/${TOKEN}/`,
+    `https://wsww.app/f/${TOKEN}?utm_source=imessage`,
+    `https://wsww.app/f/${TOKEN}/card`,
+    // A cut-off or mangled link gets the page too, which says the link isn't available.
+    "https://wsww.app/f/tok_AbC123",
+    // Preview deploys and local servers answer the same way, for testing.
+    `https://manali-web-git-feat-wsww-film-links.vercel.app/f/${TOKEN}`,
+    `http://localhost:3000/f/${TOKEN}/`,
+  ]) {
+    const res = await proxy(req(url));
+    assert.ok(res, url);
+    assert.equal(res.status, 200, url);
+    assert.equal(res.headers.get("location"), null, url);
+    assert.equal(res.headers.get("x-middleware-next"), "1", url);
+    assert.equal(res.headers.get("referrer-policy"), "no-referrer", url);
+    assert.equal(res.headers.get("x-robots-tag"), "noindex, nofollow", url);
+    assert.equal(res.headers.get("cache-control"), "no-store", url);
+  }
+});
+
+test("wsww.app/add/<token>, /f/ alone and deeper /f/ paths go home with a 307, no token or query, never cached", async () => {
+  for (const url of [
+    `https://wsww.app/add/${TOKEN}`,
     "https://wsww.app/add/tok_AbC123/",
-    "https://wsww.app/f/tok_AbC123?utm_source=imessage&t=tok_AbC123",
-    "https://wsww.app/f/tok_AbC123/card",
+    `https://wsww.app/add/${TOKEN}?utm_source=imessage&t=${TOKEN}`,
     "https://wsww.app/add",
+    "https://wsww.app/f",
     "https://wsww.app/f/",
+    "https://wsww.app/f/tok_AbC123/card",
+    `https://wsww.app/f/${TOKEN}/other`,
+    `https://wsww.app/f/${TOKEN}/card/x`,
   ]) {
     const res = await proxy(req(url));
     assert.ok(res, url);
@@ -51,7 +80,7 @@ test("wsww.app/add/<token> and /f/<token> go home with a 307, no token or query,
 });
 
 test("the same paths on manali.page fall through to the site (its 404)", async () => {
-  for (const url of ["https://manali.page/add/tok_AbC123", "https://manali.page/f/tok_AbC123/", "https://www.manali.page/f/x"]) {
+  for (const url of ["https://manali.page/add/tok_AbC123", "https://manali.page/f/tok_AbC123/", "https://www.manali.page/f/x", `https://manali.page/f/${TOKEN}`, `https://manali.page/f/${TOKEN}/card`]) {
     assert.equal(await proxy(req(url)), undefined, url);
   }
 });

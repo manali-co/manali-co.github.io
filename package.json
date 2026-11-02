@@ -10,7 +10,8 @@
     "new": "node scripts/new-post.mjs",
     "build:static": "node scripts/static-export.mjs",
     "images": "node scripts/webp.mjs",
-    "test": "tsx --test src/lib/email-suggest.test.ts src/lib/wsww-universal-links.test.ts src/lib/wsww-preview.test.ts"
+    "test": "tsx --test src/lib/email-suggest.test.ts src/lib/wsww-universal-links.test.ts src/lib/wsww-preview.test.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@microsoft/applicationinsights-web": "^3.4.4",
@@ -25,6 +26,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@types/markdown-it": "^14.2.0",
     "@types/node": "^20",
     "@types/pngjs": "6.0.5",

@@ -38,16 +38,27 @@ const WSWW_HOST = "wsww.app";
 // The production names (previews keep every path reachable, for testing).
 const LIVE_HOSTS = "(?:(?:www\\.)?manali\\.page|wsww\\.app)";
 
+/* The film link pages' answer routes (/api/links/react, /keep) carry a link's token: no referrer,
+   never indexed, never cached. Listed after the site-wide headers so these win. The page itself
+   (wsww.app/f/<token>) gets the same three from src/proxy.ts, which sends them only to a person's
+   browser: a messenger's preview fetch of the same URL is cached (site #43). */
+const privateLinkHeaders = [
+  { key: "Referrer-Policy", value: "no-referrer" },
+  { key: "X-Robots-Tag", value: "noindex, nofollow" },
+  { key: "Cache-Control", value: "no-store" },
+];
+
 const nextConfig: NextConfig = {
   /* Baked into the client so StaleTabGuard can tell when a newer deploy is live. */
   env: { NEXT_PUBLIC_BUILD: process.env.VERCEL_DEPLOYMENT_ID || "" },
   trailingSlash: true,
   // The follow endpoint reads a series title from content/series at request time.
-  // The link preview images (board 20) read their fonts and the app icon at request time.
+  // The link preview images (board 20) and the film page's old card read their fonts and the app icon at request time.
   outputFileTracingIncludes: {
     "/api/subscribe": ["./content/series/**"],
     "/add/[token]/og.png": ["./src/assets/fonts/Figtree_*.ttf", "./src/assets/fonts/BricolageGrotesque_600SemiBold.ttf", "./public/apps/what-should-we-watch/apple-touch-icon-180.png"],
     "/f/[token]/og.jpg": ["./src/assets/fonts/Figtree_*.ttf", "./src/assets/fonts/BricolageGrotesque_600SemiBold.ttf", "./public/apps/what-should-we-watch/apple-touch-icon-180.png"],
+    "/f/[token]/card": ["./src/assets/fonts/BricolageGrotesque_600SemiBold.ttf", "./src/assets/fonts/Figtree_*.ttf", "./public/apps/what-should-we-watch/apple-touch-icon-180.png"],
   },
   // Links carry the slash; nothing redirects when a URL arrives without one. Social crawlers fetch the
   // generated card URL exactly as written in og:image, and some of them refuse a redirect.
@@ -74,6 +85,8 @@ const nextConfig: NextConfig = {
         async rewrites() {
           return {
             beforeFiles: [
+              // Its robots.txt keeps crawlers off the links (public/wsww/robots.txt).
+              { source: "/robots.txt", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/robots.txt" },
               { source: "/", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww-app/" },
               { source: "/privacy{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/privacy.html" },
               { source: "/terms{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/terms.html" },
@@ -88,7 +101,10 @@ const nextConfig: NextConfig = {
           };
         },
         async headers() {
-          return [{ source: "/(.*)", headers: securityHeaders }];
+          return [
+            { source: "/(.*)", headers: securityHeaders },
+            { source: "/api/links/:path*", headers: privateLinkHeaders },
+          ];
         },
       }),
 };

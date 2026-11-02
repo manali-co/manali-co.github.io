@@ -1,7 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { OWNER_COOKIE, readSession } from "@/lib/owner-session";
-import { isWswwHost } from "@/lib/wsww-host";
+import { isManaliHost, isWswwHost } from "@/lib/wsww-host";
 import { isPreviewBot } from "@/lib/wsww-preview";
+
+/* A film link page carries a secret (the token) in its address: no referrer leaves it (fonts,
+   posters, the store, the service), it is never indexed and never cached. Set here, not in
+   next.config's headers, so they reach only a person's page (the preview fetchers get their own
+   cacheable answer at the same URL). The answer routes (/api/links/) get theirs in next.config. */
+const PRIVATE_LINK_HEADERS = { "Referrer-Policy": "no-referrer", "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" };
 
 /* Everything is public except the owner's admin area, which needs the owner's GitHub sign-in (a
    signed cookie, see src/lib/owner-session.ts). Without it, /admin sends the visitor to /sign-in. */
@@ -23,11 +29,21 @@ export default async function proxy(req: NextRequest) {
   // A query would make every request a new cache key (and a new render): the image has none.
   if (link?.[3] && link[2]) return req.nextUrl.search ? new NextResponse(null, { status: 404 }) : NextResponse.next();
   if (/^\/(?:add|f)(?:\/|$)/.test(req.nextUrl.pathname)) {
-    if (!isWswwHost(req.headers)) return;
-    if (link?.[2] && !link[3] && isPreviewBot(req.headers.get("user-agent"))) {
+    const wsww = isWswwHost(req.headers);
+    if (wsww && link?.[2] && !link[3] && isPreviewBot(req.headers.get("user-agent"))) {
       // The rewrite drops any query (utm_… from a share sheet), so one link is one cache entry.
       return NextResponse.rewrite(new URL(`/wsww-link-preview/${link[1]}/${link[2]}/`, req.nextUrl.origin));
     }
+    // A person's browser: /f/<token> is the film's own page (src/app/f/[token]); one path segment
+    // reaches it whatever it holds, so a cut-off link gets "This link isn't available." rather than a
+    // silent trip home. /f/<token>/card is its old preview image. /add/<token> has no page yet, and
+    // /f/ alone or any deeper /f/ path, go home below.
+    if (/^\/f\/(?:[^/]+|[A-Za-z0-9_-]{22}\/card)\/?$/.test(req.nextUrl.pathname) && !isManaliHost(req.headers)) {
+      const page = NextResponse.next();
+      for (const [k, v] of Object.entries(PRIVATE_LINK_HEADERS)) page.headers.set(k, v);
+      return page;
+    }
+    if (!wsww) return;
     const res = NextResponse.redirect("https://wsww.app/", 307);
     res.headers.set("Cache-Control", "no-store");
     return res;

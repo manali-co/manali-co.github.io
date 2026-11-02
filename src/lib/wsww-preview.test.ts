@@ -105,16 +105,20 @@ test("preview fetchers are told apart from people", () => {
 
 const req = (url: string, ua: string) => new NextRequest(url, { headers: { host: new URL(url).host, "user-agent": ua } });
 
-test("a preview fetcher reads the link's preview page; a person still goes home", async () => {
+test("a preview fetcher reads the link's preview page; a person gets the film's page, or home for an invite", async () => {
   for (const [path, kind] of [[`/add/${TOKEN}`, "add"], [`/f/${TOKEN}/`, "f"]]) {
     const bot = await proxy(req(`https://wsww.app${path}`, IMESSAGE));
     assert.equal(bot?.headers.get("x-middleware-rewrite"), `https://wsww.app/wsww-link-preview/${kind}/${TOKEN}/`, path);
-    const person = await proxy(req(`https://wsww.app${path}`, SAFARI));
-    assert.equal(person?.status, 307);
-    assert.equal(person?.headers.get("location"), "https://wsww.app/");
   }
+  // A person: an invite still goes home (no add page yet); a film link reaches its page (site #36).
+  const invite = await proxy(req(`https://wsww.app/add/${TOKEN}`, SAFARI));
+  assert.equal(invite?.status, 307);
+  assert.equal(invite?.headers.get("location"), "https://wsww.app/");
+  const film = await proxy(req(`https://wsww.app/f/${TOKEN}/`, SAFARI));
+  assert.equal(film?.headers.get("x-middleware-next"), "1");
+  assert.equal(film?.headers.get("cache-control"), "no-store");
   // Anything that isn't a link's own address goes home for a fetcher too.
-  for (const url of ["https://wsww.app/add", "https://wsww.app/f/short", `https://wsww.app/f/${TOKEN}/card`]) {
+  for (const url of ["https://wsww.app/add", "https://wsww.app/f/"]) {
     assert.equal((await proxy(req(url, WHATSAPP)))?.status, 307, url);
   }
   // On manali.page nothing changes.

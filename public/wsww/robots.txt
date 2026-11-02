@@ -1,0 +1,6 @@
+# wsww.app: film links and invites are private to the people they were sent to.
+User-agent: *
+Disallow: /f/
+Disallow: /g/
+Disallow: /j/
+Disallow: /api/
