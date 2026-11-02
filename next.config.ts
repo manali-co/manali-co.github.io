@@ -53,9 +53,11 @@ const nextConfig: NextConfig = {
   env: { NEXT_PUBLIC_BUILD: process.env.VERCEL_DEPLOYMENT_ID || "" },
   trailingSlash: true,
   // The follow endpoint reads a series title from content/series at request time.
+  // The link preview images (board 20) and the film page's old card read their fonts and the app icon at request time.
   outputFileTracingIncludes: {
     "/api/subscribe": ["./content/series/**"],
-    // The film link preview card reads its fonts and the app icon at request time.
+    "/add/[token]/og.png": ["./src/assets/fonts/Figtree_*.ttf", "./src/assets/fonts/BricolageGrotesque_600SemiBold.ttf", "./public/apps/what-should-we-watch/apple-touch-icon-180.png"],
+    "/f/[token]/og.jpg": ["./src/assets/fonts/Figtree_*.ttf", "./src/assets/fonts/BricolageGrotesque_600SemiBold.ttf", "./public/apps/what-should-we-watch/apple-touch-icon-180.png"],
     "/f/[token]/card": ["./src/assets/fonts/BricolageGrotesque_600SemiBold.ttf", "./src/assets/fonts/Figtree_*.ttf", "./public/apps/what-should-we-watch/apple-touch-icon-180.png"],
   },
   // Links carry the slash; nothing redirects when a URL arrives without one. Social crawlers fetch the
