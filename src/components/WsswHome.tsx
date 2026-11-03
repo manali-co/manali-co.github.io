@@ -142,6 +142,22 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
     const mouth = q<HTMLElement>("[data-mouth]"), face = q<HTMLElement>("[data-narr-face]"), people = q<HTMLElement>("[data-narr-people]");
     const breathe = q<HTMLElement>("[data-narr-breathe]"), group = q<HTMLElement>("[data-narr-discs]");
     const set = (k: string, v: string) => el.style.setProperty(k, v);
+    // Per-frame writes: skipped when unchanged, and set on the section that uses them, so a scroll frame
+    // restyles that section, not the whole page.
+    const last = new Map<string, string>();
+    const put = (node: HTMLElement, k: string, v: string) => { const id = k; if (last.get(id) === v) return; last.set(id, v); node.style.setProperty(k, v); };
+    const putStyle = (node: HTMLElement, k: "transform" | "opacity", v: string, id: string) => { if (last.get(id) === v) return; last.set(id, v); node.style[k] = v; };
+    // Parallax runs on the compositor where the browser supports scroll-driven animations (Chrome 115+,
+    // Safari 26+), so it can't trail a fast fling; elsewhere the scroll loop below drives it.
+    const sda = typeof CSS !== "undefined" && CSS.supports("animation-timeline: scroll()") && CSS.supports("animation-range: cover 0% cover 100%");
+    if (sda) el.dataset.sda = "";
+    for (const p of px) {
+      const wideOnly = p.hasAttribute("data-px-wide");
+      const speed = parseFloat((wideOnly ? p.dataset.pxWide : p.dataset.px) || "1");
+      p.style.setProperty("--k", String(p.dataset.pxFrom === "top" ? 1 - speed : speed - 1));
+    }
+    const progHost = (sec: HTMLElement) => (sec.closest("section") as HTMLElement) || el;
+    const deckHost = progHost(pin);
     const HEAD = 60;
     let pose: Pose | "" = "";
     let sayText = "";
@@ -194,6 +210,23 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
         set(`--dy${i}`, (b.top + b.height / 2 - (a.top + a.height / 2)).toFixed(1) + "px");
         set(`--sc${i}`, (b.height / a.height).toFixed(3));
       }
+      // Compositor parallax: each element's offset is linear in the page's scroll, so its two ends (at the
+      // top and at the bottom of the page) are enough. Measured here, after the pin's height.
+      if (sda) {
+        const max = Math.max(1, document.documentElement.scrollHeight - vh), y = window.scrollY;
+        for (const p of px) {
+          const k = parseFloat(p.style.getPropertyValue("--k"));
+          let ty0 = 0, ty1 = max * k;
+          if (p.dataset.pxFrom !== "top") {
+            const r = p.getBoundingClientRect();
+            const cur = new DOMMatrixReadOnly(getComputedStyle(p).transform === "none" ? undefined : getComputedStyle(p).transform).m42;
+            const c0 = r.top + y - cur + r.height / 2; // its centre on the page, without the parallax
+            ty0 = (c0 - vh / 2) * k; ty1 = (c0 - max - vh / 2) * k;
+          }
+          p.style.setProperty("--ty0", ty0.toFixed(1) + "px");
+          p.style.setProperty("--ty1", ty1.toFixed(1) + "px");
+        }
+      }
     };
 
     // Where a composition's top sits at p = 0 and at p = 1. Phone: wholly on screen, from its bottom just
@@ -212,18 +245,10 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
       const vh = window.innerHeight;
       if (!vh) return;
       const y = window.scrollY;
+      // Reads first, all of them, then writes: a read after a write forces the browser to restyle the page
+      // mid-frame, and on a fast fling that was several full restyles per frame.
       // depth: the discs everywhere; the verdict copy and the room only when wide
-      for (const p of px) {
-        const wideOnly = p.hasAttribute("data-px-wide");
-        if (reduced || (wideOnly && phone)) { p.style.transform = ""; p.dataset.ty = "0"; continue; }
-        const speed = parseFloat((wideOnly ? p.dataset.pxWide : p.dataset.px) || "1");
-        if (p.dataset.pxFrom === "top") { p.style.transform = `translate3d(0, ${(y * (1 - speed)).toFixed(1)}px, 0)`; continue; }
-        const r = p.getBoundingClientRect();
-        const cur = parseFloat(p.dataset.ty || "0");
-        const ty = (r.top + r.height / 2 - cur - vh / 2) * (speed - 1);
-        p.dataset.ty = String(ty);
-        p.style.transform = `translate3d(0, ${ty.toFixed(1)}px, 0)`;
-      }
+      const pxRects = sda || reduced ? null : px.map((p) => (p.dataset.pxFrom === "top" || (p.hasAttribute("data-px-wide") && phone) ? null : p.getBoundingClientRect()));
       const P: Record<string, number> = {};
       for (const sec of progs) {
         const g = geom(sec, vh);
@@ -231,8 +256,24 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
         let p = clamp((g.startTop - top) / (g.startTop - g.endTop || 1), 0, 1);
         if (reduced) p = top < vh * 0.9 ? 1 : 0;
         P[sec.dataset.prog!] = p;
-        set("--p" + sec.dataset.prog, p.toFixed(3));
       }
+      const wr = wrap.getBoundingClientRect(), hr = hero.getBoundingClientRect(), cr = close.getBoundingClientRect(), mr = mark.getBoundingClientRect();
+      const right = el.getBoundingClientRect().right; // the page's own edge, never under a scrollbar
+      let chapter = 0;
+      for (const c of chapters) if (c.getBoundingClientRect().top < vh * 0.55) chapter = Math.max(chapter, Number(c.dataset.chapter));
+      // writes
+      px.forEach((p, i) => {
+        const wideOnly = p.hasAttribute("data-px-wide");
+        if (sda || reduced || (wideOnly && phone)) { putStyle(p, "transform", "", "px" + i); p.dataset.ty = "0"; return; }
+        const k = parseFloat(p.style.getPropertyValue("--k"));
+        if (p.dataset.pxFrom === "top") { putStyle(p, "transform", `translate3d(0, ${(y * k).toFixed(1)}px, 0)`, "px" + i); return; }
+        const r = pxRects![i]!;
+        const cur = parseFloat(p.dataset.ty || "0");
+        const ty = (r.top + r.height / 2 - cur - vh / 2) * k;
+        p.dataset.ty = String(ty);
+        putStyle(p, "transform", `translate3d(0, ${ty.toFixed(1)}px, 0)`, "px" + i);
+      });
+      for (const sec of progs) put(sec.dataset.prog === "2" ? deckHost : progHost(sec), "--p" + sec.dataset.prog, P[sec.dataset.prog!].toFixed(3));
       // the deck: five cards leave in turn over p2 ∈ [0, .8]; the last one opens its trailer over [.8, 1].
       // Reduced motion lands on the open Paddington 2.
       const p2 = P[2] || 0, seg = 0.16;
@@ -240,40 +281,36 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
       for (let k = 0; k < 5; k++) {
         const t = clamp((p2 - k * seg) / seg, 0, 1), te = easeOut(t), d = DIRS[k];
         const idx = Math.max(0, k - p2 / seg);
-        set("--c" + k, t > 0 ? `translate3d(${(d.x * te).toFixed(1)}%, ${(d.y * te).toFixed(1)}%, 0) rotate(${(d.r * te).toFixed(1)}deg)` : `translate3d(0, ${(idx * 10).toFixed(1)}px, 0) scale(${(1 - idx * 0.035).toFixed(3)})`);
-        set("--o" + k, (t > 0.85 ? 1 - (t - 0.85) / 0.15 : 1).toFixed(3));
-        set("--s" + k, clamp(t * 3, 0, 1).toFixed(3));
+        put(deckHost, "--c" + k, t > 0 ? `translate3d(${(d.x * te).toFixed(1)}%, ${(d.y * te).toFixed(1)}%, 0) rotate(${(d.r * te).toFixed(1)}deg)` : `translate3d(0, ${(idx * 10).toFixed(1)}px, 0) scale(${(1 - idx * 0.035).toFixed(3)})`);
+        put(deckHost, "--o" + k, (t > 0.85 ? 1 - (t - 0.85) / 0.15 : 1).toFixed(3));
+        put(deckHost, "--s" + k, clamp(t * 3, 0, 1).toFixed(3));
         bump[d.act] = Math.max(bump[d.act], 4 * t * (1 - t));
       }
       const idx5 = Math.max(0, 5 - p2 / seg);
-      set("--c5", `translate3d(0, ${(idx5 * 10).toFixed(1)}px, 0) scale(${(1 - idx5 * 0.035).toFixed(3)})`);
-      set("--open", clamp((p2 - 0.8) / 0.2, 0, 1).toFixed(3));
-      bump.forEach((b, j) => set("--b" + j, (1 + 0.18 * b).toFixed(3)));
+      put(deckHost, "--c5", `translate3d(0, ${(idx5 * 10).toFixed(1)}px, 0) scale(${(1 - idx5 * 0.035).toFixed(3)})`);
+      put(deckHost, "--open", clamp((p2 - 0.8) / 0.2, 0, 1).toFixed(3));
+      bump.forEach((b, j) => put(deckHost, "--b" + j, (1 + 0.18 * b).toFixed(3)));
       // the narrator: hero → dock → close, a function of position, so scrolling back reverses it exactly.
       // Phone: docks onto the header's mark at 32 and speaks in the header. Wide: 56 under the header, right, with the pill.
-      const wr = wrap.getBoundingClientRect(), hr = hero.getBoundingClientRect(), cr = close.getBoundingClientRect(), mr = mark.getBoundingClientRect();
-      const right = el.getBoundingClientRect().right; // the page's own edge, never under a scrollbar
       const ds = phone ? 32 : 56, s = ds / 120;
       const dock = phone ? { x: mr.left, y: mr.top } : { x: right - 24 - ds, y: HEAD + 14 };
       const dockP = reduced ? (y > 10 ? 1 : 0) : smooth(clamp(y / (vh * 0.45), 0, 1));
       const unP = reduced ? (cr.top < vh * 0.85 ? 1 : 0) : smooth(clamp((vh * 0.85 - cr.top) / (vh * 0.4), 0, 1));
       let X = lerp(hr.left, dock.x, dockP), Y = lerp(hr.top, dock.y, dockP), S = lerp(1, s, dockP);
       X = lerp(X, cr.left, unP); Y = lerp(Y, cr.top, unP); S = lerp(S, 1, unP);
-      n.style.transform = `translate3d(${(X - wr.left).toFixed(1)}px, ${(Y - wr.top).toFixed(1)}px, 0) scale(${S.toFixed(4)})`;
-      let chapter = 0;
-      for (const c of chapters) if (c.getBoundingClientRect().top < vh * 0.55) chapter = Math.max(chapter, Number(c.dataset.chapter));
+      putStyle(n, "transform", `translate3d(${(X - wr.left).toFixed(1)}px, ${(Y - wr.top).toFixed(1)}px, 0) scale(${S.toFixed(4)})`, "narr");
       const next: Pose = unP > 0.5 ? "celebrate" : chapter === 4 ? "split" : chapter === 3 ? "found" : chapter === 2 ? "busy" : chapter === 1 ? "thinking" : "idle";
       if (next !== pose) applyPose(next);
       const docked = dockP > 0.999 && unP < 0.001 && next !== "idle";
-      mark.style.opacity = phone ? (1 - dockP * (1 - unP)).toFixed(3) : "1";
+      putStyle(mark, "opacity", phone ? (1 - dockP * (1 - unP)).toFixed(3) : "1", "markO");
       // under 360 wide there's no room for a line beside the mark and the App Store pill: the wordmark stays
       const headerLine = phone && el.clientWidth >= 360 && docked && !!sayText;
-      word.style.opacity = headerLine ? "0" : "1";
-      headSay.style.opacity = headerLine ? "1" : "0";
-      say.style.opacity = !phone && docked ? "1" : "0";
+      putStyle(word, "opacity", headerLine ? "0" : "1", "wordO");
+      putStyle(headSay, "opacity", headerLine ? "1" : "0", "headSayO");
+      putStyle(say, "opacity", !phone && docked ? "1" : "0", "sayO");
       const shift = next === "split" ? -22 : 0;
-      say.style.transform = `translate3d(${(dock.x - 10 + shift - wr.left).toFixed(1)}px, ${(dock.y + ds / 2 - wr.top).toFixed(1)}px, 0) translate(-100%, -50%)`;
-      wrap.dataset.ready = "1";
+      putStyle(say, "transform", `translate3d(${(dock.x - 10 + shift - wr.left).toFixed(1)}px, ${(dock.y + ds / 2 - wr.top).toFixed(1)}px, 0) translate(-100%, -50%)`, "sayT");
+      if (wrap.dataset.ready !== "1") wrap.dataset.ready = "1";
     };
 
     let raf = 0, relayout = true;
