@@ -108,6 +108,13 @@ body:has(.wh) { background: #17181B; }
 .wh-coral { background: var(--mood-coral); } .wh-lilac { background: var(--mood-lilac); } .wh-lagoon { background: var(--mood-lagoon); }
 .wh-mark { position: relative; display: inline-block; isolation: isolate; flex: none; }
 .wh-px { will-change: transform; }
+/* Parallax on the compositor (scroll-driven animations), so a fast fling can't leave it a frame behind.
+   Each offset is linear in the page's scroll; the scroll loop measures its two ends (--ty0 at the top of
+   the page, --ty1 at the bottom) on layout. The phone skips the wide-only ones, as the loop does. */
+@media (prefers-reduced-motion: no-preference) {
+  .wh[data-sda] [data-px], .wh[data-sda][data-layout="wide"] [data-px-wide] { animation: wh-px linear both; animation-timeline: scroll(root); }
+}
+@keyframes wh-px { from { transform: translate3d(0, var(--ty0, 0px), 0); } to { transform: translate3d(0, var(--ty1, 0px), 0); } }
 
 /* the narrator: one zero-height sticky layer drawn over the hero, corner or close position */
 .wh-narr-wrap { position: sticky; top: 0; height: 0; z-index: 6; pointer-events: none; }
