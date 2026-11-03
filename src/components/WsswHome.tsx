@@ -32,6 +32,19 @@ const REST = [
 ];
 // "#1cozy" and "#2funny" are the hidden twins: where cozy and funny sit in the field before they pour.
 const WORDS: [string, string][] = [["slow burn", "lilac"], ["a mind-bender", "sky"], ["#1cozy", "coral"], ["properly scary", "moss"], ["date night", "lagoon"], ["#2funny", "butter"], ["cry it out", "coral"], ["big laughs", "butter"], ["something true", "moss"]];
+// Add X or TikTok here, with a glyph in SocialGlyph (Claude Design wsww-home v3 socials list).
+const SOCIALS = [
+  { network: "Instagram", handle: "@whatshouldwewatch.app", url: "https://www.instagram.com/whatshouldwewatch.app/" },
+] as const;
+
+function SocialGlyph({ network, size }: { network: string; size: number }) {
+  if (network !== "Instagram") return null;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flex: "none" }}>
+      <rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" />
+    </svg>
+  );
+}
 const SERVICES = ["Netflix", "Max", "Hulu", "Disney+", "Apple TV+", "Prime Video", "Peacock"];
 
 // The deck's flings: direction (% of the card), tilt, and which button swells with it.
@@ -325,6 +338,16 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
       ) : (
         <span className="wh-line">Android? <button type="button" className="wh-link" onClick={() => openAndroid(where)}>Tell me when.</button></span>
       )}
+      {where === "hero" && (
+        <div className="wh-follow">
+          <span>Follow along</span>
+          {SOCIALS.map((s) => (
+            <a key={s.network} href={s.url} target="_blank" rel="noopener" aria-label={`${s.handle} on ${s.network}`} onClick={() => track("wsww_home_social", { where: "hero", network: s.network })}>
+              <SocialGlyph network={s.network} size={15} />{s.handle}
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 
@@ -544,6 +567,12 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
             <a href="/terms/">Terms</a>
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/support/">Support and feedback</a>
+            {SOCIALS.map((s) => (
+              <a key={s.network} className="wh-foot__social" href={s.url} target="_blank" rel="noopener" aria-label={`${s.handle} on ${s.network}`} onClick={() => track("wsww_home_social", { where: "footer", network: s.network })}>
+                <SocialGlyph network={s.network} size={16} />{s.handle}
+              </a>
+            ))}
+            <a href="https://manali.page/blog/project/what-should-we-watch/" target="_blank" rel="noopener">Blog ↗</a>
             <a href="https://manali.page" target="_blank" rel="noopener">Made by Manali ↗</a>
           </nav>
         </div>

@@ -335,7 +335,13 @@ body:has(.wh) { background: #17181B; }
 .wh-foot { border-top: 1px solid var(--color-hairline); padding: 28px clamp(20px, 3cqw, 24px) 40px; }
 .wh-foot__in { max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 32px; }
 .wh-foot__name { display: flex; align-items: center; gap: 10px; font: var(--type-caption); color: var(--color-ink-tertiary); }
-.wh-foot nav { display: flex; flex-wrap: wrap; gap: 8px 24px; font: var(--type-label); color: var(--color-ink-secondary); }
+.wh-foot nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0 24px; font: var(--type-label); color: var(--color-ink-secondary); }
+.wh-foot nav a { min-height: 44px; display: inline-flex; align-items: center; }
+.wh-foot nav a.wh-foot__social { gap: 7px; color: var(--color-ink); overflow-wrap: anywhere; }
+.wh-foot nav a.wh-foot__social:hover { text-decoration: underline; text-underline-offset: 3px; }
+.wh-follow { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 6px; font: var(--type-caption); color: var(--color-ink-tertiary); }
+.wh-follow a { min-height: 44px; display: inline-flex; align-items: center; gap: 6px; color: var(--color-ink-secondary); text-decoration: underline; text-decoration-color: var(--color-hairline-strong); text-underline-offset: 3px; overflow-wrap: anywhere; }
+.wh-follow a:hover { color: var(--color-ink); text-decoration-color: currentColor; }
 .wh-foot nav a:hover, .wh-head a:hover { color: var(--color-ink); }
 
 @media (prefers-reduced-motion: reduce) {
