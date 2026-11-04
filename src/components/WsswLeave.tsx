@@ -3,6 +3,7 @@ import { useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { track } from "./Telemetry";
+import { WSWW } from "@/lib/site";
 import "@/styles/wsww-waitlist.css";
 
 /* Leaving the What Should We Watch waitlist, from the link in the "You're in" email. A 1:1 port of
@@ -99,7 +100,8 @@ export function WsswLeave() {
       <link rel="stylesheet" precedence="default" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600&display=swap" />
       <header className="wl-head">
         <a className="wl-name" href={SITE}>What Should We Watch</a>
-        <div className="wl-soon lv-tag">Coming soon · iOS</div>
+        {/* The app is out (23 Oct 2026), so the design's "Coming soon · iOS" tag now says so and opens the store. */}
+        <a className="wl-soon lv-tag" href={WSWW.appStore} target="_blank" rel="noopener" onClick={() => track("wsww_leave_store")}>On the App Store</a>
       </header>
       <main className="lv-main">
         <section className="lv-stack" data-state={state} key={state}>
