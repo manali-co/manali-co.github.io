@@ -13,7 +13,8 @@ import "@/styles/wsww-waitlist.css";
    help points at the app's support page (manali.page has no inbox for replies yet). */
 
 type State = "ask" | "busy" | "done" | "kept" | "expired" | "error";
-const SITE = "/what-should-we-watch/";
+const SITE = "https://wsww.app/"; // the app's home; the old /what-should-we-watch/ path only redirects there
+const ANDROID_LINE = "https://wsww.app/#android"; // opens the home page's Android line
 const TOKEN = /^wl_[0-9a-f]{64}\.[A-Za-z0-9_-]{8,64}$/;
 
 const INK = "var(--mood-on-fill)";
@@ -45,10 +46,10 @@ const FACE: Record<State, { mood: string; eyes: string; mouth: string; anim?: st
   error: { mood: "deadpan", eyes: "dot", mouth: "line", anim: `lv-shake 480ms ${E} both` },
 };
 const COPY: Record<State, { title: string; body: string; primary?: string; quiet?: string; link?: string; href?: string }> = {
-  ask: { title: "Take me out of line?", body: "This takes your address out of the What Should We Watch waitlist. I forget it and nothing more arrives from me. No hard feelings. Mostly.", primary: "Take me out", quiet: "Actually, keep me in" },
-  busy: { title: "Take me out of line?", body: "This takes your address out of the What Should We Watch waitlist. I forget it and nothing more arrives from me. No hard feelings. Mostly.", primary: "One sec…", quiet: "Actually, keep me in" },
-  done: { title: "You’re out of line.", body: "I won’t email you again. The remote is all yours.", link: "Changed your mind? Get back in.", href: SITE },
-  kept: { title: "Good. You’re staying.", body: "Same deal as before: one email the day it lands, maybe one before. Nothing else.", link: "Tell the people you watch with", href: SITE },
+  ask: { title: "Take me out of line?", body: "This takes your address off the What Should We Watch list. I forget it and nothing more arrives from me. No hard feelings. Mostly.", primary: "Take me out", quiet: "Actually, keep me in" },
+  busy: { title: "Take me out of line?", body: "This takes your address off the What Should We Watch list. I forget it and nothing more arrives from me. No hard feelings. Mostly.", primary: "One sec…", quiet: "Actually, keep me in" },
+  done: { title: "You’re out of line.", body: "I won’t email you again. The remote is all yours.", link: "Changed your mind? Get back in.", href: ANDROID_LINE },
+  kept: { title: "Good. You’re staying.", body: "Same deal: one email the day it’s on Android. Nothing else. On iPhone? It’s already on the App Store.", link: "Tell the people you watch with", href: SITE },
   expired: { title: "That link’s past it.", body: "It expired, or got bent on the way here. Open the newest email from me and use the link there, or write to me and I’ll sort it by hand.", link: "Write to Disco", href: "/wsww/app/support.html" },
   error: { title: "That didn’t go through on my side.", body: "Nothing changed yet. Try again.", primary: "Try again", quiet: "Actually, keep me in" },
 };
