@@ -332,6 +332,17 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
   }, []);
 
   const openAndroid = (where: "hero" | "close") => { setAndroidOpen(where); track("wsww_home_android_open", { where }); };
+  // wsww.app/#android opens the hero's Android line straight away (the Leave page's "Get back in" lands here).
+  useEffect(() => {
+    const onHash = () => {
+      if (window.location.hash !== "#android") return;
+      setAndroidOpen("hero");
+      track("wsww_home_android_open", { where: "link" });
+    };
+    const raf = requestAnimationFrame(onHash);
+    window.addEventListener("hashchange", onHash);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("hashchange", onHash); };
+  }, []);
 
   async function join(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
