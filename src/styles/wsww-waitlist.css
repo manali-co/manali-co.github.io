@@ -63,6 +63,7 @@ body:has(.wl) main#main { max-width: none; padding: 0; margin: 0; }
 .wl-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px; max-width: 1160px; width: 100%; margin: 0 auto; }
 .wl-name { font: 600 17px/1 var(--font-display); letter-spacing: -0.01em; }
 .wl-soon { font: 500 12px/1 var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-ink-tertiary); white-space: nowrap; }
+a.wl-soon:hover { color: var(--color-ink); }
 
 .wl-main { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 56px 72px; align-items: center; align-content: center; max-width: 1160px; width: 100%; margin: 0 auto; padding: 24px 20px 56px; }
 .wl-col { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
