@@ -41,7 +41,7 @@ export const projects = [
   {
     slug: "what-should-we-watch" as const,
     name: "What Should We Watch",
-    platform: "iOS",
+    platform: "iOS · Android",
     status: "live" as const,
     statusLabel: "on the App Store",
     blurb:
@@ -53,9 +53,9 @@ export const projects = [
     // The app's own home. manali.page/what-should-we-watch/ redirects there (next.config.ts).
     home: WSWW.home,
     noBuild: "",
-    /* Apple's and Google's own badge artwork (both require it). Google Play stays "soon" until Android ships. */
+    /* Apple's and Google's own badge artwork (both require it). Google Play stays "soon" (shown as "Android in testing") until Android ships. Black in both themes, since Google's badge only comes in black. */
     stores: [
-      { store: "app-store" as const, state: "live" as const, href: WSWW.appStore, badge: "/brand/app-store-badge-black.svg", badgeDark: "/brand/app-store-badge-white.svg" },
+      { store: "app-store" as const, state: "live" as const, href: WSWW.appStore, badge: "/brand/app-store-badge-black.svg" },
       { store: "google-play" as const, state: "soon" as const, href: "", badge: "" },
     ],
   },

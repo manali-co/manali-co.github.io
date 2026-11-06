@@ -24,5 +24,7 @@ export function StoreButton({ store, state, href, badge, badgeDark }: Store) {
   if (state === "live" && href) {
     return <a className="store" href={href} target="_blank" rel="noopener noreferrer"><span className="store__small">{small}</span><span className="store__big">{big}</span></a>;
   }
+  // Android is in testing: no store to point at, so no store-shaped button (design: manali.page card).
+  if (store === "google-play") return <span style={{ font: "500 13px/18px var(--font-body)", color: "var(--text-2)", alignSelf: "center" }}>Android in testing</span>;
   return <span className="store store--soon" aria-disabled="true"><span className="store__small">{small}</span><span className="store__big">{big}</span></span>;
 }

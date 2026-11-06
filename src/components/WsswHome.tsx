@@ -384,7 +384,7 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
           <span id={`wh-note-${where}`} className={`wh-note${error ? " wh-note--err" : ""}`}>{error || (waiting > 0 ? count : "")}</span>
         </>
       ) : (
-        <span className="wh-line">Android? <button type="button" className="wh-link" onClick={() => openAndroid(where)}>Tell me when.</button></span>
+        <span className="wh-line">Android is in testing. <button type="button" className="wh-link" onClick={() => openAndroid(where)}>Tell me when it’s out.</button></span>
       )}
       {where === "hero" && (
         <div className="wh-follow">
@@ -442,7 +442,7 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
         <span data-px="0.25" data-px-from="top" aria-hidden="true" className="wh-disc wh-lilac wh-px wh-hero__d3" />
         <div className="wh-hero__col">
           <span data-hero-disco className="wh-slot" />
-          <span className="wh-micro">For iPhone · an app by Manali</span>
+          <span className="wh-micro">For iPhone · Android in testing · by Manali</span>
           <h1 className="wh-h1">What should we watch?</h1>
           <p className="wh-sub">Pick a mood or two. I find ten films that are on your services tonight. You swipe. One verdict.</p>
           {get("hero")}
@@ -611,6 +611,8 @@ export function WsswHome({ storeUrl }: { storeUrl: string }) {
           <nav aria-label="What Should We Watch">
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/privacy/">Privacy</a>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a href="/delete/">Delete your account</a>
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/terms/">Terms</a>
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}

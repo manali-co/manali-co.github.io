@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Delete your account · What Should We Watch</title>
+  <meta name="description" content="How to delete your What Should We Watch account and the data that goes with it, with the app or without it.">
+  <link rel="canonical" href="https://wsww.app/delete">
+  <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&amp;family=Inter:wght@400;500;600&amp;display=swap">
+  <style>
+    :root {
+      --bg: #F7F5EE; --bg-raised: #FFFFFF; --bg-sunken: #EFEBDF;
+      --text: #23224A; --text-2: #55547A; --text-3: #676682; /* 5.1:1 on the paper ground; #84839E was 3.4:1 */
+      --accent: #5B63C7; --accent-tint: #EEEFFA; --sun: #F2B84B; --sun-tint: #FDF3DC;
+      --border: #E3DFD2; --border-strong: #CFCABA;
+      --link: #5B63C7; --link-hover: #2C2B6B; --focus-ring: #5B63C7; --selection: #FBE7B8; --selection-text: #23224A;
+      --font-display: "Comfortaa", ui-rounded, system-ui, sans-serif;
+      --font-body: "Inter", system-ui, -apple-system, sans-serif;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0C0C12; --bg-raised: #16161F; --bg-sunken: #08080C;
+        --text: #F7F5EE; --text-2: #B4B3C6; --text-3: #7F7E94;
+        --accent: #9AA0EA; --accent-tint: rgba(154, 160, 234, 0.14); --sun-tint: rgba(242, 184, 75, 0.16);
+        --border: rgba(247, 245, 238, 0.1); --border-strong: rgba(247, 245, 238, 0.2);
+        --link: #9AA0EA; --link-hover: #F7F5EE; --focus-ring: #F2B84B; --selection: rgba(242, 184, 75, 0.45); --selection-text: #FFFFFF;
+        color-scheme: dark;
+      }
+    }
+    html { -webkit-text-size-adjust: 100%; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-wrap: break-word; }
+    ::selection { background: var(--selection); color: var(--selection-text); }
+    a { color: var(--link); text-underline-offset: 3px; text-decoration-color: var(--border-strong); }
+    a:hover { color: var(--link-hover); text-decoration-color: currentColor; }
+    :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-radius: 8px; }
+    h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; text-wrap: balance; }
+    .wrap { max-width: calc(680px + 48px); margin: 0 auto; padding: 0 24px; }
+    .nav { border-bottom: 1px solid var(--border); }
+    .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; min-height: 64px; padding-top: 8px; padding-bottom: 8px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+    .brand img { width: 32px; height: 32px; }
+    .brand:hover { color: var(--text); }
+    .links { display: flex; gap: 4px; flex-wrap: wrap; }
+    .links a { font-size: 14px; font-weight: 500; color: var(--text-2); padding: 6px 12px; border-radius: 999px; text-decoration: none; }
+    .links a:hover { background: var(--accent-tint); color: var(--text); }
+    .links a[aria-current="page"] { color: var(--text); background: var(--accent-tint); }
+    main { padding: 48px 0 96px; }
+    .kicker { font-size: 14px; color: var(--text-3); margin: 0 0 12px; }
+    h1 { font-size: 40px; line-height: 1.1; }
+    .lede { font-size: 18px; color: var(--text-2); margin: 16px 0 0; }
+    .meta { font-size: 14px; color: var(--text-3); margin: 12px 0 0; }
+    .note { margin: 32px 0 0; padding: 16px 20px; background: var(--sun-tint); border-left: 3px solid var(--sun); border-radius: 0 12px 12px 0; }
+    .note h2 { font-size: 18px; margin: 0 0 8px; }
+    .note ul { margin: 0; }
+    .prose { font-size: 17px; line-height: 1.7; }
+    .prose h2 { font-size: 24px; line-height: 1.3; margin: 48px 0 12px; }
+    .prose h3 { font-size: 19px; line-height: 1.3; margin: 32px 0 8px; }
+    .prose p { margin: 12px 0 0; }
+    .prose ul, .prose ol { padding-left: 24px; margin: 12px 0 0; }
+    .prose li + li { margin-top: 6px; }
+    .prose strong { font-weight: 600; }
+    footer { border-top: 1px solid var(--border); padding: 24px 0 48px; font-size: 14px; color: var(--text-3); }
+    footer p { margin: 4px 0; }
+    @media (max-width: 640px) { .wrap { padding: 0 16px; } main { padding: 32px 0 64px; } h1 { font-size: 32px; } .prose h2 { font-size: 22px; } }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap">
+      <a class="brand" href="https://manali.page/"><img src="/brand/mark-color.svg" alt="" width="32" height="32">Manali</a>
+      <nav class="links" aria-label="What Should We Watch">
+        <a href="support.html">Support</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class="wrap">
+      <p class="kicker">What Should We Watch · an app by Manali</p>
+      <h1>Delete your account</h1>
+      <p class="lede">How to delete your What Should We Watch account and the data that goes with it, with the app or without it.</p>
+
+      <div class="prose">
+        <h2 id="in-the-app">In the app</h2>
+        <ol>
+          <li>Open What Should We Watch and tap <strong>You</strong>.</li>
+          <li>Tap your name, or <strong>Account</strong>.</li>
+          <li>Tap <strong>Delete account</strong>.</li>
+          <li>Type <strong>DELETE</strong> and confirm.</li>
+        </ol>
+
+        <h2 id="without-the-app">Without the app</h2>
+        <p>Email <a href="mailto:wsww.app@gmail.com?subject=Delete%20my%20account">wsww.app@gmail.com</a> from the address on your account and ask us to delete it. If you signed in with Apple&rsquo;s Hide My Email, tell us your relay address and we&rsquo;ll confirm it&rsquo;s yours by writing to it first.</p>
+
+        <h2 id="deleted">What&rsquo;s deleted</h2>
+        <p>Your account, and the data on our servers that goes with it:</p>
+        <ul>
+          <li>your decisions</li>
+          <li>your watched history</li>
+          <li>your taste notes</li>
+          <li>your Friends activity</li>
+          <li>feedback you sent from the app</li>
+        </ul>
+        <p>It is deleted permanently within 60 days.</p>
+
+        <h2 id="kept">What isn&rsquo;t</h2>
+        <p>Our diagnostic logs don&rsquo;t include your name or email. They are kept only as long as we need them to run and improve the app.</p>
+
+        <h2 id="guests">Used it as a guest?</h2>
+        <p>Guests have no account. Logging out clears the app&rsquo;s data from your phone. What you swiped stays on our servers under a random identifier that isn&rsquo;t linked to your name or email, so we can&rsquo;t find it to delete it.</p>
+
+        <h2 id="questions">Questions</h2>
+        <p>Email <a href="mailto:wsww.app@gmail.com">wsww.app@gmail.com</a>. More detail is in our <a href="privacy.html">Privacy Policy</a>.</p>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="wrap">
+      <p>What Should We Watch is an app by <a href="https://manali.page/">Manali</a>.</p>
+      <p><a href="support.html">Support</a> · <a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Use</a></p>
+    </div>
+  </footer>
+</body>
+</html>

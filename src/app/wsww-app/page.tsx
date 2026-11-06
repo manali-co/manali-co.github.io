@@ -7,7 +7,7 @@ import { WSWW } from "@/lib/site";
 
 const TITLE = "What Should We Watch";
 const DESCRIPTION =
-  "Pick a mood or two and get ten films that are on your services tonight. Swipe, and get one verdict. Free on the App Store for iPhone.";
+  "Pick a mood or two and get ten films that are on your services tonight. Swipe, and get one verdict. Free on the App Store for iPhone; Android is in testing.";
 const ICONS = "/apps/what-should-we-watch";
 
 export const metadata: Metadata = {
