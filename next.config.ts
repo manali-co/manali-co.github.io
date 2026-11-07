@@ -78,6 +78,7 @@ const nextConfig: NextConfig = {
             { source: "/what-should-we-watch{/}?", has: [{ type: "host", value: LIVE_HOSTS }], destination: "https://wsww.app/", statusCode: 301 },
             // The home page's own path in this deployment is only ever seen as wsww.app's root.
             { source: "/wsww-app{/}?", has: [{ type: "host", value: LIVE_HOSTS }], destination: "https://wsww.app/", statusCode: 301 },
+            { source: "/wsww-android{/}?", has: [{ type: "host", value: LIVE_HOSTS }], destination: "https://wsww.app/android", statusCode: 301 },
           ];
         },
         // wsww.app is this same deployment under its own name: its root is the app's home page, and its
@@ -92,6 +93,8 @@ const nextConfig: NextConfig = {
               { source: "/terms{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/terms.html" },
               { source: "/support{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/support.html" },
               { source: "/delete{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/delete.html" },
+              // The Android closed test's sign-up: Instagram's story sticker and bio link open it.
+              { source: "/android{/}?", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww-android/" },
               // Those pages link each other relatively (terms.html, support.html…), which resolves to
               // /terms.html or /privacy/terms.html here; answer both.
               { source: "/:page(privacy|terms|support|delete).html", has: [{ type: "host", value: WSWW_HOST }], destination: "/wsww/app/:page.html" },
